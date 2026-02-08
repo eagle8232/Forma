@@ -11,4 +11,5 @@ protocol UserRepositoryProtocol {
     func fetchUser() async throws -> User
     func saveUser(_ user: User) async throws
     func deleteUser(_ user: User) async throws
+    func updateUser(_ user: User) async throws
 }
