@@ -9,6 +9,7 @@
 // MARK: - Word "Reimagined" will be changed every 3 secs to another word -
 
 import UIKit
+import GoogleSignIn
 
 class ViewController: UIViewController {
     
@@ -17,8 +18,11 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .backgroundPrimary
+        showWaveAnimation()
+    }
+    
+    private func showWaveAnimation() {
         
-        // Create wave view
         waveView = WavedLineView(frame: CGRect(
             x: 0,
             y: 200,
@@ -30,5 +34,6 @@ class ViewController: UIViewController {
         
         waveView.animateStroke()
     }
+    
     
 }

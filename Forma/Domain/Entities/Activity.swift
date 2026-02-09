@@ -8,7 +8,7 @@
 import Foundation
 
 struct Activity: Identifiable {
-    let id: UUID = UUID()
+    let id: String
     var name: String
     var desciption: String
     var startTime: Date

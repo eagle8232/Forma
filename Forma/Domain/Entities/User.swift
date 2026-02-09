@@ -7,13 +7,18 @@
 
 import Foundation
 
-struct User: Identifiable {
+struct UserCredentials: Identifiable {
     let id: String
     var name: String
     var email: String
+}
+
+struct User {
+    var userCredentials: UserCredentials
     var profession: String
-    var sleepTime: String
-    var wakeUpTime: String
-    var focusTime: String
+    var sleepTime: Date
+    var wakeUpTime: Date
+    var focusTime: Date
     var goal: String
+    let isAnonymous: Bool
 }

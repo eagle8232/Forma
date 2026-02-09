@@ -8,7 +8,7 @@
 import Foundation
 
 protocol FetchRoutinesUseCaseProtocol {
-    func execute() async throws -> [Routine]
+    func execute(userId: String) async throws -> [Routine]
 }
 
 final class FetchRoutinesUseCase: FetchRoutinesUseCaseProtocol {
@@ -19,9 +19,9 @@ final class FetchRoutinesUseCase: FetchRoutinesUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute() async throws -> [Routine] {
+    func execute(userId: String) async throws -> [Routine] {
         
-        let routines = try await repository.fetchRoutines()
+        let routines = try await repository.fetchRoutines(userId: userId)
         return routines.sorted{ $0.startTime < $1.startTime }
     }
     
