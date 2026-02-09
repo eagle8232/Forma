@@ -20,6 +20,6 @@ class DeleteUserAuthUseCase: DeleteUserAuthUseCaseProtocol {
     }
     
     func execute() async throws {
-        try repository.deleteUser()
+        try await repository.deleteUser()
     }
 }

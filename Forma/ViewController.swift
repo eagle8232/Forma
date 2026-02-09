@@ -35,5 +35,4 @@ class ViewController: UIViewController {
         waveView.animateStroke()
     }
     
-    
 }

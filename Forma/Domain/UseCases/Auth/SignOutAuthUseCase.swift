@@ -20,6 +20,6 @@ class SignOutAuthUseCase: SignOutAuthUseCaseProtocol {
     }
     
     func execute() async throws {
-        try repository.signOut()
+        try await  repository.signOut()
     }
 }

@@ -11,5 +11,4 @@ protocol ActivityRepositoryProtocol {
     func fetchActivities(with id: String) async throws -> [Activity]
     func saveActivity(_ activity: Activity) async throws
     func deleteActivity(_ activity: Activity) async throws
-    func updateActivity(_ activity: Activity) async throws
 }

@@ -13,4 +13,5 @@ struct Activity: Identifiable {
     var desciption: String
     var startTime: Date
     var endTime: Date
+    var isCompleted: Bool
 }

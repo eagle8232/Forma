@@ -8,5 +8,7 @@
 import Foundation
 
 enum FirestorePathNames: String {
+    case users
     case routines
+    case preferences
 }

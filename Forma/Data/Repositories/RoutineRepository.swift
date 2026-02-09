@@ -16,9 +16,9 @@ final class RoutineRepository: RoutineRepositoryProtocol {
         
         let snap =
         try await db
-            .collection("users")
+            .collection(FirestorePathNames.users.rawValue)
             .document(userId)
-            .collection("routines")
+            .collection(FirestorePathNames.routines.rawValue)
             .getDocuments()
         
         guard let fetchedDocument = snap.documents.first else {
@@ -37,9 +37,9 @@ final class RoutineRepository: RoutineRepositoryProtocol {
         for routine in routines {
             let routineDTO = routine.toDTO()
             try db
-                .collection("users")
+                .collection(FirestorePathNames.users.rawValue)
                 .document(userId)
-                .collection("routines")
+                .collection(FirestorePathNames.routines.rawValue)
                 .document(routine.id)
                 .setData(from: routineDTO)
         }
@@ -49,9 +49,9 @@ final class RoutineRepository: RoutineRepositoryProtocol {
     func deleteRoutine(_ routine: Routine, userId: String) async throws {
         
         try await db
-            .collection("users")
+            .collection(FirestorePathNames.users.rawValue)
             .document(userId)
-            .collection("routines")
+            .collection(FirestorePathNames.routines.rawValue)
             .document(routine.id).delete()
         
     }

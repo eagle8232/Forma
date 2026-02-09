@@ -15,7 +15,8 @@ extension ActivityDTO {
             name: self.name ?? "No name",
             desciption: self.desciption ?? "No description",
             startTime: self.startTime ?? Date(),
-            endTime: self.endTime ?? Date()
+            endTime: self.endTime ?? Date(),
+            isCompleted: self.isCompleted ?? false
         )
     }
 }
@@ -28,7 +29,8 @@ extension Activity {
             name: self.name,
             desciption: self.desciption,
             startTime: self.startTime,
-            endTime: self.endTime
+            endTime: self.endTime,
+            isCompleted: self.isCompleted
         )
     }
 }

@@ -16,6 +16,6 @@ enum AuthProvider {
 protocol AuthRepositoryProtocol {
     func signIn(with authProvider: AuthProvider) async throws -> UserCredentials?
     func signUp(with authProvider: AuthProvider) async throws -> UserCredentials?
-    func signOut() throws
-    func deleteUser() throws
+    func signOut() async throws
+    func deleteUser() async throws
 }

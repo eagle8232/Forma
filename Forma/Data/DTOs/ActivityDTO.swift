@@ -13,6 +13,7 @@ struct ActivityDTO: Codable {
     var desciption: String?
     var startTime: Date?
     var endTime: Date?
+    var isCompleted: Bool?
     
     enum CodingKeys: CodingKey {
         case id
@@ -20,5 +21,6 @@ struct ActivityDTO: Codable {
         case desciption
         case startTime
         case endTime
+        case isCompleted
     }
 }

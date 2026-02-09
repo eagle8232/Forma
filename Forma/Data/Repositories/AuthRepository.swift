@@ -50,15 +50,15 @@ final class AuthRepository: AuthRepositoryProtocol {
     
     // - Sign Out
     
-    func signOut() throws {
+    func signOut() async throws {
         try Auth.auth().signOut()
     }
     
     // - Delete User
     
-    func deleteUser() throws {
+    func deleteUser() async throws {
         guard let currentUser = Auth.auth().currentUser else {return}
-        currentUser.delete()
+        try await currentUser.delete()
     }
     
     // - MARK: Fileprivate functions
@@ -80,7 +80,14 @@ final class AuthRepository: AuthRepositoryProtocol {
         case .anonymous:
             return try await Auth.auth().signInAnonymously()
         }
-        
+    }
+    
+    fileprivate func mapAuthError(_ error: Error) -> AuthError {
+        let nsError = error as NSError
+        // Map specific Firebase error codes here
+        if nsError.code == 17008 { return .invalidEmail }
+        // ... other codes
+        return .unknown
     }
     
 }
