@@ -11,33 +11,39 @@ struct UserCredentialsDTO: Codable {
     let id: String?
     var name: String?
     var email: String?
+    var isAnonymous: Bool?
     
     enum CodingKeys: CodingKey {
         case id
         case name
         case email
+        case isAnonymous
     }
 }
 
-
-struct UserDTO: Codable {
-    var userCredentials: UserCredentialsDTO?
+struct UserPreferencesDTO: Codable {
     var profession: String?
     var sleepTime: Date?
     var wakeUpTime: Date?
     var focusTime: Date?
     var goal: String?
-    var routines: [RoutineDTO]?
-    let isAnonymous: Bool?
     
     enum CodingKeys: CodingKey {
-        case userCredentials
         case profession
         case sleepTime
         case wakeUpTime
         case focusTime
         case goal
-        case routines
-        case isAnonymous
+    }
+}
+
+
+struct UserDTO: Codable {
+    var credentials: UserCredentialsDTO?
+    var preferences: UserPreferencesDTO?
+    
+    enum CodingKeys: CodingKey {
+        case credentials
+        case preferences
     }
 }

@@ -10,29 +10,17 @@ import Foundation
 extension UserDTO {
     func toEntity() -> User{
         return User(
-            userCredentials: self.userCredentials?.toEntity() ?? .mockData,
-            profession: self.profession ?? "No profession",
-            sleepTime: self.sleepTime ?? Date(),
-            wakeUpTime: self.wakeUpTime ?? Date(),
-            focusTime: self.focusTime ?? Date(),
-            goal: self.goal ?? "No goal",
-            routines: self.routines?.map{$0.toEntity()} ?? Routine.allMocks,
-            isAnonymous: self.isAnonymous ?? false
+            credentials: self.credentials?.toEntity() ?? .mockCredentialData,
+            preferences: self.preferences?.toEntity() ?? .mockPreferencesData
         )
     }
 }
 
 extension User {
-    func toDTO() -> UserDTO{
+    func toDTO() -> UserDTO {
         return UserDTO(
-            userCredentials: self.userCredentials.toDTO(),
-            profession: self.profession,
-            sleepTime: self.sleepTime,
-            wakeUpTime: self.wakeUpTime,
-            focusTime: self.focusTime,
-            goal: self.goal,
-            routines: self.routines.map {$0.toDTO()},
-            isAnonymous: self.isAnonymous
+            credentials: self.credentials.toDTO(),
+            preferences: self.preferences.toDTO()
         )
     }
 }
@@ -44,7 +32,8 @@ extension UserCredentialsDTO {
         return UserCredentials(
             id: self.id ?? "No id",
             name: self.name ?? "No name",
-            email: self.email ?? "No email"
+            email: self.email ?? "No email",
+            isAnonymous: self.isAnonymous ?? false
         )
     }
 }
@@ -55,6 +44,30 @@ extension UserCredentials {
             id: self.id,
             name: self.name ,
             email: self.email
+        )
+    }
+}
+
+extension UserPreferencesDTO {
+    func toEntity() -> UserPreferences {
+        return UserPreferences(
+            profession: self.profession ?? "No profession",
+            sleepTime: self.sleepTime ?? Date(),
+            wakeUpTime: self.wakeUpTime ?? Date(),
+            focusTime: self.focusTime ?? Date(),
+            goal: self.goal ?? "No goal"
+        )
+    }
+}
+
+extension UserPreferences {
+    func toDTO() -> UserPreferencesDTO {
+        return UserPreferencesDTO(
+            profession: self.profession,
+            sleepTime: self.sleepTime,
+            wakeUpTime: self.wakeUpTime,
+            focusTime: self.focusTime,
+            goal: self.goal
         )
     }
 }

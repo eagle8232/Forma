@@ -12,6 +12,8 @@ import GoogleSignIn
 
 final class AuthRepository: AuthRepositoryProtocol {
     
+    fileprivate var isAnonymous: Bool = false // - It is false by default
+    
     // - Sign In
     
     func signIn(with authProvider: AuthProvider) async throws -> UserCredentials? {
@@ -24,7 +26,8 @@ final class AuthRepository: AuthRepositoryProtocol {
         let userCredentials = UserCredentials(
             id: result.user.uid,
             name: result.user.displayName ?? "Unknown name",
-            email: result.user.email ?? "Unknown name"
+            email: result.user.email ?? "Unknown name",
+            isAnonymous: isAnonymous
         )
         
         return userCredentials
@@ -42,7 +45,8 @@ final class AuthRepository: AuthRepositoryProtocol {
         let userCredentials = UserCredentials(
             id: result.user.uid,
             name: result.user.displayName ?? "Unknown name",
-            email: result.user.email ?? "Unknown name"
+            email: result.user.email ?? "Unknown name",
+            isAnonymous: isAnonymous
         )
         
         return userCredentials
@@ -78,6 +82,7 @@ final class AuthRepository: AuthRepositoryProtocol {
             return try await Auth.auth().signIn(with: credential)
             
         case .anonymous:
+            isAnonymous = true
             return try await Auth.auth().signInAnonymously()
         }
     }

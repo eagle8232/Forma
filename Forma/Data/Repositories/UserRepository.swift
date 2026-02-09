@@ -33,7 +33,7 @@ final class UserRepository: UserRepositoryProtocol {
         let userDTO = user.toDTO()
         let collection = db
             .collection(FirestorePathNames.users.rawValue)
-            .document(user.userCredentials.id)
+            .document(user.credentials.id)
             .collection(FirestorePathNames.preferences.rawValue)
         try collection.addDocument(from: userDTO)
     }
@@ -42,6 +42,6 @@ final class UserRepository: UserRepositoryProtocol {
         
         try await db
             .collection(FirestorePathNames.users.rawValue)
-            .document(user.userCredentials.id).delete()
+            .document(user.credentials.id).delete()
     }
 }

@@ -11,45 +11,47 @@ struct UserCredentials: Identifiable {
     let id: String
     var name: String
     var email: String
+    var isAnonymous: Bool
 }
 
-struct User {
-    var userCredentials: UserCredentials
+struct UserPreferences {
     var profession: String
     var sleepTime: Date
     var wakeUpTime: Date
     var focusTime: Date
     var goal: String
-    var routines: [Routine]
-    let isAnonymous: Bool
+}
+
+struct User {
+    var credentials: UserCredentials
+    var preferences: UserPreferences
 }
 
 // MARK: - Mock Data
 
 extension UserCredentials {
     
-    static let mockData = UserCredentials(id: UUID().uuidString,
-                                                    name: "Vusal",
-                                                    email: "vusunuriyev@gmail.com")
+    static let mockCredentialData = UserCredentials(id: UUID().uuidString,
+                                          name: "Vusal",
+                                          email: "vusunuriyev@gmail.com",
+                                          isAnonymous: false)
+}
+
+extension UserPreferences {
+    
+    static let mockPreferencesData = UserPreferences(
+        profession: "iOS Developer",
+        sleepTime: DateHelper.today(at: 23, min: 0), // 11:00 PM
+        wakeUpTime: DateHelper.today(at: 7, min: 0), // 07:00 AM
+        focusTime: DateHelper.today(at: 9, min: 30), // 09:30 AM
+        goal: "Build 3 income streams",
+    )
 }
 
 extension User {
     
-    static let mock = User(
-        userCredentials: UserCredentials(
-            id: "123",
-            name: "Ali", 
-            email: "ali@forma.app"
-        ),
-        profession: "iOS Developer",
-        
-        // Using helper to set specific times for TODAY
-        sleepTime: DateHelper.today(at: 23, min: 0), // 11:00 PM
-        wakeUpTime: DateHelper.today(at: 7, min: 0), // 07:00 AM
-        focusTime: DateHelper.today(at: 9, min: 30), // 09:30 AM
-        
-        goal: "Build 3 income streams",
-        routines: Routine.allMocks,
-        isAnonymous: false
+    static let mockUserData = User(
+        credentials: .mockCredentialData,
+        preferences: .mockPreferencesData,
     )
 }

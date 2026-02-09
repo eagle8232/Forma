@@ -8,19 +8,47 @@
 import Foundation
 
 protocol SignUpAuthUseCaseProtocol {
-    func execute(with authProvider: AuthProvider) async throws -> UserCredentials?
+    func execute(with authProvider: AuthProvider,
+                 userPreferences: UserPreferences,
+                 routines: [Routine]) async throws -> User?
 }
 
 class SignUpAuthUseCase: SignUpAuthUseCaseProtocol {
     
-    private let repository: AuthRepositoryProtocol
+    private let authRepository: AuthRepositoryProtocol
+    private let userRepository: UserRepositoryProtocol
+    private let routineRepository: RoutineRepositoryProtocol
     
-    init(repository: AuthRepositoryProtocol) {
-        self.repository = repository
+    init(authRepository: AuthRepositoryProtocol,
+         userRepository: UserRepositoryProtocol,
+         routineRepository: RoutineRepositoryProtocol
+    ) {
+        
+        self.authRepository = authRepository
+        self.userRepository = userRepository
+        self.routineRepository = routineRepository
     }
     
-    func execute(with authProvider: AuthProvider) async throws -> UserCredentials? {
-        let user = try await repository.signUp(with: authProvider)
+    func execute(
+        with authProvider: AuthProvider,
+        userPreferences: UserPreferences,
+        routines: [Routine]) async throws -> User?
+    {
+        // TODO: Wrap in do-catch to handle partial failures
+        
+        guard let userCredentials = try await authRepository.signUp(with: authProvider) else {
+            return nil
+        }
+        
+        let user = User(
+            credentials: userCredentials,
+            preferences: userPreferences
+        )
+        
+        try await userRepository.saveUser(user)
+        
+        try await routineRepository.saveRoutine(routines, userId: userCredentials.id)
+        
         return user
     }
 }
