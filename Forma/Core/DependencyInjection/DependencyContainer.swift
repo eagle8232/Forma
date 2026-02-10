@@ -10,20 +10,75 @@ import Foundation
 class DependencyContainer {
     
     static let shared = DependencyContainer()
-    private var services: [String: Any] = [:]
+    
+    private lazy var authRepository: AuthRepositoryProtocol = AuthRepository()
+    private lazy var userRepository: UserRepositoryProtocol = UserRepository()
+    private lazy var routineRepository: RoutineRepositoryProtocol = RoutineRepository()
     
     private init() {}
+   
+}
+
+// MARK: - Auth Module
+
+extension DependencyContainer {
     
-    func register<Service>(_ type: Service.Type, service: Service) {
-        let key = String(describing: type)
-        services[key] = service
+    // - Sign Up Auth Use Case
+    func makeSignUpAuthUseCase() -> SignUpAuthUseCaseProtocol{
+        return SignUpAuthUseCase(
+            authRepository: authRepository,
+            userRepository: userRepository,
+            routineRepository: routineRepository)
     }
     
-    func resolve<Service>(_ type: Service) -> Service {
-        let key = String(describing: type)
-        guard let service = services[key] as? Service else {
-            fatalError("Dependency for \(type) not found! Ensure it is registered.")
-        }
-        return service
+    // - Sign In Auth Use Case
+    func makeSignInAuthUseCase() -> SignInAuthUseCaseProtocol{
+        return SignInAuthUseCase(repository: authRepository)
+    }
+    
+    // - Sign Out Auth Use Case
+    func makeSignOutAuthUseCase() -> SignOutAuthUseCaseProtocol {
+        return SignOutAuthUseCase(repository: authRepository)
     }
 }
+
+// MARK: - User Module
+
+extension DependencyContainer {
+    
+    // - Fetch User Use Case
+    func makeFetchUserUseCase() -> FetchUserUseCaseProtocol {
+        return FetchUserUseCase(repository: userRepository)
+    }
+    
+    // - Save User Use Case
+    func makeSaveUserUseCase() -> SaveUserUseCaseProtocol {
+        return SaveUserUseCase(repository: userRepository)
+    }
+    
+    // - Delete User Use Case
+    func makeDeleteUserUseCase() -> DeleteUserUseCaseProtocol {
+        return DeleteUserUseCase(repository: userRepository)
+    }
+}
+
+// MARK: - Routine Module
+
+extension DependencyContainer {
+    
+    // - Fetch User Use Case
+    func makeFetchRoutinesUseCase() -> FetchRoutinesUseCaseProtocol {
+        return FetchRoutinesUseCase(repository: routineRepository)
+    }
+    
+    // - Save User Use Case
+    func makeSaveRoutineUseCase() -> SaveRoutineUseCaseProtocol {
+        return SaveRoutineUseCase(repository: routineRepository)
+    }
+    
+    // - Delete User Use Case
+    func makeDeleteRoutineUseCase() -> DeleteRoutineUseCaseProtocol {
+        return DeleteRoutineUseCase(repository: routineRepository)
+    }
+}
+
