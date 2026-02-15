@@ -7,6 +7,11 @@
 
 import UIKit
 
+protocol Coordinator: AnyObject {
+    var navigationController: UINavigationController { get set }
+    func start()
+}
+
 public final class AppCoordinator: Coordinator {
     
     var navigationController: UINavigationController
@@ -25,16 +30,16 @@ public final class AppCoordinator: Coordinator {
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
         
-//        if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
-//            showMainFlow()
-//        } else {
-//            showOnboardingView()
-//        }
-        showMainFlow()
+        if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            showMainFlow()
+        } else {
+            showOnboardingView()
+        }
     }
     
     func showOnboardingView() {
-        print("false")
+        let onboardingVC = OnboardingViewController()
+        navigationController.setViewControllers([onboardingVC], animated: true)
     }
     
     func showAuthFlow() {
@@ -43,7 +48,5 @@ public final class AppCoordinator: Coordinator {
     
     func showMainFlow() {
         // This is called when Auth is successful
-        let homeVC = ViewController() // - This is an example view controller
-        navigationController.setViewControllers([homeVC], animated: true)
     }
 }

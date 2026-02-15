@@ -10,9 +10,9 @@ import UIKit
 
 extension UIFont {
     
-    static func textFont(weight: FormaFonts, size: CGFloat, italic: Bool = false) -> UIFont {
-        guard let customFont = UIFont(name: italic ? weight.italic : weight.rawValue, size: size) else {
-            return UIFont.systemFont(ofSize: size)
+    static func customFont(type: String, size: CGFloat) -> UIFont {
+        guard let customFont = UIFont(name: type, size: size) else {
+            return UIFont.systemFont(ofSize: 25)
         }
         return customFont
     }

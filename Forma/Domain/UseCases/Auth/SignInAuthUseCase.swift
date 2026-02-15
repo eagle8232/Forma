@@ -20,7 +20,7 @@ class SignInAuthUseCase: SignInAuthUseCaseProtocol {
     }
     
     func execute(with authProvider: AuthProvider) async throws -> UserCredentials? {
-        var user = try await repository.signIn(with: authProvider)
+        let user = try await repository.signIn(with: authProvider)
         return user
     }
 }

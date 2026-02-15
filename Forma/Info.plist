@@ -10,16 +10,6 @@
 		<string>PlayfairDisplay-Bold.ttf</string>
 		<string>PlayfairDisplay-BoldItalic.ttf</string>
 		<string>PlayfairDisplay-Italic.ttf</string>
-		<string>Raleway-Regular.ttf</string>
-		<string>Raleway-ExtraLight.ttf</string>
-		<string>Raleway-ExtraLightItalic.ttf</string>
-		<string>Raleway-Light.ttf</string>
-		<string>Raleway-LightItalic.ttf</string>
-		<string>Raleway-Medium.ttf</string>
-		<string>Raleway-MediumItalic.ttf</string>
-		<string>Raleway-Italic.ttf</string>
-		<string>Raleway-Bold.ttf</string>
-		<string>Raleway-BoldItalic.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
