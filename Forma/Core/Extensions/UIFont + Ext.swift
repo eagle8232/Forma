@@ -10,10 +10,37 @@ import UIKit
 
 extension UIFont {
     
-    static func customFont(type: String, size: CGFloat) -> UIFont {
-        guard let customFont = UIFont(name: type, size: size) else {
-            return UIFont.systemFont(ofSize: 25)
+    func withItalicTrait() -> UIFont {
+        // Common italic font name patterns
+        let currentName = fontName
+
+        // Try common italic naming patterns
+        let italicPatterns = [
+            "-Italic",
+            "-It",
+            "Italic"
+        ]
+        
+        // Check if already italic
+        if currentName.contains("Italic") || currentName.contains("-It") {
+            return self
         }
-        return customFont
+        
+        // Try to find italic variant
+        for pattern in italicPatterns {
+            let italicName = currentName + pattern
+            if let italicFont = UIFont(name: italicName, size: pointSize) {
+                return italicFont
+            }
+        }
+        
+        // Last resort: Use system italic if available
+        if let descriptor = fontDescriptor.withSymbolicTraits([.traitItalic]) {
+            return UIFont(descriptor: descriptor, size: pointSize)
+        }
+        
+        // If all else fails, return original font
+        print("⚠️ Could not create italic variant for font: \(currentName)")
+        return self
     }
 }

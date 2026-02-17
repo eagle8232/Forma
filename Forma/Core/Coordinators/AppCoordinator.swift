@@ -7,12 +7,9 @@
 
 import UIKit
 
-protocol Coordinator: AnyObject {
-    var navigationController: UINavigationController { get set }
-    func start()
-}
-
 public final class AppCoordinator: Coordinator {
+    
+    var childCoordinators = [Coordinator]()
     
     var navigationController: UINavigationController
     private let window: UIWindow
@@ -38,15 +35,28 @@ public final class AppCoordinator: Coordinator {
     }
     
     func showOnboardingView() {
-        let onboardingVC = OnboardingViewController()
-        navigationController.setViewControllers([onboardingVC], animated: true)
+        let onboardingCoordinator = OnboardingCoordinator(navigationController: navigationController)
+        onboardingCoordinator.delegate = self
+        childCoordinators.append(onboardingCoordinator)
+        onboardingCoordinator.start()
     }
     
-    func showAuthFlow() {
+    func showSignInScreen() {
+        
+    }
+     
+    func showSignUpScreen() {
         
     }
     
     func showMainFlow() {
         // This is called when Auth is successful
+    }
+}
+
+extension AppCoordinator: OnboardingCoordinatorDelegate {
+    
+    func didTapSignIn(_ coordinator: OnboardingCoordinator) {
+        // TODO: Push Sign In Screen Function
     }
 }

@@ -120,19 +120,26 @@ final class SoundManager {
         
         player.volume = soundVolume
         player.currentTime = 0 // Reset to beginning
-        player.play()
+        
+        DispatchQueue.main.async {
+            player.play()
+        }
     }
     
     
     // MARK: - Haptic Feedback (Bonus)
     func playHaptic(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
         let generator = UIImpactFeedbackGenerator(style: style)
-        generator.impactOccurred()
+        DispatchQueue.main.async {
+            generator.impactOccurred()
+        }
     }
     
     func playNotificationHaptic(_ type: UINotificationFeedbackGenerator.FeedbackType) {
         let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(type)
+        DispatchQueue.main.async {
+            generator.notificationOccurred(type)
+        }
     }
     
     // MARK: - Settings

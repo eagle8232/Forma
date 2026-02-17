@@ -173,7 +173,7 @@ final class FormaTextView: UIView {
         lineSpacing: CGFloat = 2
     ) -> FormaTextView {
         let label = UILabel()
-        label.numberOfLines = 0
+        label.numberOfLines = text.count
         label.textAlignment = alignment
 
         let paragraphStyle = NSMutableParagraphStyle()
@@ -184,16 +184,20 @@ final class FormaTextView: UIView {
             string: text,
             attributes: [
                 .font: typography.font,
-                .foregroundColor: baseColor,
-                .paragraphStyle: paragraphStyle
+                .foregroundColor: baseColor
             ]
         )
         
-        // Highlight marked words
+        // Highlight marked words with color AND italic
         for (word, color) in markWords {
             let range = (text as NSString).range(of: word)
             if range.location != NSNotFound {
+                // Change color
                 attributedString.addAttribute(.foregroundColor, value: color, range: range)
+                
+                // Make italic with same font
+                let italicFont = typography.font.withItalicTrait()
+                attributedString.addAttribute(.font, value: italicFont, range: range)
             }
         }
         

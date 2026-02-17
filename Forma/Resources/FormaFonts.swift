@@ -10,7 +10,7 @@ import UIKit
 enum Typography {
     
     // MARK: - Display (Playfair Display - for hero moments)
-    case displayLarge        // 40pt - Onboarding titles, hero headlines
+    case displayLarge        // 38pt - Onboarding titles, hero headlines
     case displayMedium       // 32pt - Feature highlights
     case displaySmall        // 24pt - Section emphasis
     
@@ -37,9 +37,9 @@ enum Typography {
         switch self {
         // Display (Playfair Display)
         case .displayLarge:
-            return UIFont(name: PlayfairDisplay.boldItalic.fontName, size: 40) ?? .systemFont(ofSize: 40, weight: .bold)
+            return UIFont(name: PlayfairDisplay.bold.fontName, size: 38) ?? .systemFont(ofSize: 38, weight: .bold)
         case .displayMedium:
-            return UIFont(name: PlayfairDisplay.boldItalic.fontName, size: 32) ?? .systemFont(ofSize: 32, weight: .bold)
+            return UIFont(name: PlayfairDisplay.bold.fontName, size: 32) ?? .systemFont(ofSize: 32, weight: .bold)
         case .displaySmall:
             return UIFont(name: PlayfairDisplay.bold.fontName, size: 24) ?? .systemFont(ofSize: 24, weight: .bold)
             

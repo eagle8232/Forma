@@ -8,8 +8,8 @@
 import UIKit
 
 protocol OnboardingMainContentViewDelegate: AnyObject {
-    func onboardingContentViewDidTapContinue(_ view: OnboardingMainContentView)
-    func onboardingContentViewDidTapSignIn(_ view: OnboardingMainContentView)
+    func didTapGetStarted(_ view: OnboardingMainContentView)
+    func didTapSignIn(_ view: OnboardingMainContentView)
 }
 
 final class OnboardingMainContentView: UIView {
@@ -17,8 +17,16 @@ final class OnboardingMainContentView: UIView {
     weak var delegate: OnboardingMainContentViewDelegate?
     
     private var verticalStackView: UIStackView!
-    private var textView: FormaTextView!
-    private var button: FormaButton!
+    private lazy var textView: FormaTextView = {
+        let tv = FormaTextView()
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
+    }()
+    private lazy var button: FormaButton = {
+        let button = FormaButton.primary(title: "Get started")
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -39,8 +47,6 @@ final class OnboardingMainContentView: UIView {
     }
     
     private func setupTextView() {
-        textView = FormaTextView()
-        textView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(textView)
         
         NSLayoutConstraint.activate([
@@ -62,10 +68,8 @@ final class OnboardingMainContentView: UIView {
         verticalStackView.distribution = .fill
         verticalStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        // Continue button
-        button = FormaButton.primary(title: "Get started")
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+        // Get started button
+        button.addTarget(self, action: #selector(getStartedButtonTapped), for: .touchUpInside)
         button.heightAnchor.constraint(equalToConstant: 56).isActive = true
         
         // Sign in label
@@ -114,12 +118,12 @@ final class OnboardingMainContentView: UIView {
         return label
     }
     
-    @objc private func continueButtonTapped() {
+    @objc private func getStartedButtonTapped() {
         print("Continue button tapped")
-        delegate?.onboardingContentViewDidTapContinue(self)
+        delegate?.didTapGetStarted(self)
     }
     
     @objc private func signInTapped() {
-        delegate?.onboardingContentViewDidTapSignIn(self)
+        delegate?.didTapSignIn(self)
     }
 }
