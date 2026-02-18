@@ -45,4 +45,18 @@ final class OnboardingCoordinator: Coordinator {
         focusBeginVC.coordinator = self
         navigationController.pushViewController(focusBeginVC, animated: true)
     }
+    
+    func showProfessionalLifeScreen(_ preferences: UserPreferences) {
+        let professionalLifeVC = ProfessionalLifeViewController()
+        professionalLifeVC.userPreferences = preferences
+        professionalLifeVC.coordinator = self
+        navigationController.pushViewController(professionalLifeVC, animated: true)
+    }
+    
+    func showUltimateGoalScreen(_ preferences: UserPreferences) {
+        let ultimateGoalVC = UltimateGoalViewController()
+        ultimateGoalVC.userPreferences = preferences
+        ultimateGoalVC.coordinator = self
+        navigationController.pushViewController(ultimateGoalVC, animated: true)
+    }
 }

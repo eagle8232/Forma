@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class EnergyPeakViewController: BaseViewController {
+final class EnergyPeakViewController: OnboardingBaseViewController {
     
     // MARK: Coordinator
     weak var coordinator: OnboardingCoordinator?
@@ -16,15 +16,12 @@ final class EnergyPeakViewController: BaseViewController {
     private var wakeUpTime: Date?
     private var sleepTime: Date?
     
-    private lazy var textView = FormaTextView()
     private lazy var energyPeakContentView = EnergyPeakContentView()
-    private lazy var continueButton = FormaButton()
     
     override func setupViews() {
         super.setupViews()
-        textViewSetup()
         energyPeakContentViewSetup()
-        continueButtonSetup()
+        setup()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -32,6 +29,31 @@ final class EnergyPeakViewController: BaseViewController {
         // Set default values
         self.wakeUpTime = energyPeakContentView.getWakeUpTime()
         self.sleepTime = energyPeakContentView.getSleepTime()
+    }
+    
+    private func setup() {
+        setupViews(onboardingTitle: "When does your\nenergy peak?",
+                   onboardingSubtitle: "Help us align your routines with your natural rhythm.",
+                   highlightedWord: "energy peak?",
+                   buttonTitle:  "Next")
+        delegate = self
+    }
+}
+
+extension EnergyPeakViewController: OnboardingBaseViewControllerDelegate {
+    func didTapButton(_ view: OnboardingBaseViewController) {
+        guard let wakeUpTime = self.wakeUpTime,
+              let sleepTime = self.sleepTime else {
+            return
+        }
+        
+        let newUserPreferences = UserPreferences(profession: "No profession selected",
+                                                 sleepTime: sleepTime,
+                                                 wakeUpTime: wakeUpTime,
+                                                 focusTime: Date(),
+                                                 goal: "No goal selected")
+        
+        self.coordinator?.showFocusBeginScreen(newUserPreferences)
     }
 }
 
@@ -46,30 +68,6 @@ extension EnergyPeakViewController: EnergyPeakContentViewDelegate {
     }
 }
 
-// MARK: - TextView Setup
-extension EnergyPeakViewController {
-    
-    private func textViewSetup() {
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.setAlignment(.leading)
-        view.addSubview(textView)
-        
-        NSLayoutConstraint.activate([
-            textView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            textView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            textView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
-        ])
-        
-        textView.addTitleWithHighlight("When does your\nenergy peak?",
-                                       markWords: [("energy peak?", UIColor.accent)],
-                                       typography: .displayLarge,
-                                       alignment: .left,
-                                       lineSpacing: 1)
-        textView.addBody("Help us align your routines with your natural rhythm.",
-                         color: UIColor.textSecondary)
-    }
-}
-
 // MARK: - EnergyPeakContentView Setup
 extension EnergyPeakViewController {
     private func energyPeakContentViewSetup() {
@@ -78,41 +76,10 @@ extension EnergyPeakViewController {
         view.addSubview(energyPeakContentView)
         
         NSLayoutConstraint.activate([
-            energyPeakContentView.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 64),
+            energyPeakContentView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             energyPeakContentView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             energyPeakContentView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
         ])
         
-    }
-}
-
-// MARK: - Continue Button Setup
-extension EnergyPeakViewController {
-    private func continueButtonSetup() {
-        continueButton.setTitle("Next")
-        continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
-        continueButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(continueButton)
-        
-        NSLayoutConstraint.activate([
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
-            continueButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
-            continueButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
-            continueButton.heightAnchor.constraint(equalToConstant: Constants.buttonHeight)
-        ])
-    }
-    
-    @objc func didTapContinue() {
-        guard let wakeUpTime, let sleepTime else {
-            print("Nothing was selected")
-            return
-        }
-        
-        let newUserPreferences = UserPreferences(profession: "No profession selected",
-                                                 sleepTime: sleepTime,
-                                                 wakeUpTime: wakeUpTime,
-                                                 focusTime: Date(),
-                                                 goal: "No goal selected")
-        coordinator?.showFocusBeginScreen(newUserPreferences)
     }
 }
