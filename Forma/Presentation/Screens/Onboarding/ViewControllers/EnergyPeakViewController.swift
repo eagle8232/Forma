@@ -51,7 +51,7 @@ extension EnergyPeakViewController: OnboardingBaseViewControllerDelegate {
                                                  sleepTime: sleepTime,
                                                  wakeUpTime: wakeUpTime,
                                                  focusTime: Date(),
-                                                 goal: "No goal selected")
+                                                 goal: [])
         
         self.coordinator?.showFocusBeginScreen(newUserPreferences)
     }

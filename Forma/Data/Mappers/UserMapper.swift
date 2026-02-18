@@ -55,7 +55,7 @@ extension UserPreferencesDTO {
             sleepTime: self.sleepTime ?? Date(),
             wakeUpTime: self.wakeUpTime ?? Date(),
             focusTime: self.focusTime ?? Date(),
-            goal: self.goal ?? "No goal"
+            goal: self.goal ?? ["No goal"]
         )
     }
 }

@@ -10,6 +10,7 @@ import UIKit
 protocol OnboardingCoordinatorDelegate: AnyObject {
     func didTapSignIn(_ coordinator: OnboardingCoordinator)
     func didTapGetStarted(_ coordinator: OnboardingCoordinator)
+    func didFinish(_ coordinator: OnboardingCoordinator)
 }
 
 extension OnboardingCoordinatorDelegate {
@@ -58,5 +59,11 @@ final class OnboardingCoordinator: Coordinator {
         ultimateGoalVC.userPreferences = preferences
         ultimateGoalVC.coordinator = self
         navigationController.pushViewController(ultimateGoalVC, animated: true)
+    }
+    
+    func showFinishScreen(_ preferences: UserPreferences) {
+        let finishVC = FinishViewController()
+        finishVC.userPreferences = preferences
+        navigationController.pushViewController(finishVC, animated: true)
     }
 }

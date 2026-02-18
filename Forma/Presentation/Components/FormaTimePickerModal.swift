@@ -35,7 +35,7 @@ final class FormaTimePickerModal: UIView {
     private lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .backgroundPrimary
+        view.backgroundColor = .backgroundSecondary
         view.layer.cornerRadius = 24
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         view.layer.shadowColor = UIColor.black.cgColor

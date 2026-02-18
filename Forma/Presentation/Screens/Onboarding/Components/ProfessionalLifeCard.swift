@@ -8,14 +8,14 @@
 import UIKit
 
 protocol ProfessionalRoleCardDelegate: AnyObject {
-    func didSelectCard(_ view: ProfessionalRoleCard, profession: ProfessionalRole)
+    func didSelectCard(_ view: ProfessionalRoleCard, profession: ProfessionRole)
 }
 
 final class ProfessionalRoleCard: UIView {
     
     // MARK: - Properties
     
-    private(set) var profession: ProfessionalRole
+    private(set) var profession: ProfessionRole
     private(set) var isSelected: Bool = false
     weak var delegate: ProfessionalRoleCardDelegate?
     
@@ -89,7 +89,7 @@ final class ProfessionalRoleCard: UIView {
     
     // MARK: - Initialization
     
-    init(role: ProfessionalRole) {
+    init(role: ProfessionRole) {
         self.profession = role
         super.init(frame: .zero)
         setup()
@@ -205,25 +205,5 @@ final class ProfessionalRoleCard: UIView {
     
     @objc private func handleTap() {
         delegate?.didSelectCard(self, profession: profession)
-    }
-    
-    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-        switch gesture.state {
-        case .began:
-            UIView.animate(withDuration: 0.1) {
-                self.containerView.transform = CGAffineTransform(scaleX: 0.96, y: 0.96)
-            }
-        case .ended, .cancelled:
-            UIView.animate(
-                withDuration: 0.3,
-                delay: 0,
-                usingSpringWithDamping: 0.6,
-                initialSpringVelocity: 0.5
-            ) {
-                self.containerView.transform = .identity
-            }
-        default:
-            break
-        }
     }
 }

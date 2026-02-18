@@ -16,7 +16,8 @@ final class OnboardingMainContentView: UIView {
     
     weak var delegate: OnboardingMainContentViewDelegate?
     
-    private var verticalStackView: UIStackView!
+    private lazy var verticalStackView = UIStackView()
+    private lazy var signInLabel = UILabel()
     private lazy var textView: FormaTextView = {
         let tv = FormaTextView()
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -44,6 +45,9 @@ final class OnboardingMainContentView: UIView {
         
         setupButton()
         setupTextView()
+        [textView, button, signInLabel].enumerated().forEach { index, view in
+            view.animateIn(delay: CGFloat(index * 10)) // a bit longer
+        }
     }
     
     private func setupTextView() {
@@ -73,7 +77,7 @@ final class OnboardingMainContentView: UIView {
         button.heightAnchor.constraint(equalToConstant: 56).isActive = true
         
         // Sign in label
-        let signInLabel = createSignInLabel()
+        signInLabel = createSignInLabel()
         
         // Add to stack
         verticalStackView.addArrangedSubview(button)
@@ -86,6 +90,10 @@ final class OnboardingMainContentView: UIView {
             verticalStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             verticalStackView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+        
+        [button, signInLabel].enumerated().forEach { index, view in
+            view.animateIn(delay: CGFloat(index))
+        }
     }
     
     private func createSignInLabel() -> UILabel {

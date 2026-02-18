@@ -26,7 +26,7 @@ struct UserPreferencesDTO: Codable {
     var sleepTime: Date?
     var wakeUpTime: Date?
     var focusTime: Date?
-    var goal: String?
+    var goal: [String]?
     
     enum CodingKeys: CodingKey {
         case profession

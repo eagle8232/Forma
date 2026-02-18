@@ -79,6 +79,7 @@ extension OnboardingViewController {
         animationView.loopMode = .loop
         animationView.animationSpeed = 0.8
         animationView.backgroundBehavior = .pauseAndRestore
+        animationView.alpha = 0
         
         view.insertSubview(animationView, at: 0)
         
@@ -89,7 +90,9 @@ extension OnboardingViewController {
             animationView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        
+        UIView.animate(withDuration: 1) {
+            animationView.alpha = 1
+        }
     }
     
 }
@@ -124,6 +127,7 @@ extension OnboardingViewController {
             bottomGradientView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             bottomGradientView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.5)
         ])
+        
     }
 }
 

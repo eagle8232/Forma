@@ -59,4 +59,8 @@ extension AppCoordinator: OnboardingCoordinatorDelegate {
     func didTapSignIn(_ coordinator: OnboardingCoordinator) {
         // TODO: Push Sign In Screen Function
     }
+    
+    func didFinish(_ coordinator: OnboardingCoordinator) {
+        // TODO: Push Sign In Screen Function
+    }
 }

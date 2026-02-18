@@ -57,4 +57,21 @@ class BaseViewController: UIViewController {
         loadingView.stopLoadingAnimation()
         loadingView.removeFromSuperview()
     }
+    
+    func animateIn(_ views: [UIView]) {
+        views.enumerated().forEach { index, view in
+            view.alpha = 0
+            view.transform = CGAffineTransform(translationX: 0, y: 20)
+            
+            UIView.animate(
+                withDuration: 0.4,
+                delay: Double(index) * 0.08,
+                usingSpringWithDamping: 0.8,
+                initialSpringVelocity: 0.3
+            ) {
+                view.alpha = 1
+                view.transform = .identity
+            }
+        }
+    }
 }

@@ -7,66 +7,11 @@
 
 import UIKit
 
-enum ProfessionalRole: String, CaseIterable {
-    case developer           = "Developer"
-    case designer            = "Designer"
-    case medicalProfessional = "Medical Professional"
-    case founderEntrepreneur = "Founder / Entrepreneur"
-    case student             = "Student"
-    case managerLead         = "Manager / Lead"
-    case freelancer          = "Freelancer / Consultant"
-    case salesMarketing      = "Sales & Marketing"
-    case teacherEducator     = "Teacher / Educator"
-    case parentHomemaker     = "Parent / Homemaker"
-    case artistCreative      = "Artist / Creative"
-    case other               = "Other"
-    
-    var icon: String {
-        switch self {
-        case .developer:           return "💻"
-        case .designer:            return "🎨"
-        case .medicalProfessional: return "⚕️"
-        case .founderEntrepreneur: return "🚀"
-        case .student:             return "📚"
-        case .managerLead:         return "👥"
-        case .freelancer:          return "🌐"
-        case .salesMarketing:      return "📈"
-        case .teacherEducator:     return "🎓"
-        case .parentHomemaker:     return "🏡"
-        case .artistCreative:      return "✨"
-        case .other:               return "⚡️"
-        }
-    }
-    
-    var accentColor: UIColor {
-        switch self {
-        case .developer:           return UIColor(hex: "#4F9EF8")  // Blue
-        case .designer:            return UIColor(hex: "#F86F4F")  // Orange
-        case .medicalProfessional: return UIColor(hex: "#4FD1A5")  // Teal
-        case .founderEntrepreneur: return UIColor(hex: "#F8C44F")  // Gold
-        case .student:             return UIColor(hex: "#9B7FE8")  // Purple
-        case .managerLead:         return UIColor(hex: "#4FC3F8")  // Light blue
-        case .freelancer:          return UIColor(hex: "#F84F9E")  // Pink
-        case .salesMarketing:      return UIColor(hex: "#F8814F")  // Deep orange
-        case .teacherEducator:     return UIColor(hex: "#81C784")  // Green
-        case .parentHomemaker:     return UIColor(hex: "#F8A44F")  // Amber
-        case .artistCreative:      return UIColor(hex: "#CE93D8")  // Lavender
-        case .other:               return UIColor.accent
-        }
-    }
-    
-    // Whether to span full width
-    var isWide: Bool {
-        return rawValue.count > 18
-    }
-}
-
-// ProfessionalLifeGridView.swift
 
 import UIKit
 
 protocol ProfessionalLifeGridViewDelegate: AnyObject {
-    func professionalLifeGridView(_ view: ProfessionalLifeGridView, didSelect role: ProfessionalRole)
+    func professionalLifeGridView(_ view: ProfessionalLifeGridView, didSelect role: ProfessionRole)
 }
 
 final class ProfessionalLifeGridView: UIView {
@@ -74,7 +19,7 @@ final class ProfessionalLifeGridView: UIView {
     // MARK: - Properties
     
     weak var delegate: ProfessionalLifeGridViewDelegate?
-    private(set) var selectedRole: ProfessionalRole?
+    private(set) var selectedRole: ProfessionRole?
     private var cards: [ProfessionalRoleCard] = []
     
     // MARK: - UI Components
@@ -119,12 +64,12 @@ final class ProfessionalLifeGridView: UIView {
     }
     
     private func setupGrid() {
-        let roles = ProfessionalRole.allCases
+        let roles = ProfessionRole.allCases
         var index = 0
         
         while index < roles.count {
             let role = roles[index]
-            let nextRole: ProfessionalRole? = index + 1 < roles.count ? roles[index + 1] : nil
+            let nextRole: ProfessionRole? = index + 1 < roles.count ? roles[index + 1] : nil
             
             if role.isWide || nextRole == nil {
                 // Full width card
@@ -145,7 +90,7 @@ final class ProfessionalLifeGridView: UIView {
         }
     }
     
-    private func createDoubleRow(left: ProfessionalRole, right: ProfessionalRole) -> UIStackView {
+    private func createDoubleRow(left: ProfessionRole, right: ProfessionRole) -> UIStackView {
         let row = UIStackView()
         row.axis = .horizontal
         row.spacing = 12
@@ -166,7 +111,7 @@ final class ProfessionalLifeGridView: UIView {
         return row
     }
     
-    private func createCard(for role: ProfessionalRole) -> ProfessionalRoleCard {
+    private func createCard(for role: ProfessionRole) -> ProfessionalRoleCard {
         let card = ProfessionalRoleCard(role: role)
         card.delegate = self
         cards.append(card)
@@ -175,7 +120,7 @@ final class ProfessionalLifeGridView: UIView {
     
     // MARK: - Private Methods
     
-    private func handleCardTapped(_ role: ProfessionalRole) {
+    private func handleCardTapped(_ role: ProfessionRole) {
         SoundManager.shared.playSound(.buttonTap)
         
         // Deselect previous
@@ -197,7 +142,7 @@ final class ProfessionalLifeGridView: UIView {
     
     // MARK: - Public Methods
     
-    func selectRole(_ role: ProfessionalRole, animated: Bool = true) {
+    func selectRole(_ role: ProfessionRole, animated: Bool = true) {
         selectedRole = role
         cards.forEach { card in
             card.setSelected(card.profession == role, animated: animated)
@@ -213,24 +158,14 @@ final class ProfessionalLifeGridView: UIView {
     
     func animateIn() {
         cards.enumerated().forEach { index, card in
-            card.alpha = 0
-            card.transform = CGAffineTransform(translationX: 0, y: 20)
-            
-            UIView.animate(
-                withDuration: 0.4,
-                delay: Double(index) * 0.05,
-                usingSpringWithDamping: 0.8,
-                initialSpringVelocity: 0.3
-            ) {
-                card.alpha = 1
-                card.transform = .identity
-            }
+            card.animateIn(delay: CGFloat(index))
         }
     }
 }
 
 extension ProfessionalLifeGridView: ProfessionalRoleCardDelegate {
-    func didSelectCard(_ view: ProfessionalRoleCard, profession: ProfessionalRole) {
+    func didSelectCard(_ view: ProfessionalRoleCard, profession: ProfessionRole) {
         handleCardTapped(profession)
     }
 }
+

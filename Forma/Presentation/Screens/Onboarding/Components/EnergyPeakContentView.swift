@@ -88,5 +88,9 @@ extension EnergyPeakContentView {
             cardsStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
             cardsStackView.heightAnchor.constraint(equalToConstant: 200)
         ])
+        
+        cardsStackView.subviews.enumerated().forEach { index, view in
+            view.animateIn(delay: CGFloat(index) * 3.5) // A bit longer
+        }
     }
 }

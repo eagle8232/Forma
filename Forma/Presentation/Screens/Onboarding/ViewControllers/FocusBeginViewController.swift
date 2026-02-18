@@ -109,31 +109,29 @@ final class FocusBeginViewController: OnboardingBaseViewController {
         timePickerContainer.addSubview(inlineTimePicker)
         
         NSLayoutConstraint.activate([
-            // MARK: ScrollView
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8),
-            
-            // MARK: ContentStack
+        
             contentStackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 8),
             contentStackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 8),
             contentStackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -8),
             contentStackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -8),
-            
-            // ✅ Vertical scroll only
             contentStackView.widthAnchor.constraint(
                 equalTo: scrollView.frameLayoutGuide.widthAnchor,
-                constant: -16  // 8pt each side
+                constant: -16
             ),
-            
-            // MARK: TimePicker
+        
             inlineTimePicker.topAnchor.constraint(equalTo: timePickerContainer.topAnchor, constant: 8),
             inlineTimePicker.leadingAnchor.constraint(equalTo: timePickerContainer.leadingAnchor, constant: 8),
             inlineTimePicker.trailingAnchor.constraint(equalTo: timePickerContainer.trailingAnchor, constant: -8),
             inlineTimePicker.bottomAnchor.constraint(equalTo: timePickerContainer.bottomAnchor, constant: -8),
         ])
+        
+        animateIn([timePickerContainer, quickOptionsGrid])
     }
+    
 }
 
 // MARK: - OnboardingBaseViewControllerDelegate
@@ -148,6 +146,11 @@ extension FocusBeginViewController: OnboardingBaseViewControllerDelegate {
 
 extension FocusBeginViewController: QuickOptionsGridViewDelegate {
     func quickOptionsGridView(_ view: QuickOptionsGridView, didSelect option: QuickTimeOption) {
+        guard option != .flexible else {
+            selectedTime = nil
+            return
+        }
+        
         selectedTime = option.date
         
         // Sync inline picker
@@ -164,10 +167,8 @@ extension FocusBeginViewController {
     @objc func timePickerChanged() {
         selectedTime = inlineTimePicker.date
         
-        // Clear quick option highlight
         quickOptionsGrid.clearSelection()
         
-        // Haptic feedback
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
     }
@@ -180,6 +181,7 @@ extension FocusBeginViewController {
             userPreferences?.focusTime = time
         } else if quickOptionsGrid.selectedOption == .flexible {
             print("✅ Flexible schedule selected")
+            userPreferences?.focusTime = nil
         }
         
         guard let userPreferences else {

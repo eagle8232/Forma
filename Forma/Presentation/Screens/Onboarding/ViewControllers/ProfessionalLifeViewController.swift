@@ -79,12 +79,13 @@ final class ProfessionalLifeViewController: OnboardingBaseViewController {
             contentStackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 8),
             contentStackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 8),
             contentStackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -8),
-            contentStackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -72),
+            contentStackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -80),
             contentStackView.widthAnchor.constraint(
                 equalTo: scrollView.frameLayoutGuide.widthAnchor,
                 constant: -16
             ),
         ])
+        professionGridView.animateIn()
     }
 }
 
@@ -99,7 +100,7 @@ extension ProfessionalLifeViewController: OnboardingBaseViewControllerDelegate {
 // MARK: - ProfessionalLifeGridViewDelegate
 
 extension ProfessionalLifeViewController: ProfessionalLifeGridViewDelegate {
-    func professionalLifeGridView(_ view: ProfessionalLifeGridView, didSelect role: ProfessionalRole) {
+    func professionalLifeGridView(_ view: ProfessionalLifeGridView, didSelect role: ProfessionRole) {
         print("✅ Role selected: \(role.rawValue)")
         userPreferences?.profession = role.rawValue
     }
@@ -123,6 +124,7 @@ extension ProfessionalLifeViewController {
             print("❌ UserPreferences is nil")
             return
         }
+        print(userPreferences.profession)
         
         coordinator?.showUltimateGoalScreen(userPreferences)
     }
