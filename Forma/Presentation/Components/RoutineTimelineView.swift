@@ -5,11 +5,6 @@
 //  Created by Vusal Nuriyev on 2/20/26.
 //
 
-//
-//  RoutineTimelineView.swift
-//  Forma
-//
-
 import UIKit
 
 // MARK: - Delegate
@@ -18,8 +13,6 @@ protocol RoutineTimelineViewDelegate: AnyObject {
     func timelineDidUpdateStart(_ date: Date)
     func timelineDidUpdateEnd(_ date: Date)
 }
-
-// MARK: - RoutineTimelineView
 
 final class RoutineTimelineView: UIView {
 
@@ -31,19 +24,17 @@ final class RoutineTimelineView: UIView {
     private(set) var endDate: Date
     private var tasks: [RoutineTask]
 
-    // Palette for task segments — cycles if more tasks than colors
     private let palette: [UIColor] = [
-        UIColor(red: 0.40, green: 0.75, blue: 1.00, alpha: 1),   // sky blue
-        UIColor(red: 0.55, green: 1.00, blue: 0.75, alpha: 1),   // mint
-        UIColor(red: 1.00, green: 0.75, blue: 0.40, alpha: 1),   // amber
-        UIColor(red: 0.80, green: 0.55, blue: 1.00, alpha: 1),   // lavender
-        UIColor(red: 1.00, green: 0.55, blue: 0.55, alpha: 1),   // coral
-        UIColor(red: 0.55, green: 0.90, blue: 1.00, alpha: 1),   // cyan
+        UIColor(red: 0.40, green: 0.75, blue: 1.00, alpha: 1),
+        UIColor(red: 0.55, green: 1.00, blue: 0.75, alpha: 1),
+        UIColor(red: 1.00, green: 0.75, blue: 0.40, alpha: 1),
+        UIColor(red: 0.80, green: 0.55, blue: 1.00, alpha: 1),
+        UIColor(red: 1.00, green: 0.55, blue: 0.55, alpha: 1),
+        UIColor(red: 0.55, green: 0.90, blue: 1.00, alpha: 1),
     ]
 
     // MARK: - Track
 
-    /// The full-width track container (clips children)
     private let trackContainer: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
@@ -53,10 +44,9 @@ final class RoutineTimelineView: UIView {
         return v
     }()
 
-    /// Segments are added here as subviews, laid out manually in layoutSubviews
     private var segmentViews: [UIView] = []
 
-    // MARK: - Task number bubbles (above track, non-interactive)
+    // MARK: - Bubbles (above track)
 
     private var taskBubbles: [UIView] = []
     private let bubblesContainer: UIView = {
@@ -66,18 +56,39 @@ final class RoutineTimelineView: UIView {
         return v
     }()
 
-    // MARK: - Time labels (below track)
+    // MARK: - Bottom row: [startLabel]  [durationLabel]  [endLabel]
 
-    private let timeRangeLabel: UILabel = {
+    private lazy var startTimeButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.titleLabel?.font = UIFont.monospacedSystemFont(ofSize: 12, weight: .semibold)
+        b.setTitleColor(.textSecondary, for: .normal)
+        b.contentHorizontalAlignment = .left
+        // Subtle underline hint to show it's tappable
+        b.addTarget(self, action: #selector(startTapped), for: .touchUpInside)
+        return b
+    }()
+
+    private lazy var endTimeButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.titleLabel?.font = UIFont.monospacedSystemFont(ofSize: 12, weight: .semibold)
+        b.setTitleColor(.textSecondary, for: .normal)
+        b.contentHorizontalAlignment = .right
+        b.addTarget(self, action: #selector(endTapped), for: .touchUpInside)
+        return b
+    }()
+
+    private let durationLabel: UILabel = {
         let l = UILabel()
         l.translatesAutoresizingMaskIntoConstraints = false
-        l.font = UIFont.monospacedSystemFont(ofSize: 12, weight: .medium)
-        l.textColor = .textSecondary
+        l.font = UIFont.monospacedSystemFont(ofSize: 11, weight: .bold)
+        l.textColor = UIColor(white: 1, alpha: 0.35)
         l.textAlignment = .center
         return l
     }()
 
-    // MARK: - Hidden picker proxies
+    // MARK: - Picker proxies
 
     private lazy var startPickerProxy: FormaTimePickerView = {
         let p = FormaTimePickerView(type: .wakeTime)
@@ -95,23 +106,6 @@ final class RoutineTimelineView: UIView {
         return p
     }()
 
-    // Tap areas for start/end (invisible, sit over track ends)
-    private lazy var startTapZone: UIButton = {
-        let b = UIButton(type: .system)
-        b.translatesAutoresizingMaskIntoConstraints = false
-        b.backgroundColor = .clear
-        b.addTarget(self, action: #selector(startTapped), for: .touchUpInside)
-        return b
-    }()
-
-    private lazy var endTapZone: UIButton = {
-        let b = UIButton(type: .system)
-        b.translatesAutoresizingMaskIntoConstraints = false
-        b.backgroundColor = .clear
-        b.addTarget(self, action: #selector(endTapped), for: .touchUpInside)
-        return b
-    }()
-
     // MARK: - Init
 
     init(startDate: Date, endDate: Date, tasks: [RoutineTask] = []) {
@@ -121,7 +115,7 @@ final class RoutineTimelineView: UIView {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         setup()
-        updateTimeLabel()
+        refreshBottomRow()
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -130,15 +124,6 @@ final class RoutineTimelineView: UIView {
 
     func setTasks(_ tasks: [RoutineTask]) {
         self.tasks = tasks
-        setNeedsLayout()
-    }
-
-    func updateDates(start: Date, end: Date) {
-        startDate = start
-        endDate   = end
-        startPickerProxy.setTime(start)
-        endPickerProxy.setTime(end)
-        updateTimeLabel()
         setNeedsLayout()
     }
 
@@ -156,16 +141,14 @@ final class RoutineTimelineView: UIView {
     private func setup() {
         addSubview(bubblesContainer)
         addSubview(trackContainer)
-        addSubview(timeRangeLabel)
-        addSubview(startTapZone)
-        addSubview(endTapZone)
+        addSubview(startTimeButton)
+        addSubview(durationLabel)
+        addSubview(endTimeButton)
         addSubview(startPickerProxy)
         addSubview(endPickerProxy)
 
-        let trackH: CGFloat = 18
-
         NSLayoutConstraint.activate([
-            // Bubbles sit above track
+            // Bubbles above track
             bubblesContainer.topAnchor.constraint(equalTo: topAnchor),
             bubblesContainer.leadingAnchor.constraint(equalTo: leadingAnchor),
             bubblesContainer.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -175,115 +158,118 @@ final class RoutineTimelineView: UIView {
             trackContainer.topAnchor.constraint(equalTo: bubblesContainer.bottomAnchor, constant: 8),
             trackContainer.leadingAnchor.constraint(equalTo: leadingAnchor),
             trackContainer.trailingAnchor.constraint(equalTo: trailingAnchor),
-            trackContainer.heightAnchor.constraint(equalToConstant: trackH),
+            trackContainer.heightAnchor.constraint(equalToConstant: 32),
 
-            // Time label below track
-            timeRangeLabel.topAnchor.constraint(equalTo: trackContainer.bottomAnchor, constant: 10),
-            timeRangeLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            timeRangeLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            timeRangeLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            // Bottom row: start | duration | end
+            startTimeButton.topAnchor.constraint(equalTo: trackContainer.bottomAnchor, constant: 10),
+            startTimeButton.leadingAnchor.constraint(equalTo: leadingAnchor),
+            startTimeButton.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            // Tap zones over left/right thirds of track
-            startTapZone.leadingAnchor.constraint(equalTo: trackContainer.leadingAnchor),
-            startTapZone.topAnchor.constraint(equalTo: trackContainer.topAnchor),
-            startTapZone.bottomAnchor.constraint(equalTo: trackContainer.bottomAnchor),
-            startTapZone.widthAnchor.constraint(equalTo: trackContainer.widthAnchor, multiplier: 0.25),
+            durationLabel.centerYAnchor.constraint(equalTo: startTimeButton.centerYAnchor),
+            durationLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
 
-            endTapZone.trailingAnchor.constraint(equalTo: trackContainer.trailingAnchor),
-            endTapZone.topAnchor.constraint(equalTo: trackContainer.topAnchor),
-            endTapZone.bottomAnchor.constraint(equalTo: trackContainer.bottomAnchor),
-            endTapZone.widthAnchor.constraint(equalTo: trackContainer.widthAnchor, multiplier: 0.25),
+            endTimeButton.topAnchor.constraint(equalTo: trackContainer.bottomAnchor, constant: 10),
+            endTimeButton.trailingAnchor.constraint(equalTo: trailingAnchor),
+            endTimeButton.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
 
     // MARK: - Segments
 
-    /// Total routine window in minutes
     private var windowMinutes: Double {
-        let diff = endDate.timeIntervalSince(startDate)
-        return max(diff / 60, 1)
+        max(endDate.timeIntervalSince(startDate) / 60, 1)
     }
 
-    /// Parses a duration string like "40 min", "1 hr", "1 hr 30 min" → minutes
     private func minutes(from duration: String) -> Double {
         let s = duration.lowercased()
         var total = 0.0
-        if let range = s.range(of: #"(\d+)\s*hr"#, options: .regularExpression) {
-            total += Double(s[range].filter(\.isNumber)) ?? 0
-            total *= 60
+        var hrs = 0.0
+        if let r = s.range(of: #"(\d+)\s*hr"#, options: .regularExpression) {
+            hrs = Double(s[r].filter(\.isNumber)) ?? 0
         }
-        if let range = s.range(of: #"(\d+)\s*min"#, options: .regularExpression) {
-            total += Double(s[range].filter(\.isNumber)) ?? 0
+        var mins = 0.0
+        if let r = s.range(of: #"(\d+)\s*min"#, options: .regularExpression) {
+            mins = Double(s[r].filter(\.isNumber)) ?? 0
         }
-        if total == 0, let plain = Double(s.filter(\.isNumber)) {
-            total = plain // bare number treated as minutes
-        }
+        total = hrs * 60 + mins
+        if total == 0, let plain = Double(s.filter(\.isNumber)) { total = plain }
         return max(total, 0)
+    }
+
+    private func shortDuration(_ mins: Double) -> String {
+        let h = Int(mins) / 60
+        let m = Int(mins) % 60
+        if h == 0 { return "\(m)m" }
+        if m == 0 { return "\(h)h" }
+        return "\(h)h \(m)m"
     }
 
     private func rebuildSegments() {
         segmentViews.forEach { $0.removeFromSuperview() }
         segmentViews = []
 
-        let totalWidth  = trackContainer.bounds.width
-        let totalHeight = trackContainer.bounds.height
-        let window      = windowMinutes
+        let totalW  = trackContainer.bounds.width
+        let totalH  = trackContainer.bounds.height
+        let window  = windowMinutes
+        var usedW: CGFloat = 0
+        let valid   = tasks.filter { !$0.title.isEmpty }
 
-        // Calculate each task's width fraction
-        var usedWidth: CGFloat = 0
+        for (i, task) in valid.enumerated() {
+            let mins      = minutes(from: task.duration)
+            let fraction  = CGFloat(min(mins / window, 1.0))
+            let w         = min(fraction * totalW, totalW - usedW)
+            guard w > 0 else { break }
 
-        let validTasks = tasks.filter { !$0.title.isEmpty }
-
-        for (index, task) in validTasks.enumerated() {
-            let mins     = minutes(from: task.duration)
-            let fraction = CGFloat(min(mins / window, 1.0))
-            let width    = fraction * totalWidth
-
-            // Don't overflow the track
-            let clampedWidth = min(width, totalWidth - usedWidth)
-            guard clampedWidth > 0 else { break }
-
-            let color = palette[index % palette.count]
+            let color = palette[i % palette.count]
 
             let segment = UIView()
-            segment.backgroundColor = color.withAlphaComponent(0.85)
-
-            // Left-most gets rounded left corners, right-most (or last segment touching right edge) gets rounded right
-            var maskedCorners: CACornerMask = []
-            if usedWidth == 0 {
-                maskedCorners.formUnion([.layerMinXMinYCorner, .layerMinXMaxYCorner])
-            }
-            let isLast = index == validTasks.count - 1 || usedWidth + clampedWidth >= totalWidth
-            if isLast {
-                maskedCorners.formUnion([.layerMaxXMinYCorner, .layerMaxXMaxYCorner])
-            }
-            segment.layer.cornerRadius = 10
-            segment.layer.maskedCorners = maskedCorners
             segment.clipsToBounds = true
 
-            // Subtle inner gradient for depth
+            // Corner masking
+            var mask: CACornerMask = []
+            if usedW == 0 { mask.formUnion([.layerMinXMinYCorner, .layerMinXMaxYCorner]) }
+            let isLast = i == valid.count - 1 || usedW + w >= totalW - 0.5
+            if isLast { mask.formUnion([.layerMaxXMinYCorner, .layerMaxXMaxYCorner]) }
+            segment.layer.cornerRadius = 10
+            segment.layer.maskedCorners = mask
+
+            // Gradient fill
             let grad = CAGradientLayer()
-            grad.colors = [color.cgColor, color.withAlphaComponent(0.6).cgColor]
+            grad.colors   = [color.withAlphaComponent(0.9).cgColor, color.withAlphaComponent(0.6).cgColor]
             grad.startPoint = CGPoint(x: 0, y: 0)
             grad.endPoint   = CGPoint(x: 1, y: 0)
+            grad.frame    = CGRect(x: 0, y: 0, width: w, height: totalH)
             grad.cornerRadius = 10
-            grad.maskedCorners = maskedCorners
-            grad.frame = CGRect(x: 0, y: 0, width: clampedWidth, height: totalHeight)
+            grad.maskedCorners = mask
             segment.layer.insertSublayer(grad, at: 0)
 
-            // Thin separator line between segments (not on first)
-            if usedWidth > 0 {
-                let sep = UIView()
-                sep.backgroundColor = UIColor(white: 0, alpha: 0.3)
-                sep.frame = CGRect(x: 0, y: 0, width: 1, height: totalHeight)
+            // Separator
+            if usedW > 0 {
+                let sep = UIView(frame: CGRect(x: 0, y: 0, width: 1.5, height: totalH))
+                sep.backgroundColor = UIColor(white: 0, alpha: 0.35)
                 segment.addSubview(sep)
             }
 
-            segment.frame = CGRect(x: usedWidth, y: 0, width: clampedWidth, height: totalHeight)
+            // Duration label inside segment (only if wide enough)
+            let durText = mins > 0 ? shortDuration(mins) : ""
+            if w > 22 && !durText.isEmpty {
+                let lbl = UILabel()
+                lbl.text = durText
+                lbl.font = UIFont.monospacedSystemFont(ofSize: 9, weight: .bold)
+                lbl.textColor = UIColor(white: 0, alpha: 0.55)
+                lbl.textAlignment = .left
+                lbl.frame = CGRect(x: 2, y: 0, width: w - 15, height: totalH-15)
+                lbl.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                lbl.adjustsFontSizeToFitWidth = true
+                lbl.minimumScaleFactor = 0.3
+                segment.addSubview(lbl)
+            }
+
+            segment.frame = CGRect(x: usedW, y: 0, width: w, height: totalH)
             trackContainer.insertSubview(segment, at: 0)
             segmentViews.append(segment)
 
-            usedWidth += clampedWidth
+            usedW += w
         }
     }
 
@@ -293,30 +279,29 @@ final class RoutineTimelineView: UIView {
         taskBubbles.forEach { $0.removeFromSuperview() }
         taskBubbles = []
 
-        let totalWidth = bubblesContainer.bounds.width
-        let window     = windowMinutes
-        let validTasks = tasks.filter { !$0.title.isEmpty }
-        guard totalWidth > 0, !validTasks.isEmpty else { return }
+        let totalW = bubblesContainer.bounds.width
+        let window = windowMinutes
+        let valid  = tasks.filter { !$0.title.isEmpty }
+        guard totalW > 0, !valid.isEmpty else { return }
 
-        let bubbleSize: CGFloat = 22
-        var usedMinutes: Double = 0
+        let size: CGFloat = 22
+        var usedMins: Double = 0
 
-        for (index, task) in validTasks.enumerated() {
+        for (i, task) in valid.enumerated() {
             let mins = minutes(from: task.duration)
-            // Centre bubble at midpoint of its segment
-            let segMidFraction = CGFloat((usedMinutes + mins / 2) / window)
-            let xCenter = segMidFraction * totalWidth
-            let x = min(max(xCenter - bubbleSize / 2, 0), totalWidth - bubbleSize)
-            let y = (bubblesContainer.bounds.height - bubbleSize) / 2
+            let midFrac = CGFloat((usedMins + mins / 2) / window)
+            let xCenter = midFrac * totalW
+            let x = min(max(xCenter - size / 2, 0), totalW - size)
+            let y = (bubblesContainer.bounds.height - size) / 2
 
-            let color = palette[index % palette.count]
-            let bubble = makeBubble(number: index + 1, color: color)
-            bubble.frame = CGRect(x: x, y: y, width: bubbleSize, height: bubbleSize)
+            let color  = palette[i % palette.count]
+            let bubble = makeBubble(number: i + 1, color: color)
+            bubble.frame = CGRect(x: x, y: y, width: size, height: size)
             bubblesContainer.addSubview(bubble)
             taskBubbles.append(bubble)
 
-            usedMinutes += mins
-            if usedMinutes >= window { break }
+            usedMins += mins
+            if usedMins >= window { break }
         }
     }
 
@@ -338,41 +323,66 @@ final class RoutineTimelineView: UIView {
         return v
     }
 
-    // MARK: - Time label
+    // MARK: - Bottom row update
 
-    private func updateTimeLabel() {
+    private func refreshBottomRow() {
         let fmt = DateFormatter()
-        fmt.dateFormat = "h:mm"
-        let amPmFmt = DateFormatter()
-        amPmFmt.dateFormat = "a"
+        fmt.dateFormat = "h:mm a"
 
+        // Start button: underlined to hint tappability
         let startStr = fmt.string(from: startDate)
-        let endStr   = fmt.string(from: endDate)
-        let period   = amPmFmt.string(from: endDate)
+        let startAttr = NSAttributedString(string: startStr, attributes: [
+            .font: UIFont.monospacedSystemFont(ofSize: 12, weight: .semibold),
+            .foregroundColor: UIColor.textSecondary,
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
+            .underlineColor: UIColor.textSecondary.withAlphaComponent(0.4)
+        ])
+        startTimeButton.setAttributedTitle(startAttr, for: .normal)
 
-        // Duration
-        let mins = Int(max(endDate.timeIntervalSince(startDate) / 60, 0))
-        let h = mins / 60, m = mins % 60
-        let durStr: String
+        let endStr = fmt.string(from: endDate)
+        let endAttr = NSAttributedString(string: endStr, attributes: [
+            .font: UIFont.monospacedSystemFont(ofSize: 12, weight: .semibold),
+            .foregroundColor: UIColor.textSecondary,
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
+            .underlineColor: UIColor.textSecondary.withAlphaComponent(0.4)
+        ])
+        endTimeButton.setAttributedTitle(endAttr, for: .normal)
+
+        // Centre duration
+        let totalMins = Int(max(endDate.timeIntervalSince(startDate) / 60, 0))
+        let h = totalMins / 60, m = totalMins % 60
         switch (h, m) {
-        case (0, let m): durStr = "\(m) min"
-        case (let h, 0): durStr = "\(h) hr"
-        default:         durStr = "\(h) hr \(m) min"
+        case (0, let m): durationLabel.text = "\(m) mins"
+        case (let h, 0): durationLabel.text = "\(h) " + "\(h == 1 ? "hr" : "hrs")"
+        default:         durationLabel.text = "\(h) " + "\(h == 1 ? "hr" : "hrs") \(m) min"
         }
-
-        timeRangeLabel.text = "\(startStr) – \(endStr) \(period)  ·  \(durStr)"
     }
 
     // MARK: - Actions
 
     @objc private func startTapped() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        animateButton(startTimeButton)
         startPickerProxy.showPicker()
     }
 
     @objc private func endTapped() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        animateButton(endTimeButton)
         endPickerProxy.showPicker()
+    }
+
+    private func animateButton(_ button: UIButton) {
+        UIView.animate(withDuration: 0.1, animations: {
+            button.transform = CGAffineTransform(scaleX: 0.93, y: 0.93)
+            button.alpha = 0.6
+        }) { _ in
+            UIView.animate(withDuration: 0.3, delay: 0,
+                           usingSpringWithDamping: 0.6, initialSpringVelocity: 0.8) {
+                button.transform = .identity
+                button.alpha = 1
+            }
+        }
     }
 }
 
@@ -387,13 +397,20 @@ extension RoutineTimelineView: FormaTimePickerDelegate {
             endDate = date
             delegate?.timelineDidUpdateEnd(date)
         }
-        updateTimeLabel()
-
-        // Animate rebuild
+        refreshBottomRow()
         UIView.animate(withDuration: 0.35, delay: 0,
                        usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
             self.setNeedsLayout()
             self.layoutIfNeeded()
+        }
+        // Bounce duration label
+        UIView.animate(withDuration: 0.1, animations: {
+            self.durationLabel.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        }) { _ in
+            UIView.animate(withDuration: 0.35, delay: 0,
+                           usingSpringWithDamping: 0.5, initialSpringVelocity: 0.8) {
+                self.durationLabel.transform = .identity
+            }
         }
     }
 }
@@ -430,10 +447,10 @@ final class RoutineTimelineCard: UIView {
     }
 
     private func setup() {
-        backgroundColor = UIColor(white: 1, alpha: 0.05)
+        backgroundColor = .backgroundSecondary
         layer.cornerRadius = 20
         layer.borderWidth = 1
-        layer.borderColor = UIColor(white: 1, alpha: 0.08).cgColor
+        layer.borderColor = UIColor.backgroundSecondary.withAlphaComponent(0.1).cgColor
 
         let blur = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterialDark))
         blur.translatesAutoresizingMaskIntoConstraints = false
@@ -447,20 +464,15 @@ final class RoutineTimelineCard: UIView {
         icon.tintColor = UIColor.accent.withAlphaComponent(0.8)
         icon.contentMode = .scaleAspectFit
 
-        let titleLabel = UILabel()
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = "TIME WINDOW"
-        titleLabel.font = UIFont.monospacedSystemFont(ofSize: 10, weight: .semibold)
-        titleLabel.textColor = UIColor(white: 1, alpha: 0.35)
+        let titleView = FormaTextView()
+        titleView.translatesAutoresizingMaskIntoConstraints = false
+        titleView.addCaption("TIME WINDOW", typography: .monospacedSmall)
 
-        // Small hint that tapping track edges edits the times
-        let editHint = UILabel()
+        let editHint = FormaTextView()
         editHint.translatesAutoresizingMaskIntoConstraints = false
-        editHint.text = "TAP EDGES TO EDIT"
-        editHint.font = UIFont.monospacedSystemFont(ofSize: 8, weight: .medium)
-        editHint.textColor = UIColor(white: 1, alpha: 0.18)
+        editHint.addCaption("TAP EDGES TO EDIT", typography: .caption, color: UIColor.textTertiary)
 
-        let headerStack = UIStackView(arrangedSubviews: [icon, titleLabel])
+        let headerStack = UIStackView(arrangedSubviews: [icon, titleView])
         headerStack.translatesAutoresizingMaskIntoConstraints = false
         headerStack.axis = .horizontal
         headerStack.spacing = 8
@@ -468,7 +480,7 @@ final class RoutineTimelineCard: UIView {
 
         let divider = UIView()
         divider.translatesAutoresizingMaskIntoConstraints = false
-        divider.backgroundColor = UIColor(white: 1, alpha: 0.07)
+        divider.backgroundColor = UIColor.backgroundSecondary.withAlphaComponent(0.07)
 
         insertSubview(blur, at: 0)
         addSubview(headerStack)

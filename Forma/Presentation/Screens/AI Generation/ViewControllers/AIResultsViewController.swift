@@ -175,76 +175,7 @@ final class AIResultsViewController: BaseViewController {
         self.statsCard = card
     }
 
-    // MARK: - Layout
-
-    private func setupLayout() {
-        guard let statsCard else { return }
-
-        // CTA layer + button
-        ctaContainer.layer.insertSublayer(ctaGradientLayer, at: 0)
-        startButton.layer.insertSublayer(startButtonGlow, at: 0)
-        ctaContainer.addSubview(startButton)
-
-        // Scroll
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-
-        [eyebrowTextView, titleTextView, statsCard,
-         sectionTextView, routinesStack].forEach { contentView.addSubview($0) }
-
-        // Floating CTA
-        view.addSubview(ctaContainer)
-
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-
-            // Eyebrow
-            eyebrowTextView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 28),
-            eyebrowTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-
-            // Title
-            titleTextView.topAnchor.constraint(equalTo: eyebrowTextView.bottomAnchor, constant: 12),
-            titleTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            titleTextView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-
-            // Stats card
-            statsCard.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 28),
-            statsCard.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            statsCard.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            statsCard.heightAnchor.constraint(equalToConstant: 100),
-
-            // Section label
-            sectionTextView.topAnchor.constraint(equalTo: statsCard.bottomAnchor, constant: 36),
-            sectionTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-
-            // Routines
-            routinesStack.topAnchor.constraint(equalTo: sectionTextView.bottomAnchor, constant: 12),
-            routinesStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            routinesStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            routinesStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
-
-            // CTA
-            ctaContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            ctaContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            ctaContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            ctaContainer.heightAnchor.constraint(equalToConstant: 130),
-
-            startButton.leadingAnchor.constraint(equalTo: ctaContainer.leadingAnchor, constant: 24),
-            startButton.trailingAnchor.constraint(equalTo: ctaContainer.trailingAnchor, constant: -24),
-            startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
-            startButton.heightAnchor.constraint(equalToConstant: 60)
-        ])
-        animateIn([eyebrowTextView, statsCard, titleTextView, routinesStack, ctaContainer, startButton])
-    }
+   
 
     // MARK: - Routines
 
@@ -287,7 +218,10 @@ final class AIResultsViewController: BaseViewController {
     private func bindViewModel() {
         viewModel.$routines
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.reloadRoutines() }
+            .sink { [weak self] _ in
+                self?.buildStatsCard()
+                self?.reloadRoutines()
+            }
             .store(in: &cancellables)
 
         viewModel.$selectedRoutineForEdit
@@ -298,25 +232,6 @@ final class AIResultsViewController: BaseViewController {
     }
 
     // MARK: - Animations
-
-    private func animateEntrance() {
-        let headerViews: [UIView] = [eyebrowTextView, titleTextView]
-        headerViews.enumerated().forEach { i, v in
-            v.alpha = 0
-            v.transform = CGAffineTransform(translationX: -20, y: 0)
-            UIView.animate(withDuration: 0.6, delay: 0.05 * Double(i),
-                           usingSpringWithDamping: 0.85, initialSpringVelocity: 0) {
-                v.alpha = 1; v.transform = .identity
-            }
-        }
-
-        statsCard?.animateIn(delay: 0.2)
-
-        ctaContainer.transform = CGAffineTransform(translationX: 0, y: 80)
-        UIView.animate(withDuration: 0.7, delay: 0.4, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
-            self.ctaContainer.transform = .identity
-        }
-    }
 
     private func startGlowPulse() {
         let pulse = CABasicAnimation(keyPath: "shadowOpacity")
@@ -351,7 +266,7 @@ final class AIResultsViewController: BaseViewController {
     }
 
     private func showEditSheet(for routine: RoutineBlock) {
-        let editVC = RoutineEditViewController(routine: routine)
+        let editVC = RoutineEditViewController(vm: .init(routine: routine))
         editVC.onSave = { [weak self] updated in self?.viewModel.updateRoutine(updated) }
         let nav = UINavigationController(rootViewController: editVC)
         nav.modalPresentationStyle = .pageSheet
@@ -360,5 +275,78 @@ final class AIResultsViewController: BaseViewController {
             sheet.prefersGrabberVisible = true
         }
         present(nav, animated: true)
+    }
+}
+
+
+// MARK: - Layout
+extension AIResultsViewController {
+    private func setupLayout() {
+        guard let statsCard else { return }
+        
+        // CTA layer + button
+        ctaContainer.layer.insertSublayer(ctaGradientLayer, at: 0)
+        startButton.layer.insertSublayer(startButtonGlow, at: 0)
+        ctaContainer.addSubview(startButton)
+        
+        // Scroll
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        [eyebrowTextView, titleTextView, statsCard,
+         sectionTextView, routinesStack].forEach { contentView.addSubview($0) }
+        
+        // Floating CTA
+        view.addSubview(ctaContainer)
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            // Eyebrow
+            eyebrowTextView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 28),
+            eyebrowTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            
+            // Title
+            titleTextView.topAnchor.constraint(equalTo: eyebrowTextView.bottomAnchor, constant: 12),
+            titleTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            titleTextView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            
+            // Stats card
+            statsCard.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 28),
+            statsCard.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            statsCard.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            statsCard.heightAnchor.constraint(equalToConstant: 100),
+            
+            // Section label
+            sectionTextView.topAnchor.constraint(equalTo: statsCard.bottomAnchor, constant: 36),
+            sectionTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            
+            // Routines
+            routinesStack.topAnchor.constraint(equalTo: sectionTextView.bottomAnchor, constant: 12),
+            routinesStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            routinesStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            routinesStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
+            
+            // CTA
+            ctaContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            ctaContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            ctaContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            ctaContainer.heightAnchor.constraint(equalToConstant: 130),
+            
+            startButton.leadingAnchor.constraint(equalTo: ctaContainer.leadingAnchor, constant: 24),
+            startButton.trailingAnchor.constraint(equalTo: ctaContainer.trailingAnchor, constant: -24),
+            startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
+            startButton.heightAnchor.constraint(equalToConstant: 60)
+        ])
+        animateIn([eyebrowTextView, statsCard, titleTextView, routinesStack, ctaContainer, startButton])
     }
 }

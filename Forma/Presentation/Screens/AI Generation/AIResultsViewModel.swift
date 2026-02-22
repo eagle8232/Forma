@@ -87,6 +87,7 @@ final class AIResultsViewModel {
     
     func getTotalDuration() -> String {
         let totalMinutes = routines.reduce(0) { total, routine in
+            print(total, routine.title)
             return total + routine.tasks.reduce(0) { taskTotal, task in
                 return taskTotal + parseDuration(task.duration)
             }

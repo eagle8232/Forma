@@ -195,7 +195,7 @@ final class AIGenerationViewController: BaseViewController {
         // Brief delay then navigate
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             guard let self = self else { return }
-            let newGeneratedRoutines: [RoutineBlock] = [.mockMorning, .mockWork, .mockEvening]
+            let newGeneratedRoutines: [RoutineBlock] = RoutineBlock.allMocks
             coordinator?.showResultsScreen(routines: newGeneratedRoutines)
         }
     }

@@ -5,18 +5,14 @@
 //  Created by Vusal Nuriyev on 2/19/26.
 //
 
-//
-//  RoutineEditViewController.swift
-//  Forma
-//
-
 import UIKit
+import Combine
 
 final class RoutineEditViewController: BaseViewController {
 
     // MARK: - Properties
 
-    private var routine: RoutineBlock
+    private var viewModel: RoutineEditViewModel
     var onSave: ((RoutineBlock) -> Void)?
 
     // MARK: - Scroll
@@ -42,9 +38,9 @@ final class RoutineEditViewController: BaseViewController {
         let card = RoutineHeroCard()
         card.translatesAutoresizingMaskIntoConstraints = false
         card.configure(
-            title: routine.title,
-            description: routine.description ?? "",
-            icon: routine.icon
+            title: viewModel.routine.title,
+            description: viewModel.routine.description ?? "",
+            icon: viewModel.routine.icon
         )
         return card
     }()
@@ -52,10 +48,12 @@ final class RoutineEditViewController: BaseViewController {
     // MARK: - Timeline
 
     private lazy var timelineCard: RoutineTimelineCard = {
+        let startTimeDate = viewModel.timeDate(from: viewModel.routine.startTime) ?? viewModel.defaultTime(hour: 6, minute: 0)
+        let endTimeDate = viewModel.timeDate(from: viewModel.routine.endTime) ?? viewModel.defaultTime(hour: 8, minute: 30)
         let card = RoutineTimelineCard(
-            startDate: timeDate(from: routine.startTime) ?? defaultTime(hour: 6, minute: 0),
-            endDate:   timeDate(from: routine.endTime)   ?? defaultTime(hour: 7, minute: 30),
-            tasks: routine.tasks
+            startDate: startTimeDate,
+            endDate:   endTimeDate,
+            tasks: viewModel.routine.tasks
         )
         card.translatesAutoresizingMaskIntoConstraints = false
         return card
@@ -108,8 +106,8 @@ final class RoutineEditViewController: BaseViewController {
 
     // MARK: - Init
 
-    init(routine: RoutineBlock) {
-        self.routine = routine
+    init(vm: RoutineEditViewModel) {
+        self.viewModel = vm
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -126,10 +124,6 @@ final class RoutineEditViewController: BaseViewController {
         super.setupViews()
         applyGradientBackground()
 
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.isTranslucent = true
-
         setupLayout()
         populateTasks()
         animateEntrance()
@@ -145,65 +139,11 @@ final class RoutineEditViewController: BaseViewController {
         NotificationCenter.default.removeObserver(self)
     }
 
-    // MARK: - Layout
-
-    private func setupLayout() {
-        ctaContainer.layer.insertSublayer(ctaGradientLayer, at: 0)
-        ctaContainer.addSubview(saveButton)
-
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        view.addSubview(ctaContainer)
-
-        [heroCard, timelineCard, tasksHeaderView, tasksStack].forEach {
-            contentView.addSubview($0)
-        }
-
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-
-            heroCard.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            heroCard.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            heroCard.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-
-            timelineCard.topAnchor.constraint(equalTo: heroCard.bottomAnchor, constant: 16),
-            timelineCard.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            timelineCard.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-
-            tasksHeaderView.topAnchor.constraint(equalTo: timelineCard.bottomAnchor, constant: 28),
-            tasksHeaderView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            tasksHeaderView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-
-            tasksStack.topAnchor.constraint(equalTo: tasksHeaderView.bottomAnchor, constant: 14),
-            tasksStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            tasksStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            tasksStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
-
-            ctaContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            ctaContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            ctaContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            ctaContainer.heightAnchor.constraint(equalToConstant: 130),
-
-            saveButton.leadingAnchor.constraint(equalTo: ctaContainer.leadingAnchor, constant: 24),
-            saveButton.trailingAnchor.constraint(equalTo: ctaContainer.trailingAnchor, constant: -24),
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
-            saveButton.heightAnchor.constraint(equalToConstant: 58)
-        ])
-    }
-
+    
     // MARK: - Tasks
 
     private func populateTasks() {
-        routine.tasks.enumerated().forEach { i, task in
+        viewModel.routine.tasks.enumerated().forEach { i, task in
             insertTaskRow(task, delay: 0.04 * Double(i))
         }
     }
@@ -211,7 +151,7 @@ final class RoutineEditViewController: BaseViewController {
     private func addTaskTapped() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         let newTask = RoutineTask(id: UUID().uuidString, title: "", duration: "", description: "", isCompleted: false)
-        routine.tasks.append(newTask)
+        viewModel.routine.tasks.append(newTask)
         insertTaskRow(newTask, delay: 0, scrollToBottom: true)
     }
 
@@ -253,7 +193,7 @@ final class RoutineEditViewController: BaseViewController {
         }) { _ in
             self.tasksStack.removeArrangedSubview(row)
             row.removeFromSuperview()
-            self.routine.tasks.removeAll { $0.id == task.id }
+            self.viewModel.routine.tasks.removeAll { $0.id == task.id }
             self.reindexTaskRows()
             self.syncTasksToTimeline()
         }
@@ -278,6 +218,7 @@ final class RoutineEditViewController: BaseViewController {
                 isCompleted: false
             )
         }
+        viewModel.routine.tasks = liveTasks
         timelineCard.updateTasks(liveTasks)
     }
 
@@ -317,53 +258,101 @@ final class RoutineEditViewController: BaseViewController {
         scrollView.contentInset.bottom = 140
     }
 
-    // MARK: - Helpers
-
-    private func timeDate(from string: String) -> Date? {
-        let f = DateFormatter(); f.dateFormat = "HH:mm"
-        return f.date(from: string)
-    }
-
-    private func timeString(from date: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "HH:mm"
-        return f.string(from: date)
-    }
-
-    private func defaultTime(hour: Int, minute: Int) -> Date {
-        var c = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-        c.hour = hour; c.minute = minute
-        return Calendar.current.date(from: c) ?? Date()
-    }
-
     // MARK: - Actions
 
     @objc private func saveTapped() {
+        guard viewModel.isDurationValid else {
+            let alert = UIAlertController(
+                title: "Duration Mismatch",
+                message: "Total task duration exceeds the routine's time window.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+
         SoundManager.shared.playSound(.buttonTap)
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         view.endEditing(true)
 
-        var updated = routine
-        updated.title       = heroCard.currentTitle
-        updated.description = heroCard.currentDescription
-        updated.icon        = heroCard.currentIcon
-        updated.startTime   = timeString(from: timelineCard.startDate)
-        updated.endTime     = timeString(from: timelineCard.endDate)
-
         let rows = tasksStack.arrangedSubviews.compactMap { $0 as? TaskEditRow }
-        updated.tasks = rows.compactMap { row -> RoutineTask? in
+        let tasks = rows.compactMap { row -> RoutineTask? in
             guard let title = row.currentTitle, !title.isEmpty else { return nil }
-            return RoutineTask(
-                id: row.taskId,
-                title: title,
-                duration: row.currentDuration ?? "",
-                description: row.currentDescription ?? "",
-                isCompleted: false
-            )
+            return RoutineTask(id: row.taskId, title: title,
+                               duration: row.currentDuration ?? "",
+                               description: row.currentDescription ?? "",
+                               isCompleted: false)
         }
+
+        let updated = viewModel.buildUpdatedRoutine(
+            title: heroCard.currentTitle,
+            description: heroCard.currentDescription,
+            icon: heroCard.currentIcon,
+            startDate: timelineCard.startDate,
+            endDate: timelineCard.endDate,
+            tasks: tasks
+        )
 
         onSave?(updated)
         dismiss(animated: true)
     }
 
     @objc private func cancelTapped() { dismiss(animated: true) }
+}
+
+// MARK: - Layout
+extension RoutineEditViewController {
+    private func setupLayout() {
+        ctaContainer.layer.insertSublayer(ctaGradientLayer, at: 0)
+        ctaContainer.addSubview(saveButton)
+        
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        view.addSubview(ctaContainer)
+        
+        [heroCard, timelineCard, tasksHeaderView, tasksStack].forEach {
+            contentView.addSubview($0)
+        }
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            heroCard.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            heroCard.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            heroCard.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            timelineCard.topAnchor.constraint(equalTo: heroCard.bottomAnchor, constant: 16),
+            timelineCard.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            timelineCard.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            tasksHeaderView.topAnchor.constraint(equalTo: timelineCard.bottomAnchor, constant: 28),
+            tasksHeaderView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            tasksHeaderView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            tasksStack.topAnchor.constraint(equalTo: tasksHeaderView.bottomAnchor, constant: 14),
+            tasksStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            tasksStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            tasksStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
+            
+            ctaContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            ctaContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            ctaContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            ctaContainer.heightAnchor.constraint(equalToConstant: 130),
+            
+            saveButton.leadingAnchor.constraint(equalTo: ctaContainer.leadingAnchor, constant: 24),
+            saveButton.trailingAnchor.constraint(equalTo: ctaContainer.trailingAnchor, constant: -24),
+            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
+            saveButton.heightAnchor.constraint(equalToConstant: 58)
+        ])
+    }
 }
