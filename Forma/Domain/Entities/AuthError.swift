@@ -7,28 +7,20 @@
 
 import Foundation
 
-enum AuthError: Error, LocalizedError {
-    case invalidEmail
-    case weakPassword
-    case emailAlreadyInUse
-    case userNotFound
-    case wrongPassword
-    case unknown
-    
+enum AuthError: LocalizedError {
+    case cancelled
+    case invalidCredential
+    case missingUserData
+    case missingGoogleClientID
+    case noPresentingViewController
+
     var errorDescription: String? {
         switch self {
-        case .invalidEmail:
-            return "The email format is incorrect."
-        case .weakPassword:
-            return "Your password must be at least 6 characters."
-        case .emailAlreadyInUse:
-            return "This email is already registered."
-        case .userNotFound:
-            return "No account found with these credentials."
-        case .wrongPassword:
-            return "The password you entered is incorrect."
-        case .unknown:
-            return "Something went wrong. Please try again."
+        case .cancelled:             return nil // Silent — user chose to cancel
+        case .invalidCredential:     return "We couldn't verify your credentials. Please try again."
+        case .missingUserData:       return "Your profile data is missing. Please restart the setup."
+        case .missingGoogleClientID: return "Google Sign-In is not configured correctly."
+        case .noPresentingViewController: return "Unable to present the sign-in screen."
         }
     }
 }

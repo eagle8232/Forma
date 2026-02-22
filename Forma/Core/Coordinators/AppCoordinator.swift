@@ -37,16 +37,27 @@ public final class AppCoordinator: Coordinator {
     func showOnboardingView() {
         let onboardingCoordinator = OnboardingCoordinator(navigationController: navigationController)
         onboardingCoordinator.delegate = self
-        childCoordinators.append(onboardingCoordinator)
+        addChild(onboardingCoordinator)
         onboardingCoordinator.start()
     }
     
-    func showSignInScreen() {
+    func showAuthScreen(_ userPreferences: UserPreferences? = nil, routines: [RoutineBlock]? = nil) {
+        let authCoordinator = AuthCoordinator(navigationController: navigationController)
+        authCoordinator.delegate = self
+        addChild(authCoordinator)
         
+        if let userPreferences, let routines {
+            authCoordinator.showSignUpScreen(with: userPreferences, routines: routines)
+        } else {
+            authCoordinator.start()
+        }
     }
-     
-    func showSignUpScreen() {
-        
+    
+    func showAIGeneration(with userPreferences: UserPreferences) {
+        let aiGenerationCoordinator = AIGenerationCoordinator(navigationController: navigationController, userPreferences: userPreferences)
+        aiGenerationCoordinator.delegate = self
+        addChild(aiGenerationCoordinator)
+        aiGenerationCoordinator.start()
     }
     
     func showMainFlow() {
@@ -54,13 +65,39 @@ public final class AppCoordinator: Coordinator {
     }
 }
 
+
+// MARK: - Onboarding Coordinator Delegate
 extension AppCoordinator: OnboardingCoordinatorDelegate {
     
     func didTapSignIn(_ coordinator: OnboardingCoordinator) {
-        // TODO: Push Sign In Screen Function
+        showAuthScreen()
     }
     
-    func didFinish(_ coordinator: OnboardingCoordinator) {
-        // TODO: Push Sign In Screen Function
+    func didFinish(_ coordinator: OnboardingCoordinator, with userPreferences: UserPreferences) {
+        removeChild(coordinator)
+        showAIGeneration(with: userPreferences)
+    }
+}
+
+// MARK: - Onboarding Coordinator Delegate
+extension AppCoordinator: AuthCoordinatorDelegate {
+    func didCancelAuth(_ coordinator: AuthCoordinator) {
+        removeChild(coordinator)
+    }
+    
+    func didCompleteSignIn(_ coordinator: AuthCoordinator) {
+        let vc = HomeViewController()
+        navigationController.setViewControllers([vc], animated: true)
+    }
+    
+    func didCompleteSignUp(_ coordinator: AuthCoordinator, with user: User, routines: [RoutineBlock]) {
+        // TODO: - Show Main Flow Action
+    }
+}
+
+// MARK: - AI Generation Coordinator Delegate
+extension AppCoordinator: AIGenerationCoordinatorDelegate {
+    func didRequestSignUp(_ coordinator: AIGenerationCoordinator, with userPreferences: UserPreferences, routines: [RoutineBlock]) {
+        showAuthScreen(userPreferences, routines: routines)
     }
 }

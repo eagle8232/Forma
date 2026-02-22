@@ -8,7 +8,7 @@
 import Foundation
 
 protocol FetchActivitiesUseCaseProtocol {
-    func execute(with id: String) async throws -> [Activity]
+    func execute(with id: String) async throws -> [RoutineTask]
 }
 
 final class FetchActivitiesUseCase: FetchActivitiesUseCaseProtocol {
@@ -19,8 +19,8 @@ final class FetchActivitiesUseCase: FetchActivitiesUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute(with id: String) async throws -> [Activity] {
+    func execute(with id: String) async throws -> [RoutineTask] {
         let activities = try await repository.fetchActivities(with: id)
-        return activities.sorted{$0.startTime < $1.startTime}
+        return activities
     }
 }

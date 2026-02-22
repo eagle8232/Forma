@@ -10,7 +10,7 @@ import Foundation
 protocol SignUpAuthUseCaseProtocol {
     func execute(with authProvider: AuthProvider,
                  userPreferences: UserPreferences,
-                 routines: [Routine]) async throws -> User?
+                 routines: [RoutineBlock]) async throws -> User?
 }
 
 class SignUpAuthUseCase: SignUpAuthUseCaseProtocol {
@@ -32,10 +32,8 @@ class SignUpAuthUseCase: SignUpAuthUseCaseProtocol {
     func execute(
         with authProvider: AuthProvider,
         userPreferences: UserPreferences,
-        routines: [Routine]) async throws -> User?
+        routines: [RoutineBlock]) async throws -> User?
     {
-        // TODO: Wrap in do-catch to handle partial failures
-        
         guard let userCredentials = try await authRepository.signUp(with: authProvider) else {
             return nil
         }
@@ -48,7 +46,7 @@ class SignUpAuthUseCase: SignUpAuthUseCaseProtocol {
         try await userRepository.saveUser(user)
         
         try await routineRepository.saveRoutine(routines, userId: userCredentials.id)
-        
-        return user
+
+        return nil
     }
 }

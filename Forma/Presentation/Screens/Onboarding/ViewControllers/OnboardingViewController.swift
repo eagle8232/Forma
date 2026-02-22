@@ -10,9 +10,7 @@ import Lottie
 
 final class OnboardingViewController: BaseViewController {
     
-    // MARK: - Coordinators
-    weak var coordinator: AppCoordinator?
-    weak var onboardingCoordinator: OnboardingCoordinator?
+    weak var coordinator: OnboardingCoordinator?
     
     // MARK: - Properties
     private var animationView: LottieAnimationView?
@@ -136,11 +134,11 @@ extension OnboardingViewController {
 extension OnboardingViewController: OnboardingMainContentViewDelegate {
     
     func didTapGetStarted(_ view: OnboardingMainContentView) {
-        onboardingCoordinator?.showEnergyPeakScreen()
+        coordinator?.showEnergyPeakScreen()
     }
     
     func didTapSignIn(_ view: OnboardingMainContentView) {
-        coordinator?.showSignInScreen()
+        coordinator?.didTapSignIn()
     }
 }
 

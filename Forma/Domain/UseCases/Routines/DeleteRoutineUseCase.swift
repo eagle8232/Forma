@@ -8,7 +8,7 @@
 import Foundation
 
 protocol DeleteRoutineUseCaseProtocol {
-    func execute(_ routine: Routine, userId: String) async throws
+    func execute(_ routine: RoutineBlock, userId: String) async throws
 }
 
 final class DeleteRoutineUseCase: DeleteRoutineUseCaseProtocol {
@@ -19,7 +19,7 @@ final class DeleteRoutineUseCase: DeleteRoutineUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute(_ routine: Routine, userId: String) async throws {
+    func execute(_ routine: RoutineBlock, userId: String) async throws {
         try await repository.deleteRoutine(routine, userId: userId)
     }
 }

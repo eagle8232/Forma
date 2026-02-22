@@ -9,12 +9,7 @@ import UIKit
 
 protocol OnboardingCoordinatorDelegate: AnyObject {
     func didTapSignIn(_ coordinator: OnboardingCoordinator)
-    func didTapGetStarted(_ coordinator: OnboardingCoordinator)
-    func didFinish(_ coordinator: OnboardingCoordinator)
-}
-
-extension OnboardingCoordinatorDelegate {
-    func didTapGetStarted(_ coordinator: OnboardingCoordinator) {}
+    func didFinish(_ coordinator: OnboardingCoordinator, with userPreferences: UserPreferences)
 }
 
 final class OnboardingCoordinator: Coordinator {
@@ -30,8 +25,8 @@ final class OnboardingCoordinator: Coordinator {
     
     func start() {
         let onboardingVC = OnboardingViewController()
-        onboardingVC.onboardingCoordinator = self
-        navigationController.pushViewController(onboardingVC, animated: true)
+        onboardingVC.coordinator = self
+        navigationController.setViewControllers([onboardingVC], animated: true)
     }
     
     func showEnergyPeakScreen() {
@@ -61,9 +56,11 @@ final class OnboardingCoordinator: Coordinator {
         navigationController.pushViewController(ultimateGoalVC, animated: true)
     }
     
-    func showFinishScreen(_ preferences: UserPreferences) {
-        let finishVC = FinishViewController()
-        finishVC.userPreferences = preferences
-        navigationController.pushViewController(finishVC, animated: true)
+    func didFinishOnboarding(_ preferences: UserPreferences) {
+        delegate?.didFinish(self, with: preferences)
+    }
+    
+    func didTapSignIn() {
+        delegate?.didTapSignIn(self)
     }
 }

@@ -112,36 +112,6 @@ extension UltimateGoalViewController: OnboardingBaseViewControllerDelegate {
     func didTapButton(_ view: OnboardingBaseViewController) {
         guard var userPreferences else { return }
         userPreferences.goal = goals.map {$0.rawValue}
-        coordinator?.showFinishScreen(userPreferences)
-    }
-}
-
-final class FinishViewController: BaseViewController {
-    
-    var userPreferences: UserPreferences?
-    
-    override func setupViews() {
-        super.setupViews()
-        showUserPreferences()
-    }
-    
-    private func showUserPreferences() {
-        guard let userPreferences else { return }
-        let textView = FormaTextView()
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(textView)
-        
-        NSLayoutConstraint.activate([
-            textView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            textView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            textView.heightAnchor.constraint(equalToConstant: 300),
-        ])
-        
-        textView.addBody(userPreferences.profession)
-        textView.addBody(userPreferences.goal.joined(separator: ",\n"))
-        textView.addBody(userPreferences.focusTime?.formatted() ?? "flexible")
-        textView.addBody(userPreferences.wakeUpTime.formatted())
-        textView.addBody(userPreferences.sleepTime.formatted())
+        coordinator?.didFinishOnboarding(userPreferences)
     }
 }

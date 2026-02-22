@@ -7,11 +7,10 @@
 
 import Foundation
 
-struct Activity: Identifiable {
+struct RoutineTask: Identifiable {
     let id: String
-    var name: String
-    var desciption: String
-    var startTime: Date
-    var endTime: Date
+    var title: String
+    var duration: String
+    var description: String
     var isCompleted: Bool
 }

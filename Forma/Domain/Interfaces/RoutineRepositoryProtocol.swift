@@ -8,7 +8,7 @@
 import Foundation
 
 protocol RoutineRepositoryProtocol {
-    func fetchRoutines(userId: String) async throws -> [Routine]
-    func saveRoutine(_ routines: [Routine], userId: String) async throws
-    func deleteRoutine(_ routine: Routine, userId: String) async throws
+    func fetchRoutines(userId: String) async throws -> [RoutineBlock]
+    func saveRoutine(_ routines: [RoutineBlock], userId: String) async throws
+    func deleteRoutine(_ routine: RoutineBlock, userId: String) async throws
 }

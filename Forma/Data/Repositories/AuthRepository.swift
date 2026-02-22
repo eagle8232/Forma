@@ -90,9 +90,9 @@ final class AuthRepository: AuthRepositoryProtocol {
     fileprivate func mapAuthError(_ error: Error) -> AuthError {
         let nsError = error as NSError
         // Map specific Firebase error codes here
-        if nsError.code == 17008 { return .invalidEmail }
+        if nsError.code == 17008 { return .invalidCredential }
         // ... other codes
-        return .unknown
+        return .missingUserData
     }
     
 }

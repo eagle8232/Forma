@@ -8,7 +8,7 @@
 import Foundation
 
 protocol SaveRoutineUseCaseProtocol {
-    func execute(_ routines: [Routine], userId: String) async throws
+    func execute(_ routines: [RoutineBlock], userId: String) async throws
 }
 
 final class SaveRoutineUseCase: SaveRoutineUseCaseProtocol {
@@ -19,7 +19,7 @@ final class SaveRoutineUseCase: SaveRoutineUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute(_ routines: [Routine], userId: String) async throws {
+    func execute(_ routines: [RoutineBlock], userId: String) async throws {
         try await repository.saveRoutine(routines, userId: userId)
     }
 }

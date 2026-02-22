@@ -8,7 +8,7 @@
 import Foundation
 
 protocol SaveActivityUseCaseProtocol {
-    func execute(_ activity: Activity) async throws
+    func execute(_ activity: RoutineTask) async throws
 }
 
 final class SaveActivityUseCase: SaveActivityUseCaseProtocol {
@@ -19,7 +19,7 @@ final class SaveActivityUseCase: SaveActivityUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute(_ activity: Activity) async throws {
+    func execute(_ activity: RoutineTask) async throws {
         try await repository.saveActivity(activity)
     }
 }

@@ -12,7 +12,7 @@ final class RoutineRepository: RoutineRepositoryProtocol {
     
     private let db = Firestore.firestore()
     
-    func fetchRoutines(userId: String) async throws -> [Routine] {
+    func fetchRoutines(userId: String) async throws -> [RoutineBlock] {
         
         let snap =
         try await db
@@ -32,7 +32,7 @@ final class RoutineRepository: RoutineRepositoryProtocol {
         return routines
     }
     
-    func saveRoutine(_ routines: [Routine], userId: String) async throws {
+    func saveRoutine(_ routines: [RoutineBlock], userId: String) async throws {
         
         for routine in routines {
             let routineDTO = routine.toDTO()
@@ -46,7 +46,7 @@ final class RoutineRepository: RoutineRepositoryProtocol {
         
     }
     
-    func deleteRoutine(_ routine: Routine, userId: String) async throws {
+    func deleteRoutine(_ routine: RoutineBlock, userId: String) async throws {
         
         try await db
             .collection(FirestorePathNames.users.rawValue)

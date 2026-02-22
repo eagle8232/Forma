@@ -5,8 +5,6 @@
 //  Created by Vusal Nuriyev on 2/16/26.
 //
 
-// FormaTimePickerView.swift
-
 import UIKit
 
 protocol FormaTimePickerDelegate: AnyObject {
@@ -80,7 +78,6 @@ final class FormaTimePickerView: UIView {
         view.backgroundColor = .backgroundSecondary
         view.layer.cornerRadius = 16
         
-        // Add tap gesture
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cardTapped))
         view.addGestureRecognizer(tapGesture)
         
@@ -125,7 +122,6 @@ final class FormaTimePickerView: UIView {
     init(type: PickerType) {
         self.pickerType = type
         
-        // Create default date
         var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
         components.hour = type.defaultHour
         components.minute = type.defaultMinute
@@ -150,6 +146,13 @@ final class FormaTimePickerView: UIView {
         selectedDate = date
         updateTimeDisplay()
     }
+
+    /// Programmatically presents the time picker modal.
+    /// Use this when the view is hidden (e.g. used as a proxy trigger).
+    /// All other VCs that use FormaTimePickerView via tap are unaffected.
+    func showPicker() {
+        showTimePicker()
+    }
     
     // MARK: - Private Methods
     
@@ -158,7 +161,6 @@ final class FormaTimePickerView: UIView {
         let hour = calendar.component(.hour, from: selectedDate)
         let minute = calendar.component(.minute, from: selectedDate)
         
-        // Format time (12-hour format)
         let displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
         let period = hour >= 12 ? "PM" : "AM"
         
@@ -167,14 +169,9 @@ final class FormaTimePickerView: UIView {
     }
     
     @objc private func cardTapped() {
-        // Add haptic feedback
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
-        
-        // Play sound
         SoundManager.shared.playSound(.buttonTap)
-        
-        // Show picker
         showTimePicker()
     }
     
@@ -219,30 +216,23 @@ extension FormaTimePickerView {
         containerView.addSubview(periodLabel)
         
         NSLayoutConstraint.activate([
-            // Container
             containerView.topAnchor.constraint(equalTo: topAnchor),
             containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            // Icon
             iconLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
             iconLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             
-            // Title
             titleLabel.topAnchor.constraint(equalTo: iconLabel.bottomAnchor, constant: 12),
             titleLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             
-            // Time
             timeLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             timeLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             
-            // Period (AM/PM)
             periodLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 4),
             periodLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             periodLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20)
         ])
     }
-    
 }
-

@@ -15,7 +15,8 @@ struct RoutineDTO: Codable {
     var colorString: String?
     var startTime: Date?
     var endTime: Date?
-    var activities: [ActivityDTO]?
+    var activities: [RoutineTaskDTO]?
+    var intensity: BlockIntensity?
     
     enum CodingKeys: CodingKey {
         case id
@@ -26,5 +27,6 @@ struct RoutineDTO: Codable {
         case startTime
         case endTime
         case activities
+        case intensity
     }
 }

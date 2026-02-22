@@ -7,18 +7,19 @@
 
 import Foundation
 
-struct ActivityDTO: Codable {
+struct RoutineTaskDTO: Codable {
     let id: String?
     var name: String?
-    var desciption: String?
+    var description: String?
     var startTime: Date?
     var endTime: Date?
     var isCompleted: Bool?
+    var intenisty: BlockIntensity?
     
     enum CodingKeys: CodingKey {
         case id
         case name
-        case desciption
+        case description
         case startTime
         case endTime
         case isCompleted

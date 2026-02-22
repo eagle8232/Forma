@@ -31,6 +31,10 @@ enum Typography {
     case caption             // 12pt - Metadata, timestamps
     case overline            // 11pt - Category labels, badges
     
+    case monospacedLarge      // 17pt - Code snippets, if needed
+    case monospacedMedium     // 15pt - Smaller code snippets
+    case monospacedSmall      // 13pt - Inline code or annotations
+    
     // MARK: - Computed Properties
     
     var font: UIFont {
@@ -70,6 +74,14 @@ enum Typography {
             return .systemFont(ofSize: 12, weight: .regular)
         case .overline:
             return .systemFont(ofSize: 11, weight: .medium)
+        
+        // Monospaced (for code snippets, if needed)
+        case  .monospacedLarge:
+            return .monospacedSystemFont(ofSize: 17, weight: .regular)
+        case .monospacedMedium:
+            return .monospacedSystemFont(ofSize: 15, weight: .regular)
+        case .monospacedSmall:
+            return .monospacedSystemFont(ofSize: 13, weight: .regular)
         }
     }
     
@@ -84,6 +96,9 @@ enum Typography {
         case .bodyLarge: return 24
         case .bodyMedium: return 22
         case .bodySmall: return 20
+        case .monospacedLarge: return 24
+        case .monospacedMedium: return 22
+        case .monospacedSmall: return 20
         case .buttonLarge, .buttonMedium: return 20
         case .label: return 20
         case .caption: return 16
