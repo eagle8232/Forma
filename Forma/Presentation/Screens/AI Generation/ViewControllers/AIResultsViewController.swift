@@ -165,14 +165,18 @@ final class AIResultsViewController: BaseViewController {
 
     // MARK: - Stats Card Builder
 
-    private func buildStatsCard() {
+    private func buildStatsCard(isUpdated: Bool = false) {
         let stats: [AIResultsStatsCard.Stat] = [
             .init(value: "\(viewModel.routines.count)", label: "Routines"),
             .init(value: viewModel.getTotalDuration(), label: "Duration"),
             .init(value: "\(viewModel.routines.flatMap { $0.tasks }.count)", label: "Tasks")
         ]
-        let card = AIResultsStatsCard(stats: stats)
-        self.statsCard = card
+        if !isUpdated {
+            let card = AIResultsStatsCard(stats: stats)
+            self.statsCard = card
+        } else {
+            self.statsCard?.updateStats(stats)
+        }
     }
 
    
@@ -219,7 +223,6 @@ final class AIResultsViewController: BaseViewController {
         viewModel.$routines
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.buildStatsCard()
                 self?.reloadRoutines()
             }
             .store(in: &cancellables)
@@ -267,7 +270,10 @@ final class AIResultsViewController: BaseViewController {
 
     private func showEditSheet(for routine: RoutineBlock) {
         let editVC = RoutineEditViewController(vm: .init(routine: routine))
-        editVC.onSave = { [weak self] updated in self?.viewModel.updateRoutine(updated) }
+        editVC.onSave = { [weak self] updated in
+            self?.viewModel.updateRoutine(updated)
+            self?.buildStatsCard(isUpdated: true)
+        }
         let nav = UINavigationController(rootViewController: editVC)
         nav.modalPresentationStyle = .pageSheet
         if let sheet = nav.sheetPresentationController {

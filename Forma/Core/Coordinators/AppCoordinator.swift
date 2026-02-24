@@ -27,11 +27,15 @@ public final class AppCoordinator: Coordinator {
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
         
-        if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
-            showMainFlow()
-        } else {
-            showOnboardingView()
-        }
+//        if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+//            showMainFlow()
+//        } else {
+//            showOnboardingView()
+//        }
+        
+        // - For testing
+        let testVC = TestViewController()
+        navigationController.setViewControllers([testVC], animated: true)
     }
     
     func showOnboardingView() {

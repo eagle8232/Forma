@@ -35,26 +35,29 @@ final class AIResultsStatsCard: UIView {
         return s
     }()
 
+    private var valueLabels: [UILabel] = []
+
+    private var stats: [Stat]
+
     // MARK: - Init
 
     init(stats: [Stat]) {
+        self.stats = stats
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         setupBase()
-        populate(stats: stats)
+        populate()
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
-    // MARK: - Setup
+    // MARK: - Setup (called once)
 
     private func setupBase() {
         layer.cornerRadius = 24
         layer.borderWidth = 1
         layer.borderColor = UIColor(white: 1, alpha: 0.08).cgColor
         clipsToBounds = false
-
-        // Subtle glow shadow
         layer.shadowColor = UIColor.accent.cgColor
         layer.shadowOpacity = 0.08
         layer.shadowRadius = 20
@@ -76,19 +79,35 @@ final class AIResultsStatsCard: UIView {
         ])
     }
 
-    private func populate(stats: [Stat]) {
+    /// Builds cells exactly once on init
+    private func populate() {
+        valueLabels.removeAll()
         stats.forEach { stat in
-            outerStack.addArrangedSubview(makeCell(stat: stat))
+            let (cell, valueLabel) = makeCell(stat: stat)
+            outerStack.addArrangedSubview(cell)
+            valueLabels.append(valueLabel)
         }
     }
 
-    // MARK: - Cell Builder
+    // MARK: - Public update (no rebuild, just text swap)
 
-    private func makeCell(stat: Stat) -> UIView {
+    func updateStats(_ stats: [Stat]) {
+        self.stats = stats
+        zip(valueLabels, stats).forEach { label, stat in
+            guard label.text != stat.value else { return }
+            UIView.transition(with: label, duration: 0.25,
+                              options: .transitionCrossDissolve) {
+                label.text = stat.value
+            }
+        }
+    }
+
+    // MARK: - Cell builder — returns both the view and the label to store
+
+    private func makeCell(stat: Stat) -> (UIView, UILabel) {
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
 
-        // Large value
         let valueLabel = UILabel()
         valueLabel.translatesAutoresizingMaskIntoConstraints = false
         valueLabel.text = stat.value
@@ -96,20 +115,16 @@ final class AIResultsStatsCard: UIView {
         valueLabel.textColor = .white
         valueLabel.textAlignment = .center
 
-        // Accent underline bar
         let bar = UIView()
         bar.translatesAutoresizingMaskIntoConstraints = false
         bar.backgroundColor = UIColor.accent.withAlphaComponent(0.7)
         bar.layer.cornerRadius = 1.5
 
-        // Label
         let tv = FormaTextView()
         tv.translatesAutoresizingMaskIntoConstraints = false
-        tv.addCaption(
-            stat.label.uppercased(),
-            color: UIColor(white: 1, alpha: 0.35),
-            alignment: .center
-        )
+        tv.addCaption(stat.label.uppercased(),
+                      color: UIColor(white: 1, alpha: 0.35),
+                      alignment: .center)
 
         [valueLabel, bar, tv].forEach { container.addSubview($0) }
 
@@ -129,7 +144,7 @@ final class AIResultsStatsCard: UIView {
             tv.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
 
-        return container
+        return (container, valueLabel)
     }
 
     // MARK: - Animate In

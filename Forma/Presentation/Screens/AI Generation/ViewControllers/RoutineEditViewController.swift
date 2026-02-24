@@ -56,6 +56,7 @@ final class RoutineEditViewController: BaseViewController {
             tasks: viewModel.routine.tasks
         )
         card.translatesAutoresizingMaskIntoConstraints = false
+        card.delegate = self
         return card
     }()
 
@@ -123,7 +124,8 @@ final class RoutineEditViewController: BaseViewController {
     override func setupViews() {
         super.setupViews()
         applyGradientBackground()
-
+        navigationController?.navigationItem.title = "Edit \(viewModel.routine.title)"
+        navigationController?.navigationItem.largeTitleDisplayMode = .never
         setupLayout()
         populateTasks()
         animateEntrance()
@@ -261,6 +263,7 @@ final class RoutineEditViewController: BaseViewController {
     // MARK: - Actions
 
     @objc private func saveTapped() {
+        print(viewModel.routineWindowMinutes, viewModel.totalTaskMinutes)
         guard viewModel.isDurationValid else {
             let alert = UIAlertController(
                 title: "Duration Mismatch",
@@ -299,6 +302,17 @@ final class RoutineEditViewController: BaseViewController {
     }
 
     @objc private func cancelTapped() { dismiss(animated: true) }
+}
+
+// MARK: - RoutineTimelineCardDelegate
+extension RoutineEditViewController: RoutineTimelineCardDelegate {
+    func didSetStartTime(_ date: Date) {
+        viewModel.routine.startTime = viewModel.timeString(from: date)
+    }
+    
+    func didSetEndTime(_ date: Date) {
+        viewModel.routine.endTime = viewModel.timeString(from: date)
+    }
 }
 
 // MARK: - Layout
