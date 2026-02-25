@@ -27,6 +27,7 @@ final class TestViewController: BaseViewController {
     private lazy var verticalTimelineView: VerticalTimelineView = {
         let view = VerticalTimelineView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.delegate = self
         return view
     }()
     
@@ -39,6 +40,7 @@ final class TestViewController: BaseViewController {
     
     override func setupViews() {
         super.setupViews()
+        applyGradientBackground()
         setupLayouts()
         
     }
@@ -57,8 +59,8 @@ extension TestViewController {
         
         timelineScrollView.addSubview(timelineContentView)
         view.addSubview(timelineScrollView)
-        
-        timelineContentView.addSubview(verticalTimelineView)
+        view.addSubview(verticalTimelineView)
+    
         timelineContentView.addSubview(professionGridView)
         
         NSLayoutConstraint.activate([
@@ -79,10 +81,16 @@ extension TestViewController {
             professionGridView.trailingAnchor.constraint(equalTo: timelineContentView.trailingAnchor, constant: -16),
             professionGridView.bottomAnchor.constraint(equalTo: timelineContentView.bottomAnchor, constant: -8),
             
-            verticalTimelineView.topAnchor.constraint(equalTo: timelineContentView.topAnchor),
+            verticalTimelineView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
             verticalTimelineView.leadingAnchor.constraint(equalTo: timelineContentView.leadingAnchor),
-            verticalTimelineView.widthAnchor.constraint(equalToConstant: 35),
-            verticalTimelineView.heightAnchor.constraint(equalTo: professionGridView.heightAnchor),
+            verticalTimelineView.widthAnchor.constraint(equalToConstant: 50),
+            verticalTimelineView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
+    }
+}
+
+extension TestViewController: VerticalTimelineViewDelegate {
+    func didSelectRoutine(view: VerticalTimelineView, _ routine: RoutineBlock) {
+        print(routine.title)
     }
 }

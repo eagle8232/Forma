@@ -7,6 +7,7 @@
 
 import UIKit
 
+// MARK: - HEX Color init
 extension UIColor {
     convenience init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -28,6 +29,29 @@ extension UIColor {
             green: CGFloat(g) / 255,
             blue: CGFloat(b) / 255,
             alpha: CGFloat(a) / 255
+        )
+    }
+}
+
+
+// MARK: - Lighter & Darker versions
+extension UIColor {
+    func lighter(by amount: CGFloat) -> UIColor {
+        adjusted(brightness: amount, saturation: -amount * 0.3)
+    }
+
+    func darker(by amount: CGFloat) -> UIColor {
+        adjusted(brightness: -amount, saturation: amount * 0.2)
+    }
+
+    private func adjusted(brightness: CGFloat, saturation: CGFloat) -> UIColor {
+        var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+        return UIColor(
+            hue:        h,
+            saturation: max(0, min(1, s + saturation)),
+            brightness: max(0, min(1, b + brightness)),
+            alpha:      a
         )
     }
 }
