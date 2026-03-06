@@ -10,18 +10,18 @@ import Foundation
 struct RoutineTaskDTO: Codable {
     let id: String?
     var name: String?
+    var startTime: String?
     var description: String?
-    var startTime: Date?
-    var endTime: Date?
-    var isCompleted: Bool?
+    var duration: Int?
+    var state: TaskState?
     var intenisty: BlockIntensity?
     
     enum CodingKeys: CodingKey {
         case id
         case name
-        case description
         case startTime
-        case endTime
-        case isCompleted
+        case description
+        case duration
+        case state
     }
 }

@@ -14,7 +14,8 @@ protocol OnboardingBaseViewControllerDelegate: AnyObject {
 class OnboardingBaseViewController: BaseViewController {
     
     weak var delegate: OnboardingBaseViewControllerDelegate?
-    private var bottomGradientView: UIView!
+    private var bottomGradientLayer: CAGradientLayer!
+    var bottomGradientView: UIView!
     lazy var textView = FormaTextView()
     lazy var button = FormaButton()
     
@@ -32,6 +33,11 @@ class OnboardingBaseViewController: BaseViewController {
                       onboardingSubtitle: onboardingSubtitle,
                       highlightedWord: highlightedWord)
         buttonSetup(buttonTitle: buttonTitle)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        bottomGradientLayer.frame = bottomGradientView.bounds
     }
 }
 
@@ -52,7 +58,7 @@ extension OnboardingBaseViewController {
         ])
         
         textView.addTitleWithHighlight(onboardingTitle,
-                                       markWords: [(highlightedWord, UIColor.accent)],
+                                       markWords: [highlightedWord],
                                        typography: .displayLarge,
                                        alignment: .left,
                                        lineSpacing: 1)
@@ -67,38 +73,43 @@ extension OnboardingBaseViewController {
         // - Add shadow to the button
         bottomGradientView = UIView()
         bottomGradientView.translatesAutoresizingMaskIntoConstraints = false
-        bottomGradientView.isUserInteractionEnabled = false
+        bottomGradientView.isUserInteractionEnabled = true
         
+        addBottomGradientLayer()
+        
+        button.setTitle(buttonTitle)
+        button.setStyle(.capsule)
+        button.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bottomGradientView)
+        bottomGradientView.addSubview(button)
+        
+        NSLayoutConstraint.activate([
+            bottomGradientView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomGradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomGradientView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            bottomGradientView.heightAnchor.constraint(equalToConstant: Constants.buttonHeight + 50),
+            
+            button.bottomAnchor.constraint(equalTo: bottomGradientView.bottomAnchor, constant: -16),
+            button.leadingAnchor.constraint(equalTo: bottomGradientView.leadingAnchor, constant: 16),
+            button.trailingAnchor.constraint(equalTo: bottomGradientView.trailingAnchor, constant: -16),
+            button.heightAnchor.constraint(equalToConstant: Constants.buttonHeight),
+        ])
+    }
+    
+    private func addBottomGradientLayer() {
         // Create gradient layer
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [
+        bottomGradientLayer = CAGradientLayer()
+        bottomGradientLayer.colors = [
             UIColor.clear.cgColor,
             UIColor.backgroundPrimary.withAlphaComponent(0.85).cgColor,
             UIColor.backgroundPrimary.cgColor
         ]
-        gradientLayer.locations = [0.0, 0.4, 0.7, 1.0]
-        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
-        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
+        bottomGradientLayer.locations = [0.0, 0.4, 0.7, 1.0]
+        bottomGradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
+        bottomGradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
         
-        bottomGradientView.layer.addSublayer(gradientLayer)
-        
-        button.setTitle(buttonTitle)
-        button.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(button)
-        view.addSubview(bottomGradientView)
-        
-        NSLayoutConstraint.activate([
-            button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
-            button.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            button.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            button.heightAnchor.constraint(equalToConstant: Constants.buttonHeight),
-            
-            bottomGradientView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomGradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomGradientView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            bottomGradientView.heightAnchor.constraint(equalToConstant: Constants.buttonHeight + 10),
-        ])
+        bottomGradientView.layer.addSublayer(bottomGradientLayer)
     }
     
     @objc private func didTapContinue() {

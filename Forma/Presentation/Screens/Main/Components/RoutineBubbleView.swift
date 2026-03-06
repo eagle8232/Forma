@@ -13,7 +13,7 @@ final class RoutineBubbleView: UIView {
     private let baseColor: UIColor
     var onTap: (() -> Void)?
 
-    private let size: CGFloat = 35
+    private let size: CGFloat = 25
 
     // MARK: - Layers
     
@@ -97,10 +97,7 @@ final class RoutineBubbleView: UIView {
             iconLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
 
-        // --- Tap ---
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTap))
-        addGestureRecognizer(tap)
-        isUserInteractionEnabled = true
+        addTapGesture()
     }
     
     // MARK: - Public methods
@@ -112,22 +109,27 @@ final class RoutineBubbleView: UIView {
 
     // MARK: - Tap
 
-    @objc private func didTap() {
-        SoundManager.shared.playHaptic()
-        SoundManager.shared.playSound(.buttonTap)
-        
-        onTap?()
-
-        // Spring press animation
-        UIView.animate(withDuration: 0.1, animations: {
-            self.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
-        }) { _ in
-            UIView.animate(withDuration: 0.45, delay: 0,
-                           usingSpringWithDamping: 0.5,
-                           initialSpringVelocity: 0.8) {
-                self.transform = .identity
-            }
+    private func addTapGesture() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(handleGesture))
+        gesture.numberOfTapsRequired = 1
+        addGestureRecognizer(gesture)
+    }
+    
+    @objc private func handleGesture() {
+        UIView.animate(
+            withDuration: 0.15,
+            delay: 0,
+            usingSpringWithDamping: 0.5,
+            initialSpringVelocity: 0.8,
+            options: [.allowUserInteraction, .beginFromCurrentState]
+        ) { [weak self] in
+            self?.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
+        } completion: { [weak self] _ in
+            SoundManager.shared.playHaptic()
+            SoundManager.shared.playSound(.buttonTap)
+            self?.transform = .identity
+            self?.onTap?()
         }
     }
-
+    
 }

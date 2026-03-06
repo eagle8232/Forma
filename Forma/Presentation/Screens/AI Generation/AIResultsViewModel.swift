@@ -37,7 +37,7 @@ final class AIResultsViewModel {
         var updatedRoutine = routines[routineIndex]
         
         if let taskIndex = updatedRoutine.tasks.firstIndex(where: { $0.id == taskId }) {
-            updatedRoutine.tasks[taskIndex].isCompleted = isCompleted
+//            updatedRoutine.tasks[taskIndex].isCompleted = isCompleted
             routines[routineIndex] = updatedRoutine
             
             print("✅ Task updated: \(updatedRoutine.tasks[taskIndex].title) - \(isCompleted)")
@@ -89,7 +89,7 @@ final class AIResultsViewModel {
         let totalMinutes = routines.reduce(0) { total, routine in
             print(total, routine.title)
             return total + routine.tasks.reduce(0) { taskTotal, task in
-                return taskTotal + parseDuration(task.duration)
+                return taskTotal + task.duration
             }
         }
         
@@ -107,8 +107,8 @@ final class AIResultsViewModel {
         let totalTasks = routines.flatMap { $0.tasks }.count
         guard totalTasks > 0 else { return 0 }
         
-        let completedTasks = routines.flatMap { $0.tasks }.filter { $0.isCompleted }.count
-        return Float(completedTasks) / Float(totalTasks)
+//        let completedTasks = routines.flatMap { $0.tasks }.filter { $0.isCompleted }.count
+        return Float(totalTasks)
     }
     
     // MARK: - Private Helpers

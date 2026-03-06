@@ -34,7 +34,7 @@ public final class AppCoordinator: Coordinator {
 //        }
         
         // - For testing
-        let testVC = TestViewController()
+        let testVC = HomeViewController(viewModel: .init(routines: RoutineBlock.allMocks))
         navigationController.setViewControllers([testVC], animated: true)
     }
     
@@ -90,7 +90,7 @@ extension AppCoordinator: AuthCoordinatorDelegate {
     }
     
     func didCompleteSignIn(_ coordinator: AuthCoordinator) {
-        let vc = HomeViewController()
+        let vc = HomeViewController(viewModel: .init(routines: RoutineBlock.allMocks))
         navigationController.setViewControllers([vc], animated: true)
     }
     

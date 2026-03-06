@@ -69,27 +69,28 @@ final class FormaTimePickerView: UIView {
     weak var delegate: FormaTimePickerDelegate?
     private let pickerType: PickerType
     var selectedDate: Date
+    private var hasAppliedGradient = false
     
     // MARK: - UI Components
     
     private lazy var containerView: UIView = {
         let view = UIView()
+        view.backgroundColor = .backgroundPrimary
+        view.layer.cornerRadius = 30
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .backgroundSecondary
-        view.layer.cornerRadius = 16
-        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cardTapped))
         view.addGestureRecognizer(tapGesture)
-        
         return view
     }()
     
-    private lazy var iconLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = pickerType.icon
-        label.font = .systemFont(ofSize: 32)
-        return label
+    private lazy var iconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = .accent
+        let symbolName = pickerType == .wakeTime ? "sunrise.fill" : "moon.fill"
+        imageView.image = UIImage(systemName: symbolName)
+        return imageView
     }()
     
     private lazy var titleLabel: UILabel = {
@@ -138,6 +139,25 @@ final class FormaTimePickerView: UIView {
         super.init(coder: coder)
         setup()
         updateTimeDisplay()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard !hasAppliedGradient else { return }
+        hasAppliedGradient = true
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [
+            UIColor.accent.withAlphaComponent(0.5).cgColor,
+            UIColor.accent.withAlphaComponent(0.3).cgColor,
+            UIColor.accent.withAlphaComponent(0.15).cgColor,
+            UIColor.clear.cgColor
+        ]
+        gradientLayer.startPoint = CGPoint(x: 1, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0, y: 1)
+        gradientLayer.frame = containerView.bounds
+        gradientLayer.cornerRadius = 30
+        containerView.layer.addSublayer(gradientLayer)
     }
     
     // MARK: - Public Methods
@@ -210,7 +230,7 @@ extension FormaTimePickerView {
         translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(containerView)
-        containerView.addSubview(iconLabel)
+        containerView.addSubview(iconImageView)
         containerView.addSubview(titleLabel)
         containerView.addSubview(timeLabel)
         containerView.addSubview(periodLabel)
@@ -221,10 +241,10 @@ extension FormaTimePickerView {
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            iconLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
-            iconLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            iconImageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            iconImageView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             
-            titleLabel.topAnchor.constraint(equalTo: iconLabel.bottomAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: 12),
             titleLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             
             timeLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),

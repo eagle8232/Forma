@@ -116,9 +116,9 @@ final class RoutineTaskCell: UIView {
     // MARK: - Actions
     
     @objc private func checkboxTapped() {
-        let newState = !task.isCompleted
+//        let newState = !task.isCompleted
         updateCheckboxState(animated: true)
-        onToggle?(newState)
+//        onToggle?(newState)
         
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
@@ -126,7 +126,7 @@ final class RoutineTaskCell: UIView {
     
     private func updateCheckboxState(animated: Bool) {
         let update = {
-            if self.task.isCompleted {
+            if self.task.state == .completed {
                 self.checkboxButton.backgroundColor = .accent
                 self.checkboxButton.layer.borderColor = UIColor.accent.cgColor
                 

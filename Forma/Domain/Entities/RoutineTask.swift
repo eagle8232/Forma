@@ -10,7 +10,8 @@ import Foundation
 struct RoutineTask: Identifiable {
     let id: String
     var title: String
-    var duration: String
+    var startTime: String
+    var duration: Int
     var description: String
-    var isCompleted: Bool
+    var state: TaskState = .upcoming
 }

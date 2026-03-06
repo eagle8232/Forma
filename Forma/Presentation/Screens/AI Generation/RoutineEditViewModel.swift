@@ -20,7 +20,7 @@ final class RoutineEditViewModel {
     // MARK: - Validation
 
     var totalTaskMinutes: Int {
-        routine.tasks.reduce(0) { $0 + parseDuration($1.duration) }
+        routine.tasks.reduce(0) { $0 + Int($1.duration) }
     }
 
     var routineWindowMinutes: Int {

@@ -29,6 +29,8 @@ extension RoutineBlock {
     
     // MARK: - Mock Data
     
+    
+    
     // MARK: - 1. Morning Routine (The "Start Right" Routine)
     static let mockMorning = RoutineBlock(
         id: UUID().uuidString,
@@ -41,260 +43,239 @@ extension RoutineBlock {
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Hydrate & Light Stretching",
-                duration: "15 mins",
-                description: "Living Room",
-                isCompleted: false
+                startTime: "06:00",
+                duration: 900,
+                description: "Drink some water and complete light stretching exercises inside the living room.",
+                
             ),
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Morning Workout",
-                duration: "30 mins",
-                description: "Home Gym / Outdoors",
-                isCompleted: false
+                startTime: "06:15",
+                duration: 1800,
+                description: "Complete a highly effective morning workout routine to boost your daily energy!!",
+                
             ),
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Shower & Get Dressed",
-                duration: "20 mins",
-                description: "Bathroom",
-                isCompleted: false
+                startTime: "06:45",
+                duration: 1200,
+                description: "Take a quick morning shower, then get properly dressed for the busy upcoming day",
+                
             ),
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Make Bed & Tidy Up",
-                duration: "15 mins",
-                description: "Bedroom",
-                isCompleted: false
+                startTime: "07:05",
+                duration: 900,
+                description: "Make your bed quickly and tidy up the entire bedroom to maintain a clean space!!",
+                
             ),
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Prepare & Eat Breakfast",
-                duration: "30 mins",
-                description: "Kitchen",
-                isCompleted: false
+                startTime: "07:20",
+                duration: 1800,
+                description: "Prepare a healthy breakfast in the kitchen and enjoy eating it before you leave.",
+                
             ),
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Brush Teeth & Skincare",
-                duration: "15 mins",
-                description: "Bathroom",
-                isCompleted: false
+                startTime: "07:50",
+                duration: 900,
+                description: "Thoroughly brush your teeth and complete your daily skincare routine in bathroom",
+                
             ),
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Morning Commute / Walk",
-                duration: "30 mins",
-                description: "Outdoors",
-                isCompleted: false
+                startTime: "08:05",
+                duration: 1800,
+                description: "Enjoy a refreshing morning walk outdoors to clear your mind before work begins!!",
+                
             ),
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Coffee & Review Daily Goals",
-                duration: "25 mins",
-                description: "Workspace",
-                isCompleted: false
+                startTime: "08:35",
+                duration: 1500,
+                description: "Drink morning coffee while reviewing your daily goals at your own home workspace",
+                
             )
         ],
         intensity: .medium
     )
     
     // MARK: - 2. Work Routine (Deep Focus)
-        static let mockWork = RoutineBlock(
-            id: UUID().uuidString,
-            title: "Work Flow",
-            startTime: "09:10",
-            endTime: "17:00",
-            icon: "🧠",
-            accentColor: "#4F9EF8",
-            tasks: [
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Standup & Email Triage",
-                    duration: "30 mins",
-                    description: "Desk",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Deep Focus: iOS Feature Dev",
-                    duration: "90 mins",
-                    description: "Xcode",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Code Review & PRs",
-                    duration: "45 mins",
-                    description: "GitHub",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Lunch & Screen Break",
-                    duration: "60 mins",
-                    description: "Kitchen / Outdoors",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Deep Focus: Refactoring",
-                    duration: "90 mins",
-                    description: "Xcode",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Team Sync / Planning",
-                    duration: "45 mins",
-                    description: "Meeting Room",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Architecture & UI Review",
-                    duration: "60 mins",
-                    description: "Desk",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Documentation & Wrap Up",
-                    duration: "50 mins",
-                    description: "Notion / Jira",
-                    isCompleted: false
-                )
-            ],
-            intensity: .high
-        )
-        
-        // MARK: - 3. Evening Routine (Wind Down)
-        static let mockEvening = RoutineBlock(
-            id: UUID().uuidString,
-            title: "Evening Routine",
-            startTime: "17:10",
-            endTime: "21:00",
-            icon: "🌙",
-            accentColor: "#9B7FE8",
-            tasks: [
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Disconnect & Relax",
-                    duration: "40 mins",
-                    description: "Living Room",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Cook & Eat Dinner",
-                    duration: "60 mins",
-                    description: "Kitchen",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Side Income / Micro-SaaS Work",
-                    duration: "60 mins",
-                    description: "Home Office",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Arabic Vocabulary & Reading",
-                    duration: "45 mins",
-                    description: "Study Desk",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Hobby Research (Cars / Forums)",
-                    duration: "25 mins",
-                    description: "Sofa",
-                    isCompleted: false
-                )
-            ],
-            intensity: .medium
-        )
-        
-        // MARK: - 4. Sleep Routine (Wind Down)
-        static let mockSleep = RoutineBlock(
-            id: UUID().uuidString,
-            title: "Sleep Routine",
-            startTime: "21:10",
-            endTime: "22:30",
-            icon: "💤",
-            accentColor: "#5E5CE6",
-            tasks: [
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Digital Detox & Dim Lights",
-                    duration: "15 mins",
-                    description: "Bedroom",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Reflective Journaling",
-                    duration: "20 mins",
-                    description: "Study",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Prepare for Tomorrow",
-                    duration: "15 mins",
-                    description: "Bedroom",
-                    isCompleted: false
-                ),
-                RoutineTask(
-                    id: UUID().uuidString,
-                    title: "Reading",
-                    duration: "30 mins",
-                    description: "Bed",
-                    isCompleted: false
-                )
-            ],
-            intensity: .low
-        )
+    static let mockWork = RoutineBlock(
+        id: UUID().uuidString,
+        title: "Work Flow",
+        startTime: "09:10",
+        endTime: "17:00",
+        icon: "🧠",
+        accentColor: "#4F9EF8",
+        tasks: [
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Standup & Email Triage",
+                startTime: "09:10",
+                duration: 1800,
+                description: "Attend the daily standup meeting and quickly triage your unread morning emails!!",
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Deep Focus: iOS Feature Dev",
+                startTime: "09:40",
+                duration: 5400,
+                description: "Engage in deep focus mode to develop and implement the brand new iOS features!!!",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Code Review & PRs",
+                startTime: "11:10",
+                duration: 2700,
+                description: "Review pending pull requests on GitHub and provide valuable feedback to the team",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Lunch & Screen Break",
+                startTime: "11:55",
+                duration: 3600,
+                description: "Take a well-deserved screen break and enjoy a nutritious lunch in the kitchen!!!",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Deep Focus: Refactoring",
+                startTime: "12:55",
+                duration: 5400,
+                description: "Focus deeply on refactoring the legacy codebase to significantly improve speed!!",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Team Sync / Planning",
+                startTime: "14:25",
+                duration: 2700,
+                description: "Participate in the team sync meeting to plan the upcoming sprint deliverables!!!",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Architecture & UI Review",
+                startTime: "15:10",
+                duration: 3600,
+                description: "Carefully review the software architecture and the user interface design drafts.",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Documentation & Wrap Up",
+                startTime: "16:10",
+                duration: 3000,
+                description: "Update the project documentation on Notion and wrap up all your tasks for today.",
+                
+            )
+        ],
+        intensity: .high
+    )
     
-    // MARK: - 4. Updated Evening (For Testing Updates)
-    static let updatedMockEvening = RoutineBlock(
-        id: mockEvening.id,
-        title: "Updated Wind-Down",
-        startTime: "08:30 PM",
-        endTime: "10:30 PM",
+    // MARK: - 3. Evening Routine (Wind Down)
+    static let mockEvening = RoutineBlock(
+        id: UUID().uuidString,
+        title: "Evening Routine",
+        startTime: "17:10",
+        endTime: "21:00",
         icon: "🌙",
         accentColor: "#9B7FE8",
         tasks: [
             RoutineTask(
                 id: UUID().uuidString,
-                title: "Digital Detox",
-                duration: "All Devices Off",
-                description: "",
-                isCompleted: false
+                title: "Disconnect & Relax",
+                startTime: "17:10",
+                duration: 2400,
+                description: "Completely disconnect from your digital devices and relax in the living room....",
+                
             ),
             RoutineTask(
                 id: UUID().uuidString,
-                title: "Updated Journaling Practice",
-                duration: "25 mins",
-                description: "Study",
-                isCompleted: false
+                title: "Cook & Eat Dinner",
+                startTime: "17:50",
+                duration: 3600,
+                description: "Cook a delicious and healthy dinner in the kitchen, then enjoy eating your meal.",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Side Income / Micro-SaaS Work",
+                startTime: "18:50",
+                duration: 3600,
+                description: "Spend dedicated time working on your side income projects and micro-SaaS apps!!!",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Arabic Vocabulary & Reading",
+                startTime: "19:50",
+                duration: 2700,
+                description: "Practice your Arabic vocabulary and spend some time reading an interesting book.",
+                
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Hobby Research (Cars / Forums)",
+                startTime: "20:35",
+                duration: 1500,
+                description: "Research your favorite hobbies, browse car forums, and unwind on the cozy sofa.",
+                
+            )
+        ],
+        intensity: .medium
+    )
+    
+    // MARK: - 4. Sleep Routine (Wind Down)
+    static let mockSleep = RoutineBlock(
+        id: UUID().uuidString,
+        title: "Sleep Routine",
+        startTime: "21:10",
+        endTime: "22:30",
+        icon: "💤",
+        accentColor: "#5E5CE6",
+        tasks: [
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Digital Detox & Dim Lights",
+                startTime: "21:10",
+                duration: 900,
+                description: "Start a digital detox, dim the bedroom lights, and prepare for a restful sleep!!",
+            ),
+            RoutineTask(
+                id: UUID().uuidString,
+                title: "Reflective Journaling",
+                startTime: "21:25",
+                duration: 1200,
+                description: "Write down your thoughts and reflect on the day by journaling in your study room",
             ),
             RoutineTask(
                 id: UUID().uuidString,
                 title: "Prepare for Tomorrow",
-                duration: "10 mins",
-                description: "Bedroom",
-                isCompleted: false
+                startTime: "21:45",
+                duration: 900,
+                description: "Prepare your clothes and belongings in the bedroom for a smooth morning tomorrow",
             ),
             RoutineTask(
                 id: UUID().uuidString,
-                title: "Light Stretching",
-                duration: "10 mins",
-                description: "Living Room",
-                isCompleted: false
+                title: "Reading",
+                startTime: "22:00",
+                duration: 1800,
+                description: "Read a few chapters of a relaxing book in bed to easily fall into a deep sleep!!",
             )
         ],
-        intensity: nil
+        intensity: .low
     )
     
     // MARK: - All Mocks Array

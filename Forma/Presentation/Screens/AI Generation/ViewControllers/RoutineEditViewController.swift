@@ -152,7 +152,7 @@ final class RoutineEditViewController: BaseViewController {
 
     private func addTaskTapped() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        let newTask = RoutineTask(id: UUID().uuidString, title: "", duration: "", description: "", isCompleted: false)
+        let newTask = RoutineTask(id: UUID().uuidString, title: "", startTime: "", duration: 0, description: "")
         viewModel.routine.tasks.append(newTask)
         insertTaskRow(newTask, delay: 0, scrollToBottom: true)
     }
@@ -215,9 +215,9 @@ final class RoutineEditViewController: BaseViewController {
             return RoutineTask(
                 id: row.taskId,
                 title: title,
-                duration: row.currentDuration ?? "",
+                startTime: "",
+                duration: row.currentDuration ?? 0,
                 description: row.currentDescription ?? "",
-                isCompleted: false
             )
         }
         viewModel.routine.tasks = liveTasks
@@ -282,10 +282,9 @@ final class RoutineEditViewController: BaseViewController {
         let rows = tasksStack.arrangedSubviews.compactMap { $0 as? TaskEditRow }
         let tasks = rows.compactMap { row -> RoutineTask? in
             guard let title = row.currentTitle, !title.isEmpty else { return nil }
-            return RoutineTask(id: row.taskId, title: title,
-                               duration: row.currentDuration ?? "",
-                               description: row.currentDescription ?? "",
-                               isCompleted: false)
+            return RoutineTask(id: row.taskId, title: title, startTime: "",
+                               duration: row.currentDuration ?? 0,
+                               description: row.currentDescription ?? "")
         }
 
         let updated = viewModel.buildUpdatedRoutine(

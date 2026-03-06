@@ -101,7 +101,7 @@ final class FormaTextView: UIView {
         containerStackView.addArrangedSubview(label)
         return self
     }
-
+    
     /// Add a subtitle (medium text)
     @discardableResult
     func addSubtitle(
@@ -121,7 +121,7 @@ final class FormaTextView: UIView {
         containerStackView.addArrangedSubview(label)
         return self
     }
-
+    
     /// Add body text (regular paragraph text)
     @discardableResult
     func addBody(
@@ -141,7 +141,7 @@ final class FormaTextView: UIView {
         containerStackView.addArrangedSubview(label)
         return self
     }
-
+    
     /// Add caption (small text)
     @discardableResult
     func addCaption(
@@ -161,12 +161,12 @@ final class FormaTextView: UIView {
         containerStackView.addArrangedSubview(label)
         return self
     }
-
+    
     /// Add text with specific word(s) highlighted
     @discardableResult
     func addText(
         _ text: String,
-        markWords: [(word: String, color: UIColor)],
+        markWords: [String],
         typography: Typography = .bodyMedium,
         baseColor: UIColor = .textPrimary,
         alignment: NSTextAlignment = .left,
@@ -175,7 +175,7 @@ final class FormaTextView: UIView {
         let label = UILabel()
         label.numberOfLines = text.count
         label.textAlignment = alignment
-
+        
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
         paragraphStyle.alignment = alignment
@@ -189,25 +189,38 @@ final class FormaTextView: UIView {
         )
         
         // Highlight marked words with color AND italic
-        for (word, color) in markWords {
+        
+        let textSize = NSString(string: text).boundingRect(
+            with: CGSize(width: .max, height: .max),
+            options: .usesLineFragmentOrigin,
+            attributes: [.font: typography.font],
+            context: nil
+        ).size
+        
+        for word in markWords {
             let range = (text as NSString).range(of: word)
-            if range.location != NSNotFound {
-                // Change color
-                attributedString.addAttribute(.foregroundColor, value: color, range: range)
-                
-                // Make italic with same font
-                let italicFont = typography.font.withItalicTrait()
-                attributedString.addAttribute(.font, value: italicFont, range: range)
+            
+            if let gradientImage = UIImage.gradientImage(
+                bounds: CGRect(origin: .zero, size: textSize),
+                colors: [UIColor.accent, UIColor.accentGradient],
+                startPoint: CGPoint(x: 0.0, y: 0.5),
+                endPoint: CGPoint(x: 1.0, y: 0.5)
+            ) {
+                let gradientColor = UIColor(patternImage: gradientImage)
+                if range.location != NSNotFound {
+                    attributedString.addAttribute(.foregroundColor, value: gradientColor, range: range)
+                }
             }
         }
+        
         
         label.attributedText = attributedString
         containerStackView.addArrangedSubview(label)
         return self
     }
-
+    
     // MARK: - Helper Methods
-
+    
     private func createLabel(
         text: String,
         font: UIFont,
@@ -306,7 +319,7 @@ extension FormaTextView {
     @discardableResult
     func addTitleWithHighlight(
         _ text: String,
-        markWords: [(word: String, color: UIColor)],
+        markWords: [String],
         typography: Typography = .heading1,
         baseColor: UIColor = .textPrimary,
         alignment: NSTextAlignment = .left,
@@ -326,7 +339,7 @@ extension FormaTextView {
     @discardableResult
     func addHeadingWithHighlight(
         _ text: String,
-        markWords: [(word: String, color: UIColor)],
+        markWords: [String],
         typography: Typography = .heading2,
         baseColor: UIColor = .textPrimary,
         alignment: NSTextAlignment = .left,
@@ -346,7 +359,7 @@ extension FormaTextView {
     @discardableResult
     func addDisplayWithHighlight(
         _ text: String,
-        markWords: [(word: String, color: UIColor)],
+        markWords: [String],
         typography: Typography = .displayMedium,
         baseColor: UIColor = .textPrimary,
         alignment: NSTextAlignment = .center,
@@ -370,7 +383,7 @@ extension FormaTextView {
         color: UIColor = .textPrimary,
         alignment: NSTextAlignment = .left,
         lineSpacing: CGFloat = 2,
-        markWords: [(word: String, color: UIColor)] = []
+        markWords: [String] = []
     ) -> FormaTextView {
         return addText(
             text,

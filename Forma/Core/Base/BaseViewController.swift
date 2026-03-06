@@ -14,7 +14,9 @@ class BaseViewController: UIViewController {
     private var gradientLayer: CAGradientLayer?
     private var glowLayer: CAGradientLayer?
 
-    /// Use this background for main screens like auth, AI generations and profile. It provides a subtle gradient with an optional accent glow. Adjust colors and glow settings as needed for different themes or sections of the app.
+    /// Use this background for main screens like auth, AI generations, routine info views and profile.
+    /// It provides a subtle gradient with an optional accent glow.
+    /// Adjust colors and glow settings as needed for different themes or sections of the app.
     func applyGradientBackground(
         colors: [UIColor] = [
             UIColor(red: 0.06, green: 0.06, blue: 0.08, alpha: 1),
@@ -23,7 +25,7 @@ class BaseViewController: UIViewController {
         startPoint: CGPoint = CGPoint(x: 0.2, y: 0),
         endPoint: CGPoint = CGPoint(x: 0.8, y: 1),
         glowColor: UIColor? = UIColor.accent,
-        glowOpacity: Float = 0.10
+        glowOpacity: Float = 0.40
     ) {
         view.backgroundColor = colors.last ?? .black
 
@@ -48,7 +50,7 @@ class BaseViewController: UIViewController {
             glowL.endPoint = CGPoint(x: 1, y: 1)
             glowL.frame = CGRect(x: 0, y: 0,
                                  width: view.bounds.width,
-                                 height: view.bounds.height * 0.55)
+                                 height: view.bounds.height * 0.45)
             view.layer.insertSublayer(glowL, at: 1)
             glowLayer = glowL
         }

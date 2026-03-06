@@ -125,19 +125,10 @@ final class DurationPickerView: UIView {
     }
 
     /// Parse a legacy string like "10 min" or "1 hr 30 min" back into hours/minutes.
-    func setFromString(_ string: String) {
-        let s = string.lowercased()
-        var h = 0, m = 0
-        if let match = s.range(of: #"(\d+)\s*hr"#, options: .regularExpression) {
-            h = Int(s[match].filter(\.isNumber)) ?? 0
-        }
-        if let match = s.range(of: #"(\d+)\s*min"#, options: .regularExpression) {
-            m = Int(s[match].filter(\.isNumber)) ?? 0
-        }
-        // Fallback: plain number = minutes
-        if h == 0 && m == 0, let plain = Int(s.filter(\.isNumber)) {
-            m = plain
-        }
+    func setFromInt(_ duration: Int) {
+        let totalMinutes = Int(duration)
+        let h = totalMinutes / 60
+        let m = totalMinutes % 60
         set(hours: h, minutes: m)
     }
 

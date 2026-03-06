@@ -76,7 +76,7 @@ final class RoutineTimelineCard: UIView {
 
     private func updateRemainingPill() {
         let windowMins  = Int(max(endDate.timeIntervalSince(startDate) / 60, 0))
-        let usedMins    = tasks.reduce(0) { $0 + parseDuration($1.duration) }
+        let usedMins    = tasks.reduce(0) { $0 + Int($1.duration) }
         let remaining   = windowMins - usedMins
 
         UIView.animate(withDuration: 0.25) {

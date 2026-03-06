@@ -29,7 +29,7 @@ enum Typography {
     case buttonMedium        // 15pt - Secondary buttons
     case label               // 14pt - Form labels, tags
     case caption             // 12pt - Metadata, timestamps
-    case overline            // 11pt - Category labels, badges
+    case overline            // 10pt - Category labels, badges
     
     case monospacedLarge      // 17pt - Code snippets, if needed
     case monospacedMedium     // 15pt - Smaller code snippets
@@ -41,17 +41,17 @@ enum Typography {
         switch self {
         // Display (Playfair Display)
         case .displayLarge:
-            return UIFont(name: PlayfairDisplay.bold.fontName, size: 38) ?? .systemFont(ofSize: 38, weight: .bold)
+            return UIFont.systemFont(ofSize: 38, weight: .medium)
         case .displayMedium:
-            return UIFont(name: PlayfairDisplay.bold.fontName, size: 32) ?? .systemFont(ofSize: 32, weight: .bold)
+            return UIFont.systemFont(ofSize: 32, weight: .medium)
         case .displaySmall:
-            return UIFont(name: PlayfairDisplay.bold.fontName, size: 24) ?? .systemFont(ofSize: 24, weight: .bold)
+            return UIFont.systemFont(ofSize: 24, weight: .medium)
             
         // Headings (System)
         case .heading1:
             return .systemFont(ofSize: 28, weight: .bold)
         case .heading2:
-            return .systemFont(ofSize: 22, weight: .semibold)
+            return .systemFont(ofSize: 22, weight: .bold)
         case .heading3:
             return .systemFont(ofSize: 18, weight: .semibold)
             
@@ -73,7 +73,7 @@ enum Typography {
         case .caption:
             return .systemFont(ofSize: 12, weight: .regular)
         case .overline:
-            return .systemFont(ofSize: 11, weight: .medium)
+            return .systemFont(ofSize: 10, weight: .medium)
         
         // Monospaced (for code snippets, if needed)
         case  .monospacedLarge:
@@ -115,33 +115,6 @@ enum Typography {
         default:
             return 0.0
         }
-    }
-}
-
-// MARK: - Font Families
-
-/// Playfair Display font family (Display/Decorative)
-enum PlayfairDisplay: String {
-    case regular = "PlayfairDisplay-Regular"
-    case italic = "PlayfairDisplay-Italic"
-    case medium = "PlayfairDisplay-Medium"
-    case mediumItalic = "PlayfairDisplay-MediumItalic"
-    case semiBold = "PlayfairDisplay-SemiBold"
-    case semiBoldItalic = "PlayfairDisplay-SemiBoldItalic"
-    case bold = "PlayfairDisplay-Bold"
-    case boldItalic = "PlayfairDisplay-BoldItalic"
-    case extraBold = "PlayfairDisplay-ExtraBold"
-    case extraBoldItalic = "PlayfairDisplay-ExtraBoldItalic"
-    case black = "PlayfairDisplay-Black"
-    case blackItalic = "PlayfairDisplay-BlackItalic"
-    
-    var fontName: String {
-        return rawValue
-    }
-    
-    /// Get font at specific size
-    func font(size: CGFloat) -> UIFont {
-        return UIFont(name: fontName, size: size) ?? .systemFont(ofSize: size, weight: .regular)
     }
 }
 

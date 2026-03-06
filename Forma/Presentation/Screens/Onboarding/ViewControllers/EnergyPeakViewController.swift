@@ -20,8 +20,8 @@ final class EnergyPeakViewController: OnboardingBaseViewController {
     
     override func setupViews() {
         super.setupViews()
-        energyPeakContentViewSetup()
         setup()
+        energyPeakContentViewSetup()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -76,10 +76,12 @@ extension EnergyPeakViewController {
         view.addSubview(energyPeakContentView)
         
         NSLayoutConstraint.activate([
-            energyPeakContentView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            energyPeakContentView.topAnchor.constraint(equalTo: self.textView.bottomAnchor, constant: 16),
             energyPeakContentView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            energyPeakContentView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
+            energyPeakContentView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            energyPeakContentView.bottomAnchor.constraint(equalTo: self.bottomGradientView.topAnchor, constant: -8)
         ])
         
     }
 }
+

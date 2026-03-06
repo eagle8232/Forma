@@ -23,12 +23,12 @@ final class VerticalTimelineView: UIView {
         return view
     }()
     
-    private lazy var timeLabel: UILabel = {
-        let label = UILabel()
-        label.text = self.getTime()
-        label.font = UIFont.monospacedSystemFont(ofSize: 7, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private lazy var currentTimeCircle: UIView = {
+        let view = UIView()
+        view.backgroundColor = .accent
+        view.layer.cornerRadius = 5
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     private lazy var shapeLayer: CAShapeLayer = {
@@ -50,14 +50,13 @@ final class VerticalTimelineView: UIView {
     private lazy var routineBubbleViews: [RoutineBubbleView] = []
     
     private lazy var linePath = UIBezierPath()
-    private var ellipseTopConstraint: NSLayoutConstraint?
+    private var circleTopConstraint: NSLayoutConstraint?
     
     private var timer: Timer?
     private var timeLabelYAxis: CGFloat = 0
     private var contentHeight: CGFloat?
     
     private let routines: [RoutineBlock] = RoutineBlock.allMocks
-    private var selectedRoutine: RoutineBlock?
     private var routineYAxis: [CGFloat] = []
     
     override init(frame: CGRect) {
@@ -72,62 +71,65 @@ final class VerticalTimelineView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        guard contentHeight == nil else { return }
+        
         shapeLayer.frame = bounds
         contentHeight = bounds.height
+        
         linePath.move(to: CGPoint(x: center.x, y: -10000))
         addGrayyedLinePath()
         showAllTasksOnTimeline()
         checkRoutineBubbleViewStatus()
+        _ = calculateTime()
+        drawLine()
     }
     
     
     // MARK: - Private Methods
     
     private func setup() {
-        startTimer()
+        layer.addSublayer(grayyedShapeLayer)
+        layer.addSublayer(shapeLayer)
+        layer.insertSublayer(shapeLayer, above: grayyedShapeLayer)
         
-        ellipseView.addSubview(timeLabel)
-        addSubview(ellipseView)
+        addSubview(currentTimeCircle)
         
-        // The line will be in the center of timeLabel
-        let topConstraint = ellipseView.topAnchor.constraint(equalTo: topAnchor,
-                                                             constant: timeLabelYAxis - 5)
-        self.ellipseTopConstraint = topConstraint
+        let circleTop = currentTimeCircle.topAnchor.constraint(equalTo: topAnchor, constant: timeLabelYAxis)
+        self.circleTopConstraint = circleTop
+        circleTop.isActive = true
         
         NSLayoutConstraint.activate([
-            
-            ellipseView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            topConstraint,
-            
-            timeLabel.topAnchor.constraint(equalTo: ellipseView.topAnchor, constant: 4),
-            timeLabel.leadingAnchor.constraint(equalTo: ellipseView.leadingAnchor, constant: 4),
-            timeLabel.trailingAnchor.constraint(equalTo: ellipseView.trailingAnchor, constant: -4),
-            timeLabel.bottomAnchor.constraint(equalTo: ellipseView.bottomAnchor, constant: -4),
+            currentTimeCircle.centerXAnchor.constraint(equalTo: centerXAnchor),
+            currentTimeCircle.widthAnchor.constraint(equalToConstant: 10),
+            currentTimeCircle.heightAnchor.constraint(equalToConstant: 10),
         ])
+        startTimer()
     }
     
     private func drawLine() {
-        UIView.animate(withDuration: 1) {
-            // Set first location of the path to the top of the screen
-            self.linePath.addLine(to: CGPoint(x: self.center.x, y: self.timeLabelYAxis))
-            self.shapeLayer.path = self.linePath.cgPath
-            self.layer.insertSublayer(self.shapeLayer, above: self.grayyedShapeLayer)
-            self.ellipseTopConstraint?.constant = self.timeLabelYAxis
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: center.x, y: -10000))
+        path.addLine(to: CGPoint(x: center.x, y: timeLabelYAxis))
+        shapeLayer.path = path.cgPath
+        
+        circleTopConstraint?.constant = timeLabelYAxis - 5
+        
+        UIView.animate(withDuration: 0.3) {
+            self.layoutIfNeeded()
         }
-        checkRoutineBubbleViewStatus()
     }
     
     private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [ weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true, block: { [ weak self] _ in
             guard let self else {
                 return
             }
-            self.timeLabel.text = self.getTime()
             if self.calculateTime() == 0 {
                 timer?.invalidate()
                 timer = nil
             } else {
                 drawLine()
+                self.checkRoutineBubbleViewStatus()
             }
         })
         RunLoop.main.add(timer!, forMode: .common)
@@ -139,8 +141,8 @@ final class VerticalTimelineView: UIView {
             
             guard let self else { return }
             
-            let routineStartDateSeconds = convertToSeconds(routine.startTime)
-            let routinesEndDateSeconds = convertToSeconds(routines.last?.endTime ?? "22:30") // - For instance
+            let routineStartDateSeconds = DateManager.shared.convertToSeconds(routine.startTime)
+            let routinesEndDateSeconds = DateManager.shared.convertToSeconds(routines.last?.endTime ?? "22:30") // - For instance
             routineYAxis.append(calculateHeight(between: routineStartDateSeconds, and: routinesEndDateSeconds))
             
             let routineBubbledView = RoutineBubbleView(icon: routine.icon, color: routine.accentColor)
@@ -174,32 +176,30 @@ final class VerticalTimelineView: UIView {
     }
     
     private func checkRoutineBubbleViewStatus() {
+        let today = DateManager.shared.getTodayTimeString()
         routines.enumerated().forEach { [weak self] index, routine in
             guard let self else { return }
-            let currentDateSeconds = convertToSeconds(getTime())
-            let routineStartDateSeconds = convertToSeconds(routine.startTime)
+            let currentDateSeconds = DateManager.shared.convertToSeconds(today)
+            let routineStartDateSeconds = DateManager.shared.convertToSeconds(routine.startTime)
             
-            let isEnabled = currentDateSeconds >= routineStartDateSeconds
-            self.routineBubbleViews[index].isEnabled(isEnabled)
+            if currentDateSeconds >= routineStartDateSeconds {
+                self.routineBubbleViews[index].isEnabled(true)
+                return
+            } else {
+                self.routineBubbleViews[index].isEnabled(false)
+                return
+            }
         }
     }
     
     // MARK: - Helpers
     
-    private func getTime() -> String {
-        let todayDate = Date()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        let todayDateString = dateFormatter.string(from: todayDate)
-        return todayDateString
-    }
-    
     private func calculateTime() -> CGFloat {
-    
+        let today = DateManager.shared.getTodayTimeString()
         let routineEndDateString = routines.last?.endTime ?? "22:30"
-                
-        let currentDateSeconds = convertToSeconds(getTime())
-        let routineEndDateSeconds = convertToSeconds(routineEndDateString)
+            
+        let currentDateSeconds = DateManager.shared.convertToSeconds(today)
+        let routineEndDateSeconds = DateManager.shared.convertToSeconds(routineEndDateString)
         
         let differenceBetweenDates = routineEndDateSeconds - currentDateSeconds
         
@@ -216,22 +216,6 @@ final class VerticalTimelineView: UIView {
         /// This math equation helps to place timeLabel and routineBubbles in the correct places
         let x = ((time1 * contentHeight)/time2) - 100
         return x
-    }
-    
-    private func convertToSeconds(_ dateString: String) -> CGFloat {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        
-        /// - We use this method to get difference between 00:00 and date, to get a positive result
-        let zeroDateString: String = "00:00"
-        guard let zeroDate = dateFormatter.date(from: zeroDateString),
-              let date = dateFormatter.date(from: dateString) else {
-            print("No dates found")
-            return 0
-        }
-        
-        let dateInSeconds = date.timeIntervalSince(zeroDate)
-        return dateInSeconds
     }
 
     deinit {

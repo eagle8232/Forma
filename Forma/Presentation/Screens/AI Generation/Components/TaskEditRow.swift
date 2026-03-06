@@ -13,7 +13,7 @@ final class TaskEditRow: UIView {
     let taskId: String
     var currentTitle: String? { titleField.textField.text }
     var currentDescription: String? { descriptionView.text.isEmpty ? nil : descriptionView.text }
-    var currentDuration: String? { durationPicker.durationString }
+    var currentDuration: Int? { durationPicker.selectedHours }
 
     private let titleField: FormaTextField
     private let durationPicker = DurationPickerView()
@@ -95,7 +95,7 @@ final class TaskEditRow: UIView {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         durationPicker.translatesAutoresizingMaskIntoConstraints = false
-        if !task.duration.isEmpty { durationPicker.setFromString(task.duration) }
+        if task.duration != 0 { durationPicker.setFromInt(task.duration) }
 
         if !task.description.isEmpty {
             descriptionView.text = task.description

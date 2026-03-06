@@ -88,6 +88,38 @@ final class FocusBeginViewController: OnboardingBaseViewController {
         selectedTime = QuickTimeOption.nine.date
     }
     
+}
+
+// MARK: - OnboardingBaseViewControllerDelegate
+
+extension FocusBeginViewController: OnboardingBaseViewControllerDelegate {
+    func didTapButton(_ view: OnboardingBaseViewController) {
+        nextTapped()
+    }
+}
+
+// MARK: - QuickOptionsGridViewDelegate
+
+extension FocusBeginViewController: QuickOptionsGridViewDelegate {
+    func quickOptionsGridView(_ view: QuickOptionsGridView, didSelect option: QuickTimeOption) {
+        guard option != .flexible else {
+            selectedTime = nil
+            return
+        }
+        
+        selectedTime = option.date
+        
+        // Sync inline picker
+        if let date = option.date {
+            UIView.animate(withDuration: 0.3) {
+                self.inlineTimePicker.setDate(date, animated: true)
+            }
+        }
+    }
+}
+
+// MARK: - Setup Layout
+extension FocusBeginViewController {
     private func setupLayout() {
         setupViews(
             onboardingTitle: "When does your\nfocus begin?",
@@ -130,35 +162,6 @@ final class FocusBeginViewController: OnboardingBaseViewController {
         ])
         
         animateIn([timePickerContainer, quickOptionsGrid])
-    }
-    
-}
-
-// MARK: - OnboardingBaseViewControllerDelegate
-
-extension FocusBeginViewController: OnboardingBaseViewControllerDelegate {
-    func didTapButton(_ view: OnboardingBaseViewController) {
-        nextTapped()
-    }
-}
-
-// MARK: - QuickOptionsGridViewDelegate
-
-extension FocusBeginViewController: QuickOptionsGridViewDelegate {
-    func quickOptionsGridView(_ view: QuickOptionsGridView, didSelect option: QuickTimeOption) {
-        guard option != .flexible else {
-            selectedTime = nil
-            return
-        }
-        
-        selectedTime = option.date
-        
-        // Sync inline picker
-        if let date = option.date {
-            UIView.animate(withDuration: 0.3) {
-                self.inlineTimePicker.setDate(date, animated: true)
-            }
-        }
     }
 }
 

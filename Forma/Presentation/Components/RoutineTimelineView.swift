@@ -180,22 +180,6 @@ final class RoutineTimelineView: UIView {
         max(endDate.timeIntervalSince(startDate) / 60, 1)
     }
 
-    private func minutes(from duration: String) -> Double {
-        let s = duration.lowercased()
-        var total = 0.0
-        var hrs = 0.0
-        if let r = s.range(of: #"(\d+)\s*hr"#, options: .regularExpression) {
-            hrs = Double(s[r].filter(\.isNumber)) ?? 0
-        }
-        var mins = 0.0
-        if let r = s.range(of: #"(\d+)\s*min"#, options: .regularExpression) {
-            mins = Double(s[r].filter(\.isNumber)) ?? 0
-        }
-        total = hrs * 60 + mins
-        if total == 0, let plain = Double(s.filter(\.isNumber)) { total = plain }
-        return max(total, 0)
-    }
-
     private func shortDuration(_ mins: Double) -> String {
         let h = Int(mins) / 60
         let m = Int(mins) % 60
@@ -215,8 +199,8 @@ final class RoutineTimelineView: UIView {
         let valid   = tasks.filter { !$0.title.isEmpty }
 
         for (i, task) in valid.enumerated() {
-            let mins      = minutes(from: task.duration)
-            let fraction  = CGFloat(min(mins / window, 1.0))
+            let mins      = task.duration / 60
+            let fraction  = CGFloat(min(Double(mins) / window, 1.0))
             let w         = min(fraction * totalW, totalW - usedW)
             guard w > 0 else { break }
 
@@ -251,7 +235,7 @@ final class RoutineTimelineView: UIView {
             }
 
             // Duration label inside segment (only if wide enough)
-            let durText = mins > 0 ? shortDuration(mins) : ""
+            let durText = mins > 0 ? shortDuration(Double(mins)) : ""
             if w > 22 && !durText.isEmpty {
                 let lbl = UILabel()
                 lbl.text = durText
@@ -288,8 +272,8 @@ final class RoutineTimelineView: UIView {
         var usedMins: Double = 0
 
         for (i, task) in valid.enumerated() {
-            let mins = minutes(from: task.duration)
-            let midFrac = CGFloat((usedMins + mins / 2) / window)
+            let mins = task.duration / 60
+            let midFrac = CGFloat((usedMins + Double(mins / 2)) / window)
             let xCenter = midFrac * totalW
             let x = min(max(xCenter - size / 2, 0), totalW - size)
             let y = (bubblesContainer.bounds.height - size) / 2
@@ -300,7 +284,7 @@ final class RoutineTimelineView: UIView {
             bubblesContainer.addSubview(bubble)
             taskBubbles.append(bubble)
 
-            usedMins += mins
+            usedMins += Double(mins)
             if usedMins >= window { break }
         }
     }
