@@ -21,14 +21,14 @@ struct UserPreferences {
     var focusTime: Date?
     var goal: [String]
     
-    var timezone: String {
-        return TimeZone.current.identifier
+    var timezone: String? {
+        return TimeZone.current.abbreviation()
     }
 }
 
 struct User {
     var credentials: UserCredentials
-    var preferences: UserPreferences
+    var preferences: UserPreferences? // - For users who are coming back with earlier register profile
 }
 
 // MARK: - Mock Data

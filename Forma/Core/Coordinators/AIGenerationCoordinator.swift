@@ -13,7 +13,6 @@ protocol AIGenerationCoordinatorDelegate: AnyObject {
     func didRequestSignUp(_ coordinator: AIGenerationCoordinator,
                           with userPreferences: UserPreferences,
                           routines: [RoutineBlock])
-//    func didTapRoutineDetailButton(_ coordinator: AIGenerationCoordinator, routine: RoutineBlock)
 }
 
 extension AIGenerationCoordinatorDelegate {
@@ -46,13 +45,6 @@ class AIGenerationCoordinator: Coordinator {
             onSave: onSave
         ))
         navigationController.pushViewController(routineDetailVC, animated: true)
-    }
-    
-    func showResultsScreen(routines: [RoutineBlock]) {
-        let aiResultsVC = AIResultsViewController()
-        aiResultsVC.coordinator = self
-        aiResultsVC.configure(with: self.userPreferences, routines: routines)
-        navigationController.setViewControllers([aiResultsVC], animated: true)
     }
     
     func saveNewGeneratedRoutines(_ routines: [RoutineBlock]) { self.newGeneratedRoutines = routines }

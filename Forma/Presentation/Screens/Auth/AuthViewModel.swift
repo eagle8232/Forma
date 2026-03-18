@@ -12,33 +12,46 @@ import FirebaseAuth
 import GoogleSignIn
 import FirebaseCore
 
-final class AuthViewModel: NSObject {
+@MainActor
+final class AuthViewModel: NSObject, ObservableObject {
 
     // MARK: - Published Properties
-
     @Published var isAppleLoading: Bool = false
     @Published var isGoogleLoading: Bool = false
     @Published var errorMessage: String?
 
-    // MARK: - User Data (for sign-up flow)
+    // MARK: - User Data
 
     var userPreferences: UserPreferences?
     var routines: [RoutineBlock]?
-
     var hasUserData: Bool { userPreferences != nil }
 
     // MARK: - Private State
 
     private var currentNonce: String?
-
-    // Continuation bridges for Apple's delegate-based flow → async/await
     private var appleSignInContinuation: CheckedContinuation<ASAuthorizationCredential, Error>?
-
     private var appleAuthController: ASAuthorizationController?
-    
-    // MARK: - Apple Sign In
 
-    func signInWithApple() async throws {
+    // MARK: - Init
+
+    init(userPreferences: UserPreferences? = nil, routines: [RoutineBlock]? = nil) {
+        self.userPreferences = userPreferences
+        self.routines = routines
+    }
+
+    // MARK: - Apple Sign In
+    func requestAuthWithApple() async throws -> User? {
+        if let userPreferences, let routines {
+            return try await signUpWithApple(with: userPreferences, routines: routines)
+        } else if let userCredentials = try await signInWithApple() {
+            let user = User(credentials: userCredentials)
+            return user
+        }
+        return nil
+    }
+
+
+    private func signInWithApple() async throws -> UserCredentials? {
         isAppleLoading = true
         errorMessage = nil
         defer { isAppleLoading = false }
@@ -51,35 +64,27 @@ final class AuthViewModel: NSObject {
             let tokenData = appleCredential.identityToken,
             let idToken = String(data: tokenData, encoding: .utf8),
             let nonce = currentNonce
-        else {
-            throw AuthError.invalidCredential
-        }
+        else { throw AuthError.invalidCredential }
 
-        _ = try await useCase.execute(with: .apple(token: idToken, nonce: nonce))
+        return  try await useCase.execute(with: .apple(token: idToken, nonce: nonce))
     }
 
-    func signUpWithApple() async throws {
+    private func signUpWithApple(with userPreferences: UserPreferences, routines: [RoutineBlock]) async throws -> User? {
         isAppleLoading = true
         errorMessage = nil
         defer { isAppleLoading = false }
 
-        guard let userPreferences, let routines else {
-            throw AuthError.missingUserData
-        }
-
         let credential = try await requestAppleCredential()
         let useCase = DependencyContainer.shared.makeSignUpAuthUseCase()
-
+        
         guard
             let appleCredential = credential as? ASAuthorizationAppleIDCredential,
             let tokenData = appleCredential.identityToken,
             let idToken = String(data: tokenData, encoding: .utf8),
             let nonce = currentNonce
-        else {
-            throw AuthError.invalidCredential
-        }
+        else { throw AuthError.invalidCredential }
 
-        _ = try await useCase.execute(
+        return try await useCase.execute(
             with: .apple(token: idToken, nonce: nonce),
             userPreferences: userPreferences,
             routines: routines
@@ -87,35 +92,35 @@ final class AuthViewModel: NSObject {
     }
 
     // MARK: - Google Sign In
-    
-    func requestAuthWithGoogle() async throws {
+
+    func requestAuthWithGoogle() async throws -> User? {
         if let userPreferences, let routines {
-            try await signUpWithGoogle(with: userPreferences, routines: routines)
-        } else {
-            try await signInWithGoogle()
+            return try await signUpWithGoogle(with: userPreferences, routines: routines)
+        } else if let userCredentials = try await signInWithGoogle() {
+            let user = User(credentials: userCredentials)
+            return user
         }
-        
+        return nil
     }
 
-    func signInWithGoogle() async throws {
+    private func signInWithGoogle() async throws -> UserCredentials? {
         isGoogleLoading = true
         errorMessage = nil
         defer { isGoogleLoading = false }
-
+        
         let (idToken, accessToken) = try await requestGoogleTokens()
         let useCase = DependencyContainer.shared.makeSignInAuthUseCase()
-        let _ = try await useCase.execute(with: .google(idToken: idToken, accessToken: accessToken))
+        return try await useCase.execute(with: .google(idToken: idToken, accessToken: accessToken))
     }
 
-    func signUpWithGoogle(with userPreferences: UserPreferences, routines: [RoutineBlock]) async throws {
+    private func signUpWithGoogle(with userPreferences: UserPreferences, routines: [RoutineBlock]) async throws -> User? {
         isGoogleLoading = true
         errorMessage = nil
         defer { isGoogleLoading = false }
-
+        
         let (idToken, accessToken) = try await requestGoogleTokens()
         let useCase = DependencyContainer.shared.makeSignUpAuthUseCase()
-
-        _ = try await useCase.execute(
+        return try await useCase.execute(
             with: .google(idToken: idToken, accessToken: accessToken),
             userPreferences: userPreferences,
             routines: routines
@@ -127,48 +132,49 @@ final class AuthViewModel: NSObject {
 
 extension AuthViewModel {
 
-    /// Presents the Apple ID authorization sheet and bridges the delegate callbacks into async/await.
     private func requestAppleCredential() async throws -> ASAuthorizationCredential {
-            let nonce = CryptoUtils.randomNonceString()
-            currentNonce = nonce
+        let nonce = CryptoUtils.randomNonceString()
+        currentNonce = nonce
 
-            let provider = ASAuthorizationAppleIDProvider()
-            let request = provider.createRequest()
-            request.requestedScopes = [.fullName, .email]
-            request.nonce = CryptoUtils.sha256(nonce)
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = CryptoUtils.sha256(nonce)
 
-            let controller = ASAuthorizationController(authorizationRequests: [request])
-            controller.delegate = self
-            controller.presentationContextProvider = self
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        appleAuthController = controller   // retain to prevent mid-flight dealloc
 
-            // Retain the controller — without this it deallocates mid-flight
-            // and the delegate never fires, causing a silent failure.
-            appleAuthController = controller
-
-            return try await withCheckedThrowingContinuation { continuation in
-                self.appleSignInContinuation = continuation
-                controller.performRequests()
-            }
+        return try await withCheckedThrowingContinuation { continuation in
+            self.appleSignInContinuation = continuation
+            controller.performRequests()
         }
+    }
 }
 
 // MARK: - ASAuthorizationControllerDelegate
+// Delegate callbacks arrive on the main thread — nonisolated + MainActor.assumeIsolated
+// bridges them safely without a Task hop.
 
 extension AuthViewModel: ASAuthorizationControllerDelegate {
 
-    func authorizationController(
-            controller: ASAuthorizationController,
-            didCompleteWithAuthorization authorization: ASAuthorization
-        ) {
+    nonisolated func authorizationController(
+        controller: ASAuthorizationController,
+        didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
+        MainActor.assumeIsolated {
             appleSignInContinuation?.resume(returning: authorization.credential)
             appleSignInContinuation = nil
             appleAuthController = nil
         }
+    }
 
-        func authorizationController(
-            controller: ASAuthorizationController,
-            didCompleteWithError error: Error
-        ) {
+    nonisolated func authorizationController(
+        controller: ASAuthorizationController,
+        didCompleteWithError error: Error
+    ) {
+        MainActor.assumeIsolated {
             if let authError = error as? ASAuthorizationError,
                authError.code == .canceled {
                 appleSignInContinuation?.resume(throwing: AuthError.cancelled)
@@ -178,18 +184,20 @@ extension AuthViewModel: ASAuthorizationControllerDelegate {
             appleSignInContinuation = nil
             appleAuthController = nil
         }
+    }
 }
 
 // MARK: - ASAuthorizationControllerPresentationContextProviding
 
 extension AuthViewModel: ASAuthorizationControllerPresentationContextProviding {
 
-    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        // Walk the scene hierarchy to find a key window
-        let scene = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first { $0.activationState == .foregroundActive }
-        return scene?.windows.first(where: \.isKeyWindow) ?? UIWindow()
+    nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        MainActor.assumeIsolated {
+            let scene = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .first { $0.activationState == .foregroundActive }
+            return scene?.windows.first(where: \.isKeyWindow) ?? UIWindow()
+        }
     }
 }
 
@@ -197,13 +205,11 @@ extension AuthViewModel: ASAuthorizationControllerPresentationContextProviding {
 
 extension AuthViewModel {
 
-    @MainActor
-    /// Presents Google Sign-In sheet and bridges the callback into async/await.
     private func requestGoogleTokens() async throws -> (idToken: String, accessToken: String) {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw AuthError.missingGoogleClientID
         }
-        print(clientID)
+
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
 
@@ -212,19 +218,14 @@ extension AuthViewModel {
         }
 
         let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: topVC)
-        print(result)
-        guard
-            let idToken = result.user.idToken?.tokenString
-        else {
+
+        guard let idToken = result.user.idToken?.tokenString else {
             throw AuthError.invalidCredential
         }
 
-        let accessToken = result.user.accessToken.tokenString
-        print(accessToken)
-        return (idToken, accessToken)
+        return (idToken, result.user.accessToken.tokenString)
     }
-    
-    @MainActor
+
     private func topViewController() -> UIViewController? {
         let scene = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }

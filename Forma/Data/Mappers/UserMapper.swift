@@ -20,7 +20,7 @@ extension User {
     func toDTO() -> UserDTO {
         return UserDTO(
             credentials: self.credentials.toDTO(),
-            preferences: self.preferences.toDTO()
+            preferences: self.preferences?.toDTO()
         )
     }
 }

@@ -35,53 +35,47 @@ enum Typography {
     case monospacedMedium     // 15pt - Smaller code snippets
     case monospacedSmall      // 13pt - Inline code or annotations
     
+    case displayThin        // 56pt thin  — auth headline "let's go"
+    case displayThinLarge   // 64pt thin  — generation count numeral
+    case wordmark           // 10pt ultraLight — "FORMA"
+    case microTracked       // 10pt light — "THINKING", "ACTIVITIES"
+    case ultraLight         // 15pt ultraLight — sublines, Google button
+    case ultraLightSmall    // 13pt ultraLight — body notes, footer
+    
     // MARK: - Computed Properties
     
     var uiFont: UIFont {
         switch self {
-        // Display (Playfair Display)
-        case .displayLarge:
-            return UIFont.systemFont(ofSize: 38, weight: .medium)
-        case .displayMedium:
-            return UIFont.systemFont(ofSize: 32, weight: .medium)
-        case .displaySmall:
-            return UIFont.systemFont(ofSize: 24, weight: .medium)
+        case .displayLarge:       return UIFont.systemFont(ofSize: 38, weight: .medium)
+        case .displayMedium:      return UIFont.systemFont(ofSize: 32, weight: .medium)
+        case .displaySmall:       return UIFont.systemFont(ofSize: 24, weight: .medium)
             
-        // Headings (System)
-        case .heading1:
-            return .systemFont(ofSize: 28, weight: .bold)
-        case .heading2:
-            return .systemFont(ofSize: 22, weight: .bold)
-        case .heading3:
-            return .systemFont(ofSize: 18, weight: .semibold)
-            
-        // Body (System)
-        case .bodyLarge:
-            return .systemFont(ofSize: 17, weight: .regular)
-        case .bodyMedium:
-            return .systemFont(ofSize: 15, weight: .regular)
-        case .bodySmall:
-            return .systemFont(ofSize: 13, weight: .regular)
-            
-        // UI (System)
-        case .buttonLarge:
-            return .systemFont(ofSize: 17, weight: .semibold)
-        case .buttonMedium:
-            return .systemFont(ofSize: 15, weight: .medium)
-        case .label:
-            return .systemFont(ofSize: 14, weight: .medium)
-        case .caption:
-            return .systemFont(ofSize: 12, weight: .regular)
-        case .overline:
-            return .systemFont(ofSize: 10, weight: .medium)
+        case .heading1:           return .systemFont(ofSize: 28, weight: .bold)
+        case .heading2:           return .systemFont(ofSize: 22, weight: .bold)
+        case .heading3:           return .systemFont(ofSize: 18, weight: .semibold)
+    
+        case .bodyLarge:          return .systemFont(ofSize: 17, weight: .regular)
+        case .bodyMedium:         return .systemFont(ofSize: 15, weight: .regular)
+        case .bodySmall:          return .systemFont(ofSize: 13, weight: .regular)
+
+        case .buttonLarge:        return .systemFont(ofSize: 17, weight: .semibold)
+        case .buttonMedium:       return .systemFont(ofSize: 15, weight: .medium)
+        case .label:              return .systemFont(ofSize: 14, weight: .medium)
+        case .caption:            return .systemFont(ofSize: 12, weight: .regular)
+        case .overline:           return .systemFont(ofSize: 10, weight: .medium)
         
-        // Monospaced (for code snippets, if needed)
-        case  .monospacedLarge:
-            return .monospacedSystemFont(ofSize: 17, weight: .regular)
-        case .monospacedMedium:
-            return .monospacedSystemFont(ofSize: 15, weight: .regular)
-        case .monospacedSmall:
-            return .monospacedSystemFont(ofSize: 13, weight: .regular)
+        case .monospacedLarge:    return .monospacedSystemFont(ofSize: 17, weight: .regular)
+        case .monospacedMedium:   return .monospacedSystemFont(ofSize: 15, weight: .regular)
+        case .monospacedSmall:    return .monospacedSystemFont(ofSize: 13, weight: .regular)
+            
+        case .displayThin:        return .systemFont(ofSize: 56, weight: .thin)
+        case .displayThinLarge:   return .systemFont(ofSize: 64, weight: .thin)
+        case .wordmark:           return .systemFont(ofSize: 10, weight: .ultraLight)
+        case .microTracked:       return .systemFont(ofSize: 10, weight: .light)
+        case .ultraLight:         return .systemFont(ofSize: 15, weight: .ultraLight)
+        case .ultraLightSmall:    return .systemFont(ofSize: 13, weight: .ultraLight)
+            
+            
         }
     }
     
@@ -103,6 +97,10 @@ enum Typography {
         case .label: return 20
         case .caption: return 16
         case .overline: return 16
+        case .displayThin, .displayThinLarge: return -2.0
+        case .wordmark:                       return 6.0
+        case .microTracked:                   return 3.0
+        case .ultraLight, .ultraLightSmall:   return 0.1
         }
     }
     

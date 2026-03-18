@@ -28,7 +28,7 @@ struct Constants {
     ]
     
     // MARK: - Gemini API
-    static let geminiApiKey = "AIzaSyBxViLFrHYeEO1LoAC6qsdeJu49-eJNg_4"
+    static let geminiApiKey = "AIzaSyAbMXgKkhlvSK_k64aNc3F5SKcJZ49Weoo"
     static let geminiApiModel = "gemini-2.5-flash"
     
     static func prompt(with userPreferences: UserPreferences) -> String {

@@ -47,6 +47,6 @@ class SignUpAuthUseCase: SignUpAuthUseCaseProtocol {
         
         try await routineRepository.saveRoutine(routines, userId: userCredentials.id)
 
-        return nil
+        return user
     }
 }

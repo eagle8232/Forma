@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import SwiftUI
 
 protocol AuthCoordinatorDelegate: AnyObject {
     func didCancelAuth(_ coordinator: AuthCoordinator)
-    func didCompleteSignIn(_ coordinator: AuthCoordinator)
+    func didCompleteSignIn(_ coordinator: AuthCoordinator, with user: User)
     func didCompleteSignUp(_ coordinator: AuthCoordinator, with user: User, routines: [RoutineBlock])
 }
 
@@ -36,24 +37,27 @@ final class AuthCoordinator: Coordinator {
     
     /// Show Sign In screen (for returning users)
     func showSignInScreen() {
-        let authVC = AuthViewController()
-        authVC.coordinator = self
+        let authVC = UIHostingController(rootView: AuthView { [weak self] user in
+                self?.didCompleteSignIn(with: user)
+            })
         navigationController.pushViewController(authVC, animated: true)
     }
     
     /// Show Sign Up screen with user data from onboarding
     func showSignUpScreen(with userPreferences: UserPreferences, routines: [RoutineBlock]) {
-        let authVC = AuthViewController()
-        authVC.viewModel.userPreferences = userPreferences
-        authVC.viewModel.routines = routines
-        authVC.coordinator = self
+        let authVC = UIHostingController(rootView: AuthView(
+            userPreferences: userPreferences,
+            routines: routines,
+            onSuccess: { [weak self] user in
+                self?.didCompleteSignUp(with: user, routines: routines)
+            }))
         navigationController.pushViewController(authVC, animated: true)
     }
     
     // MARK: - Completion
     
-    func didCompleteSignIn() {
-        delegate?.didCompleteSignIn(self)
+    func didCompleteSignIn(with user: User) {
+        delegate?.didCompleteSignIn(self, with: user)
     }
     
     func didCompleteSignUp(with user: User, routines: [RoutineBlock]) {

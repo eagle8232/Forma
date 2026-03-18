@@ -32,6 +32,7 @@ public final class AppCoordinator: Coordinator {
        } else {
            showOnboardingView()
        }
+//
         
         // - For testing
         // let testVC = HomeViewController(viewModel: .init(routines: RoutineBlock.allMocks))
@@ -85,17 +86,20 @@ extension AppCoordinator: OnboardingCoordinatorDelegate {
 
 // MARK: - Onboarding Coordinator Delegate
 extension AppCoordinator: AuthCoordinatorDelegate {
+    func didCompleteSignIn(_ coordinator: AuthCoordinator, with user: User) {
+//        removeChild(coordinator)
+        print("user", user)
+        // TODO: - Show Home View
+    }
+    
     func didCancelAuth(_ coordinator: AuthCoordinator) {
         removeChild(coordinator)
     }
     
-    func didCompleteSignIn(_ coordinator: AuthCoordinator) {
-        let vc = HomeViewController(viewModel: .init(routines: RoutineBlock.allMocks))
-        navigationController.setViewControllers([vc], animated: true)
-    }
-    
     func didCompleteSignUp(_ coordinator: AuthCoordinator, with user: User, routines: [RoutineBlock]) {
-        // TODO: - Show Main Flow Action
+//        removeChild(coordinator)
+        print("user", user)
+        // TODO: - Show Home View
     }
 }
 
