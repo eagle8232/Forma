@@ -18,6 +18,7 @@
 		6984DCB52F3A9711002D0C7D /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 6984DCB42F3A9711002D0C7D /* FirebaseDatabase */; };
 		6984DCB72F3A9711002D0C7D /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 6984DCB62F3A9711002D0C7D /* FirebaseFirestore */; };
 		6984DCB92F3A9711002D0C7D /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 6984DCB82F3A9711002D0C7D /* FirebaseStorage */; };
+		69F456BC2F63034800B5841E /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = 69F456BB2F63034800B5841E /* GoogleGenerativeAI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,7 @@
 				6984DCA62F3A96E1002D0C7D /* GoogleSignIn in Frameworks */,
 				6984DCAF2F3A9711002D0C7D /* FirebaseAuth in Frameworks */,
 				6984DCA82F3A96E1002D0C7D /* GoogleSignInSwift in Frameworks */,
+				69F456BC2F63034800B5841E /* GoogleGenerativeAI in Frameworks */,
 				6984DCB92F3A9711002D0C7D /* FirebaseStorage in Frameworks */,
 				6984DCB32F3A9711002D0C7D /* FirebaseCrashlytics in Frameworks */,
 				6984DCAD2F3A9711002D0C7D /* FirebaseAnalytics in Frameworks */,
@@ -114,6 +116,7 @@
 				6984DCB62F3A9711002D0C7D /* FirebaseFirestore */,
 				6984DCB82F3A9711002D0C7D /* FirebaseStorage */,
 				695CA64B2F4064CB00C0A7E0 /* Lottie */,
+				69F456BB2F63034800B5841E /* GoogleGenerativeAI */,
 			);
 			productName = Forma;
 			productReference = 699558822F2104450079D030 /* Forma.app */;
@@ -147,6 +150,7 @@
 				6984DCA42F3A96E1002D0C7D /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				6984DCA92F3A9711002D0C7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				695CA64A2F4064CB00C0A7E0 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				69F456BA2F63034800B5841E /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 699558832F2104450079D030 /* Products */;
@@ -195,7 +199,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -229,7 +233,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -416,6 +420,14 @@
 				minimumVersion = 12.9.0;
 			};
 		};
+		69F456BA2F63034800B5841E /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/generative-ai-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.6;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -473,6 +485,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6984DCA92F3A9711002D0C7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		69F456BB2F63034800B5841E /* GoogleGenerativeAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 69F456BA2F63034800B5841E /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
+			productName = GoogleGenerativeAI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

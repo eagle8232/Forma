@@ -73,7 +73,7 @@ final class FormaTextView: UIView {
     ) -> FormaTextView {
         let label = createLabel(
             text: text,
-            font: typography.font,
+            font: typography.uiFont,
             color: color,
             alignment: alignment,
             lineSpacing: lineSpacing
@@ -93,7 +93,7 @@ final class FormaTextView: UIView {
     ) -> FormaTextView {
         let label = createLabel(
             text: text,
-            font: typography.font,
+            font: typography.uiFont,
             color: color,
             alignment: alignment,
             lineSpacing: lineSpacing
@@ -113,7 +113,7 @@ final class FormaTextView: UIView {
     ) -> FormaTextView {
         let label = createLabel(
             text: text,
-            font: typography.font,
+            font: typography.uiFont,
             color: color,
             alignment: alignment,
             lineSpacing: lineSpacing
@@ -133,7 +133,7 @@ final class FormaTextView: UIView {
     ) -> FormaTextView {
         let label = createLabel(
             text: text,
-            font: typography.font,
+            font: typography.uiFont,
             color: color,
             alignment: alignment,
             lineSpacing: lineSpacing
@@ -153,7 +153,7 @@ final class FormaTextView: UIView {
     ) -> FormaTextView {
         let label = createLabel(
             text: text,
-            font: typography.font,
+            font: typography.uiFont,
             color: color,
             alignment: alignment,
             lineSpacing: lineSpacing
@@ -183,7 +183,7 @@ final class FormaTextView: UIView {
         let attributedString = NSMutableAttributedString(
             string: text,
             attributes: [
-                .font: typography.font,
+                .font: typography.uiFont,
                 .foregroundColor: baseColor
             ]
         )
@@ -193,7 +193,7 @@ final class FormaTextView: UIView {
         let textSize = NSString(string: text).boundingRect(
             with: CGSize(width: .max, height: .max),
             options: .usesLineFragmentOrigin,
-            attributes: [.font: typography.font],
+            attributes: [.font: typography.uiFont],
             context: nil
         ).size
         

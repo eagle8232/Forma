@@ -13,8 +13,8 @@ struct RoutineDTO: Codable {
     var description: String?
     var iconString: String?
     var colorString: String?
-    var startTime: Date?
-    var endTime: Date?
+    var startTime: String?
+    var endTime: String?
     var activities: [RoutineTaskDTO]?
     var intensity: BlockIntensity?
     

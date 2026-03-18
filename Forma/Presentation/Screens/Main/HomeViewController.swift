@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 final class HomeViewController: BaseViewController {
     
@@ -82,6 +83,8 @@ final class HomeViewController: BaseViewController {
         
         let barButtonItem = UIBarButtonItem(customView: headerView)
         self.navigationItem.leftBarButtonItem = barButtonItem
+
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {

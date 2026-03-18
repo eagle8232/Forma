@@ -188,7 +188,7 @@ extension FocusBeginViewController {
         }
         
         guard let userPreferences else {
-            print("❌ UserPreferences is nil")
+            print("UserPreferences is nil")
             return
         }
         

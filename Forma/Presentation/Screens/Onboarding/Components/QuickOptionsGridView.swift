@@ -25,6 +25,7 @@ enum QuickTimeOption: String, CaseIterable {
     var date: Date? {
         guard let hour = hour else { return nil }
         var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        components.timeZone = .autoupdatingCurrent
         components.hour = hour
         components.minute = 0
         return Calendar.current.date(from: components)

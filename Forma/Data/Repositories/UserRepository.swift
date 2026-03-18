@@ -24,7 +24,7 @@ final class UserRepository: UserRepositoryProtocol {
         
         let userDTO = try document.data(as: UserDTO.self)
         let user = userDTO.toEntity()
-        
+
         return user
     }
     

@@ -14,6 +14,7 @@ class DependencyContainer {
     private lazy var authRepository: AuthRepositoryProtocol = AuthRepository()
     private lazy var userRepository: UserRepositoryProtocol = UserRepository()
     private lazy var routineRepository: RoutineRepositoryProtocol = RoutineRepository()
+    private lazy var aiRepository: AIRepositoryProtocol = AIRepository()
     
     private init() {}
    
@@ -82,3 +83,11 @@ extension DependencyContainer {
     }
 }
 
+// MARK: - AI Module
+
+extension DependencyContainer {
+    // - Generate Routine Use Case
+    func makeGenerateRoutineUseCase() -> GenerateRoutineUseCaseProtocol {
+        return GenerateRoutineUseCase(aiRepository: aiRepository)
+    }
+}

@@ -37,7 +37,7 @@ enum Typography {
     
     // MARK: - Computed Properties
     
-    var font: UIFont {
+    var uiFont: UIFont {
         switch self {
         // Display (Playfair Display)
         case .displayLarge:
@@ -125,7 +125,7 @@ extension UIFont {
     /// Primary way to access typography system
     /// Usage: label.font = .typography(.displayLarge)
     static func typography(_ style: Typography) -> UIFont {
-        return style.font
+        return style.uiFont
     }
 }
 
@@ -142,13 +142,13 @@ extension NSAttributedString {
     ) -> NSAttributedString {
         
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = typography.lineHeight - typography.font.lineHeight
+        paragraphStyle.lineSpacing = typography.lineHeight - typography.uiFont.lineHeight
         paragraphStyle.alignment = alignment
         
         return NSAttributedString(
             string: text,
             attributes: [
-                .font: typography.font,
+                .font: typography.uiFont,
                 .foregroundColor: color,
                 .paragraphStyle: paragraphStyle,
                 .kern: typography.letterSpacing

@@ -20,6 +20,10 @@ struct UserPreferences {
     var wakeUpTime: Date
     var focusTime: Date?
     var goal: [String]
+    
+    var timezone: String {
+        return TimeZone.current.identifier
+    }
 }
 
 struct User {

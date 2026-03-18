@@ -97,8 +97,8 @@ final class TaskEditRow: UIView {
         durationPicker.translatesAutoresizingMaskIntoConstraints = false
         if task.duration != 0 { durationPicker.setFromInt(task.duration) }
 
-        if !task.description.isEmpty {
-            descriptionView.text = task.description
+        if let description = task.description {
+            descriptionView.text = description
             isDescExpanded = true
         }
         setupRow()

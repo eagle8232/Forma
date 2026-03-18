@@ -55,4 +55,28 @@ final class DateManager {
         let hours = (ti / 3600)
         return String(format: "%02d:%02d", hours, minutes)
     }
+    
+    func formatTime(_ date: Date, format: String = "HH:mm") -> String {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = format
+        return formatter.string(from: date)
+    }
+    
+    func parseDate(_ raw: String) -> Date? {
+        // Try ISO 8601 full datetime
+        let isoFull = ISO8601DateFormatter()
+        isoFull.formatOptions = [.withInternetDateTime, .withSpaceBetweenDateAndTime]
+        if let d = isoFull.date(from: raw) { return d }
+
+        let isoBasic = ISO8601DateFormatter()
+        if let d = isoBasic.date(from: raw) { return d }
+
+        // Try plain HH:mm
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "HH:mm"
+        return formatter.date(from: raw)
+    }
+
 }

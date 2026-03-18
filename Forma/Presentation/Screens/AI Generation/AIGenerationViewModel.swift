@@ -7,26 +7,98 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
-final class AIGenerationViewModel {
+@MainActor
+final class AIGenerationViewModel: ObservableObject {
     
     // MARK: - Published Properties
     
-    @Published private(set) var currentStep: GenerationStep = .analyzing
-    @Published private(set) var progress: Float = 0.0
-    @Published private(set) var progressPercentage: Int = 0
-    @Published private(set) var isGenerating: Bool = false
-    @Published private(set) var isCompleted: Bool = false
-    @Published private(set) var generationError: Error?
+    private(set) var currentStep: GenerationStep = .analyzing
+    private(set) var progress: Float = 0.0
+    private(set) var progressPercentage: Int = 0
+    private(set) var isGenerating: Bool = false
+    private(set) var isCompleted: Bool = false
+    private(set) var generationError: Error?
+    private(set) var phase: GenerationPhase = .thinking
     
     // MARK: - Private Properties
     
     private var timer: Timer?
-    private let progressIncrement: Float = 0.008 // ~6 seconds to complete
     private var cancellables = Set<AnyCancellable>()
     
-    // MARK: - Generation Steps
+    var userPreferences: UserPreferences
+    @Published var newGeneratedRoutines: [RoutineBlock] = []
     
+    // MARK: - Initialization
+    
+    init(userPreferences: UserPreferences) {
+        self.userPreferences = userPreferences
+    }
+
+    deinit {}
+    
+    // MARK: - Public Methods
+    
+    func startGeneration() async {
+        guard newGeneratedRoutines.isEmpty, !isGenerating else { return }
+        await generateRoutines()
+    }
+    
+    func stopGeneration() {
+        withAnimation {
+            phase = .done
+        }
+    }
+    
+    func reset() {
+        stopGeneration()
+        currentStep = .analyzing
+        progress = 0.0
+        isCompleted = false
+        generationError = nil
+    }
+    
+    // MARK: - Private Methods
+    func generateRoutines() async {
+        isGenerating = true
+        
+        do {
+            let makeGenerateRoutineUseCase = DependencyContainer.shared.makeGenerateRoutineUseCase()
+            var routinesBuffer: [RoutineBlock] = []
+            for await routine in try await makeGenerateRoutineUseCase.execute(userPreferences: userPreferences) {
+                let isFirst = newGeneratedRoutines.isEmpty
+                routinesBuffer.append(routine)
+                self.newGeneratedRoutines = routinesBuffer
+                
+                withAnimation {
+                    phase = isFirst ? .firstArrived : .streaming(count: newGeneratedRoutines.count)
+                }
+                if isFirst {
+                    UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                    try? await Task.sleep(for: .seconds(0.8))
+                    withAnimation { phase = .streaming(count: newGeneratedRoutines.count) }
+                } else {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+                
+                // Check if it is the last routine
+                if routine.endTime == DateManager.shared.formatTime(userPreferences.sleepTime) {
+                    stopGeneration()
+                }
+            }
+            
+        } catch let err {
+            print(err.localizedDescription)
+            self.generationError = err
+        }
+        
+    }
+}
+
+// MARK: - Generation Steps
+
+extension AIGenerationViewModel {
     enum GenerationStep: Int, CaseIterable {
         case analyzing  = 0
         case mapping    = 1
@@ -49,112 +121,4 @@ final class AIGenerationViewModel {
         }
     }
     
-    // MARK: - Initialization
-    
-    init() {
-        setupObservers()
-    }
-    
-    deinit {
-        stopGeneration()
-    }
-    
-    // MARK: - Setup
-    
-    private func setupObservers() {
-        // Update percentage when progress changes
-        $progress
-            .map { Int($0 * 100) }
-            .assign(to: &$progressPercentage)
-    }
-    
-    // MARK: - Public Methods
-    
-    func startGeneration() {
-        guard !isGenerating else { return }
-        
-        isGenerating = true
-        currentStep = .analyzing
-        progress = 0.0
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-            self?.updateProgress()
-        }
-    }
-    
-    func stopGeneration() {
-        timer?.invalidate()
-        timer = nil
-        isGenerating = false
-    }
-    
-    func reset() {
-        stopGeneration()
-        currentStep = .analyzing
-        progress = 0.0
-        isCompleted = false
-        generationError = nil
-    }
-    
-    // MARK: - Private Methods
-    
-    private func updateProgress() {
-        progress += progressIncrement
-        progress = min(progress, 1.0) // Cap at 100%
-        
-        // Update step based on progress
-        updateCurrentStep()
-        
-        // Check completion
-        if progress >= 1.0 {
-            completeGeneration()
-        }
-    }
-    
-    private func updateCurrentStep() {
-        for step in GenerationStep.allCases {
-            if progress >= step.progressThreshold && currentStep.rawValue < step.rawValue {
-                currentStep = step
-                break
-            }
-        }
-    }
-    
-    private func completeGeneration() {
-        stopGeneration()
-        isCompleted = true
-        
-        // Simulate API call or processing
-        // In real app, this would save to backend
-        print("✅ Generation completed")
-    }
-}
-
-// MARK: - Helper Computed Properties
-
-extension AIGenerationViewModel {
-    
-    var stepTitle: String {
-        currentStep.title
-    }
-    
-    var progressText: String {
-        "\(progressPercentage)%"
-    }
-    
-    var sequenceID: String {
-        "SEQ_0482_OPTIMIZE"
-    }
-    
-    var statusText: String {
-        "● PROCESSING USER INPUTS"
-    }
-    
-    var systemTitle: String {
-        "FORMA AI SYSTEM"
-    }
-    
-    var systemSubtitle: String {
-        "Mapping focus blocks & curating narrative scenes"
-    }
 }
