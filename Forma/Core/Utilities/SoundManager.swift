@@ -121,7 +121,10 @@ final class SoundManager {
         player.volume = soundVolume
         player.currentTime = 0 // Reset to beginning
         
+        let generator = UIImpactFeedbackGenerator(style: .soft)
+        
         DispatchQueue.main.async {
+            generator.impactOccurred()
             player.play()
         }
     }

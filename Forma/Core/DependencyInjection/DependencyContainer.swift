@@ -16,6 +16,10 @@ class DependencyContainer {
     private lazy var routineRepository: RoutineRepositoryProtocol = RoutineRepository()
     private lazy var aiRepository: AIRepositoryProtocol = AIRepository()
     
+    // Variables
+    var currentUser: User?
+    var routines:    [RoutineBlock]?
+    
     private init() {}
    
 }
@@ -89,5 +93,20 @@ extension DependencyContainer {
     // - Generate Routine Use Case
     func makeGenerateRoutineUseCase() -> GenerateRoutineUseCaseProtocol {
         return GenerateRoutineUseCase(aiRepository: aiRepository)
+    }
+}
+
+// MARK: - Session
+
+extension DependencyContainer {
+    
+    func saveData(routines: [RoutineBlock]? = nil, user: User? = nil) {
+        self.routines = routines
+        self.currentUser = user
+    }
+    // - Clears Session On Sign Out or Delete
+    func clearSession() {
+        self.currentUser = nil
+        self.routines    = nil
     }
 }

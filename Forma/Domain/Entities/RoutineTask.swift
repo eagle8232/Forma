@@ -16,8 +16,13 @@ struct RoutineTask: Identifiable, Equatable {
     var state: TaskState = .upcoming
     
     var durationText: String {
-        let mins = duration / 60
+        let mins = duration
         return mins < 60 ? "\(mins) mins" : "\(mins / 60)h \(mins % 60 > 0 ? "\(mins % 60)m" : "")"
     }
 }
 
+enum TaskState: String, Codable {
+    case upcoming
+    case inProgress
+    case completed
+}

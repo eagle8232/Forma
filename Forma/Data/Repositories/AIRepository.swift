@@ -68,7 +68,7 @@ final class AIRepository: AIRepositoryProtocol {
             responseMIMEType: "application/json"
         )
         gemini = GenerativeModel(
-            name: "gemini-2.5-flash",
+            name: Constants.geminiApiModel,
             apiKey: Constants.geminiApiKey,
             generationConfig: config
         )

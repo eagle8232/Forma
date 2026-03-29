@@ -9,9 +9,9 @@ import SwiftUI
 
 struct AIGenerationSwiftUIView: View {
     @StateObject var viewModel: AIGenerationViewModel
-    var coordinator: AIGenerationCoordinator
+    var coordinator: AICoordinator
 
-    init(userPreferences: UserPreferences, coordinator: AIGenerationCoordinator) {
+    init(userPreferences: UserPreferences, coordinator: AICoordinator) {
         self.coordinator = coordinator
         _viewModel = StateObject(wrappedValue: AIGenerationViewModel(userPreferences: userPreferences))
     }
@@ -100,7 +100,7 @@ extension AIGenerationSwiftUIView {
                             }
                         }
                         .onAppear {
-                            coordinator.saveNewGeneratedRoutines(viewModel.newGeneratedRoutines)
+                            
                         }
 
                     if index < viewModel.newGeneratedRoutines.count - 1 {

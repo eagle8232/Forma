@@ -21,15 +21,13 @@ final class RoutineRepository: RoutineRepositoryProtocol {
             .collection(FirestorePathNames.routines.rawValue)
             .getDocuments()
         
-        guard let fetchedDocument = snap.documents.first else {
-            print("No documents found")
-            return []
+        var routineBuffer: [RoutineBlock] = []
+        for document in snap.documents {
+            let routineDTO = try document.data(as: RoutineDTO.self)
+            routineBuffer.append(routineDTO.toEntity())
         }
         
-        let routineDTOs = try fetchedDocument.data(as: [RoutineDTO].self)
-        let routines = routineDTOs.compactMap{$0.toEntity()}
-        
-        return routines
+        return routineBuffer
     }
     
     func saveRoutine(_ routines: [RoutineBlock], userId: String) async throws {

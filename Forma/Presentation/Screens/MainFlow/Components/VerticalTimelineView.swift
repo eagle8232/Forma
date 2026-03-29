@@ -141,8 +141,8 @@ final class VerticalTimelineView: UIView {
             
             guard let self else { return }
             
-            let routineStartDateSeconds = DateManager.shared.convertToSeconds(routine.startTime)
-            let routinesEndDateSeconds = DateManager.shared.convertToSeconds(routines.last?.endTime ?? "22:30") // - For instance
+            let routineStartDateSeconds = DateManager.shared.convertToSeconds(string: routine.startTime)
+            let routinesEndDateSeconds = DateManager.shared.convertToSeconds(string: routines.last?.endTime ?? "22:30") // - For instance
             routineYAxis.append(calculateHeight(between: routineStartDateSeconds, and: routinesEndDateSeconds))
             
             let routineBubbledView = RoutineBubbleView(icon: routine.icon, color: routine.accentColor)
@@ -179,8 +179,8 @@ final class VerticalTimelineView: UIView {
         let today = DateManager.shared.getTodayTimeString()
         routines.enumerated().forEach { [weak self] index, routine in
             guard let self else { return }
-            let currentDateSeconds = DateManager.shared.convertToSeconds(today)
-            let routineStartDateSeconds = DateManager.shared.convertToSeconds(routine.startTime)
+            let currentDateSeconds = DateManager.shared.convertToSeconds(string: today)
+            let routineStartDateSeconds = DateManager.shared.convertToSeconds(string: routine.startTime)
             
             if currentDateSeconds >= routineStartDateSeconds {
                 self.routineBubbleViews[index].isEnabled(true)
@@ -198,8 +198,8 @@ final class VerticalTimelineView: UIView {
         let today = DateManager.shared.getTodayTimeString()
         let routineEndDateString = routines.last?.endTime ?? "22:30"
             
-        let currentDateSeconds = DateManager.shared.convertToSeconds(today)
-        let routineEndDateSeconds = DateManager.shared.convertToSeconds(routineEndDateString)
+        let currentDateSeconds = DateManager.shared.convertToSeconds(string: today)
+        let routineEndDateSeconds = DateManager.shared.convertToSeconds(string: routineEndDateString)
         
         let differenceBetweenDates = routineEndDateSeconds - currentDateSeconds
         

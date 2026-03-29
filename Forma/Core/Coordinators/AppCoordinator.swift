@@ -32,24 +32,24 @@ public final class AppCoordinator: Coordinator {
        } else {
            showOnboardingView()
        }
-//
+
         
         // - For testing
-        // let testVC = HomeViewController(viewModel: .init(routines: RoutineBlock.allMocks))
-        // navigationController.setViewControllers([testVC], animated: true)
+//        let testVC = HomeCoordinator(navigationController: self.navigationController)
+//        testVC.showHomeView(with: RoutineBlock.allMocks)
     }
     
     func showOnboardingView() {
-        let onboardingCoordinator = OnboardingCoordinator(navigationController: navigationController)
+        let onboardingCoordinator = OnboardingCoordinator(navigationController: self.navigationController)
         onboardingCoordinator.delegate = self
         addChild(onboardingCoordinator)
         onboardingCoordinator.start()
     }
     
-    func showAuthScreen(_ userPreferences: UserPreferences? = nil, routines: [RoutineBlock]? = nil) {
+    func showAuthScreen(userPreferences: UserPreferences? = nil, routines: [RoutineBlock]? = nil) {
         let authCoordinator = AuthCoordinator(navigationController: navigationController)
         authCoordinator.delegate = self
-        addChild(authCoordinator)
+        addChild(authCoordinator)        
         
         if let userPreferences, let routines {
             authCoordinator.showSignUpScreen(with: userPreferences, routines: routines)
@@ -59,14 +59,21 @@ public final class AppCoordinator: Coordinator {
     }
     
     func showAIGeneration(with userPreferences: UserPreferences) {
-        let aiGenerationCoordinator = AIGenerationCoordinator(navigationController: navigationController, userPreferences: userPreferences)
+        let aiGenerationCoordinator = AICoordinator(navigationController: self.navigationController)
         aiGenerationCoordinator.delegate = self
         addChild(aiGenerationCoordinator)
-        aiGenerationCoordinator.start()
+        aiGenerationCoordinator.showAIGeneration(with: userPreferences)
     }
     
     func showMainFlow() {
-        // This is called when Auth is successful
+        let homeCoordinator = HomeCoordinator(navigationController: self.navigationController)
+        addChild(homeCoordinator)
+        
+        if let routines = DependencyContainer.shared.routines {
+            homeCoordinator.showHomeView(with: routines)
+        } else {
+            homeCoordinator.start()
+        }
     }
 }
 
@@ -87,25 +94,26 @@ extension AppCoordinator: OnboardingCoordinatorDelegate {
 // MARK: - Onboarding Coordinator Delegate
 extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteSignIn(_ coordinator: AuthCoordinator, with user: User) {
-//        removeChild(coordinator)
-        print("user", user)
-        // TODO: - Show Home View
+        DependencyContainer.shared.saveData(user: user)
+        removeChild(coordinator)
+        showMainFlow()
+    }
+    
+    func didCompleteSignUp(_ coordinator: AuthCoordinator, with user: User, routines: [RoutineBlock]) {
+        DependencyContainer.shared.saveData(routines: routines, user: user)
+        removeChild(coordinator)
+        showMainFlow()
     }
     
     func didCancelAuth(_ coordinator: AuthCoordinator) {
         removeChild(coordinator)
     }
     
-    func didCompleteSignUp(_ coordinator: AuthCoordinator, with user: User, routines: [RoutineBlock]) {
-//        removeChild(coordinator)
-        print("user", user)
-        // TODO: - Show Home View
-    }
 }
 
 // MARK: - AI Generation Coordinator Delegate
 extension AppCoordinator: AIGenerationCoordinatorDelegate {
-    func didRequestSignUp(_ coordinator: AIGenerationCoordinator, with userPreferences: UserPreferences, routines: [RoutineBlock]) {
-        showAuthScreen(userPreferences, routines: routines)
+    func didRequestSignUp(_ coordinator: AICoordinator, with userPreferences: UserPreferences, routines: [RoutineBlock]) {
+        showAuthScreen(userPreferences: userPreferences, routines: routines)
     }
 }

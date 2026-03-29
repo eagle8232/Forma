@@ -277,8 +277,8 @@ struct TaskRow: View {
     // MARK: - Helpers
     
     private var routineWindowMinutes: Int {
-        let start = DateManager.shared.convertToSeconds(vm.routine.startTime)
-        let end   = DateManager.shared.convertToSeconds(vm.routine.endTime)
+        let start = DateManager.shared.convertToSeconds(string: vm.routine.startTime)
+        let end   = DateManager.shared.convertToSeconds(string: vm.routine.endTime)
         return Int(max((end - start) / 60, 1))
     }
     

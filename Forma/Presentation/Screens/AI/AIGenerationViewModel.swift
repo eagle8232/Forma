@@ -83,7 +83,7 @@ final class AIGenerationViewModel: ObservableObject {
                 }
                 
                 // Check if it is the last routine
-                if routine.endTime == DateManager.shared.formatTime(userPreferences.sleepTime) {
+                if routine.endTime == DateManager.shared.dateToString(userPreferences.sleepTime) {
                     stopGeneration()
                 }
             }

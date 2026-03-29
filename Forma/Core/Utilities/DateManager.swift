@@ -33,20 +33,35 @@ final class DateManager {
         
     }
     
-    func convertToSeconds(_ dateString: String) -> CGFloat {
+    func convertToSeconds(date: Date? = nil, string: String? = nil) -> CGFloat {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm"
         
+        var dateBuffer: String = "00:00" // - By default
+        
         /// - We use this method to get difference between 00:00 and date, to get a positive result
         let zeroDateString: String = "00:00"
-        guard let zeroDate = dateFormatter.date(from: zeroDateString),
-              let date = dateFormatter.date(from: dateString) else {
-            print("No dates found")
-            return 0
+        guard let zeroDate = dateFormatter.date(from: zeroDateString) else { return 0 }
+        
+        if let date {
+            dateBuffer = dateFormatter.string(from: date)
+        } else if let string {
+            dateBuffer = string
         }
+        
+        guard let date = dateFormatter.date(from: dateBuffer) else { return 0 }
         
         let dateInSeconds = date.timeIntervalSince(zeroDate)
         return dateInSeconds
+    }
+    
+    func formatMinutes(_ total: Int) -> String {
+        let h = total / 60, m = total % 60
+        switch (h, m) {
+        case (0, let m): return "\(m) min"
+        case (let h, 0): return "\(h) hr"
+        default:         return "\(h) hr \(m) min"
+        }
     }
     
     func convertToDateString(_ dateInSeconds: CGFloat) -> String {
@@ -56,27 +71,18 @@ final class DateManager {
         return String(format: "%02d:%02d", hours, minutes)
     }
     
-    func formatTime(_ date: Date, format: String = "HH:mm") -> String {
+    func dateToString(_ date: Date, format: String = "HH:mm") -> String {
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone.current
         formatter.dateFormat = format
         return formatter.string(from: date)
     }
     
-    func parseDate(_ raw: String) -> Date? {
-        // Try ISO 8601 full datetime
-        let isoFull = ISO8601DateFormatter()
-        isoFull.formatOptions = [.withInternetDateTime, .withSpaceBetweenDateAndTime]
-        if let d = isoFull.date(from: raw) { return d }
-
-        let isoBasic = ISO8601DateFormatter()
-        if let d = isoBasic.date(from: raw) { return d }
-
-        // Try plain HH:mm
+    func stringToDate(_ string: String, dateFormat: String = "HH:mm") -> Date? {
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "HH:mm"
-        return formatter.date(from: raw)
+        formatter.dateFormat = dateFormat
+        return formatter.date(from: string)
     }
 
 }

@@ -55,8 +55,8 @@ class RoutineDetailViewModel: ObservableObject {
     /// Calculates whether the sum of task durations equals the routine window.
     /// Updates `durationMismatch` — nil means balanced, non-nil shows the banner.
     func validateDurations() {
-        let routineSeconds = DateManager.shared.convertToSeconds(routine.endTime)
-                           - DateManager.shared.convertToSeconds(routine.startTime)
+        let routineSeconds = DateManager.shared.convertToSeconds(string: routine.endTime)
+                           - DateManager.shared.convertToSeconds(string: routine.startTime)
         let tasksSeconds   = CGFloat(tasks.reduce(0) { $0 + $1.duration * 60 })
 
         guard routineSeconds != tasksSeconds else {
@@ -209,11 +209,11 @@ extension RoutineDetailViewModel {
     }
 
     private func endTime(of task: RoutineTask) -> String {
-        guard let startDate = DateManager.shared.parseDate(task.startTime) else {
+        guard let startDate = DateManager.shared.stringToDate(task.startTime) else {
             return task.startTime
         }
         let endDate = startDate.addingTimeInterval(TimeInterval(task.duration * 60))
-        return DateManager.shared.formatTime(endDate)
+        return DateManager.shared.dateToString(endDate)
     }
 }
 
