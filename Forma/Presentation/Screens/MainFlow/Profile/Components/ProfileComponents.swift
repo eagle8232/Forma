@@ -23,14 +23,14 @@ struct FormaSectionHeader: View {
             Spacer()
             if let label = actionLabel, let action = onAction {
                 Button(action: action) {
-                    Text(label.uppercased())
+                    Text(label)
                         .font(AppFont.ui(10, weight: .regular))
                         .kerning(1.8)
-                        .foregroundColor(AppColor.gold)
+                        .foregroundColor(AppColor.textMuted)
                 }
             }
         }
-        .padding(.horizontal, AppSpacing.blockGap)
+        .padding(.horizontal, AppSpacing.sectionGap)
         .padding(.bottom, AppSpacing.tightGap)
     }
 }
@@ -107,7 +107,7 @@ struct FormaSettingCard: View {
                 trailingView
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.vertical, 10)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())

@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseAuth
 
 final class DependencyContainer {
     
@@ -27,6 +28,78 @@ final class DependencyContainer {
             preconditionFailure("No dependency found for \(key)")
         }
         return dependency
+    }
+    
+    // MARK: - Data Loading
+    
+    func loadCachedData() {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        
+        currentUser = CoreDataManager.shared.fetchUser(byId: userId)
+        let fetchedRoutines = CoreDataManager.shared.fetchRoutines(forUserId: userId)
+        routines = fetchedRoutines.sorted { $0.startTime < $1.startTime }
+    }
+    
+    func syncWithFirebase() async {
+        await performSync()
+    }
+    
+    func syncWithFirebaseAndWait() async {
+        await performSync()
+    }
+    
+    private func performSync() async {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        
+        do {
+            async let firebaseUser = userRepository.fetchUser(userId)
+            async let firebaseRoutines = routineRepository.fetchRoutines(userId: userId)
+            
+            let (fetchedUser, fetchedRoutines) = try await (firebaseUser, firebaseRoutines)
+            
+            if let fetchedUser = fetchedUser {
+                currentUser = fetchedUser
+                CoreDataManager.shared.saveUser(fetchedUser)
+            }
+            
+            if !fetchedRoutines.isEmpty {
+                routines = fetchedRoutines.sorted { $0.startTime < $1.startTime }
+                CoreDataManager.shared.saveRoutines(fetchedRoutines, forUserId: userId)
+            }
+        } catch {
+            print("⚠️ Failed to sync with Firebase: \(error)")
+        }
+    }
+    
+    // MARK: - Data Updates
+    
+    func updateUser(_ user: User) {
+        currentUser = user
+        CoreDataManager.shared.saveUser(user)
+        
+        Task {
+            try? await userRepository.saveUser(user)
+        }
+    }
+    
+    func updateRoutines(_ newRoutines: [RoutineBlock]) {
+        routines = newRoutines
+        guard let userId = currentUser?.credentials.id else { return }
+        CoreDataManager.shared.saveRoutines(newRoutines, forUserId: userId)
+        
+        Task {
+            try? await routineRepository.saveRoutine(newRoutines, userId: userId)
+        }
+    }
+    
+    func deleteRoutine(_ routine: RoutineBlock) {
+        routines?.removeAll { $0.id == routine.id }
+        guard let userId = currentUser?.credentials.id else { return }
+        CoreDataManager.shared.deleteRoutine(byId: routine.id)
+        
+        Task {
+            try? await routineRepository.deleteRoutine(routine, userId: userId)
+        }
     }
 }
 
@@ -84,10 +157,17 @@ extension DependencyContainer {
         self.currentUser = user
         
         if let user = user {
-            saveUserToDefaults(user)
+            CoreDataManager.shared.saveUser(user)
+            Task {
+                try? await userRepository.saveUser(user)
+            }
         }
-        if let routines = routines {
-            saveRoutinesToDefaults(routines)
+        
+        if let routines = routines, let userId = user?.credentials.id {
+            CoreDataManager.shared.saveRoutines(routines, forUserId: userId)
+            Task {
+                try? await routineRepository.saveRoutine(routines, userId: userId)
+            }
         }
     }
     
@@ -95,30 +175,6 @@ extension DependencyContainer {
         currentUser = nil
         routines = nil
         UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
-        UserDefaults.standard.removeObject(forKey: "savedRoutines")
-    }
-    
-    private func saveUserToDefaults(_ user: User) {
-        if let encoded = try? JSONEncoder().encode(user) {
-            UserDefaults.standard.set(encoded, forKey: "savedUser")
-        }
-    }
-    
-    private func saveRoutinesToDefaults(_ routines: [RoutineBlock]) {
-        if let encoded = try? JSONEncoder().encode(routines) {
-            UserDefaults.standard.set(encoded, forKey: "savedRoutines")
-        }
-    }
-    
-    func loadSavedData() {
-        if let data = UserDefaults.standard.data(forKey: "savedRoutines"),
-           let routines = try? JSONDecoder().decode([RoutineBlock].self, from: data) {
-            self.routines = routines
-        }
-        if let data = UserDefaults.standard.data(forKey: "savedUser"),
-           let user = try? JSONDecoder().decode(User.self, from: data) {
-            self.currentUser = user
-        }
     }
     
     var hasCompletedOnboarding: Bool {

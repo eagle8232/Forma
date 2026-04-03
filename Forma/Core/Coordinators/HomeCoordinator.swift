@@ -43,15 +43,6 @@ final class HomeCoordinator: Coordinator {
         vc.view.backgroundColor = UIColor(AppColor.background)
         vc.title = "Profile"
         
-        let editButton = UIBarButtonItem(
-            title: "Edit",
-            style: .plain,
-            target: nil,
-            action: nil
-        )
-        editButton.tintColor = .white
-        vc.navigationItem.rightBarButtonItem = editButton
-        
         navigationController.pushViewController(vc, animated: true)
     }
     

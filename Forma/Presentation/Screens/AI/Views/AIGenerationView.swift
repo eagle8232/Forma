@@ -99,11 +99,6 @@ extension AIGenerationView {
 
     private var statusNavBar: some View {
         HStack {
-            Text("FORMA")
-                .font(.system(size: 10, weight: .ultraLight))
-                .tracking(6)
-                .foregroundStyle(.white.opacity(0.18))
-
             Spacer()
 
             HStack(spacing: 8) {
@@ -398,7 +393,10 @@ extension AIGenerationView {
 
     private var createAccountButton: some View {
         Button {
-            
+            coordinator.didTapStartButton(
+                with: viewModel.userPreferences,
+                routines: viewModel.newGeneratedRoutines
+            )
         } label: {
             buttonLabel("Create Account")
         }

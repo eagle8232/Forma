@@ -16,14 +16,26 @@ public final class AppCoordinator: Coordinator {
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
         
-        DependencyContainer.shared.loadSavedData()
+        handleAuthState()
         
+        Auth.auth().addStateDidChangeListener { [weak self] _, _ in
+            self?.handleAuthState()
+        }
+    }
+    
+    private func handleAuthState() {
         if Auth.auth().currentUser != nil {
-            showMainFlow()
+            if navigationController.viewControllers.isEmpty {
+                showMainFlow()
+            }
         } else if DependencyContainer.shared.hasCompletedOnboarding {
-            showOnboardingView()
+            if navigationController.viewControllers.isEmpty {
+                showOnboardingView()
+            }
         } else {
-            showOnboardingView()
+            if navigationController.viewControllers.isEmpty {
+                showOnboardingView()
+            }
         }
     }
     
@@ -53,21 +65,36 @@ public final class AppCoordinator: Coordinator {
         aiGenerationCoordinator.showAIGeneration(with: userPreferences)
     }
     
-    func showMainFlow() {
+    func showMainFlow(isSignIn: Bool = false) {
+        DependencyContainer.shared.loadCachedData()
+        
+        if isSignIn {
+            Task { @MainActor in
+                await DependencyContainer.shared.syncWithFirebaseAndWait()
+                self.presentMainFlow()
+            }
+        } else {
+            presentMainFlow()
+            Task { @MainActor in
+                await DependencyContainer.shared.syncWithFirebase()
+            }
+        }
+    }
+    
+    private func presentMainFlow() {
         let homeCoordinator = HomeCoordinator(navigationController: navigationController)
         homeCoordinator.delegate = self
         addChild(homeCoordinator)
-        
-        if let routines = DependencyContainer.shared.routines {
-            homeCoordinator.showHomeView(with: routines)
-        } else {
-            homeCoordinator.start()
-        }
+        homeCoordinator.start()
     }
 }
 
 extension AppCoordinator: HomeCoordinatorDelegate {
     func homeCoordinatorDidRequestSignOut(_ coordinator: HomeCoordinator) {
+        if let userId = DependencyContainer.shared.currentUser?.credentials.id {
+            CoreDataManager.shared.deleteAllRoutines(forUserId: userId)
+            CoreDataManager.shared.deleteUser(byId: userId)
+        }
         DependencyContainer.shared.clearSession()
         removeChild(coordinator)
         navigationController.popToRootViewController(animated: false)
@@ -89,10 +116,13 @@ extension AppCoordinator: OnboardingCoordinatorDelegate {
 
 extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteSignIn(_ coordinator: AuthCoordinator, with user: User) {
-        DependencyContainer.shared.saveData(user: user)
+        DependencyContainer.shared.currentUser = user
+        DependencyContainer.shared.routines = nil
+        
         DependencyContainer.shared.markOnboardingCompleted()
         removeChild(coordinator)
-        showMainFlow()
+        
+        showMainFlow(isSignIn: true)
     }
     
     func didCompleteSignUp(_ coordinator: AuthCoordinator, with user: User, routines: [RoutineBlock]) {

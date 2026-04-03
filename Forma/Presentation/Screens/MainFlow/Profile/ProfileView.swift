@@ -125,54 +125,69 @@ struct ProfileView: View {
 
     private var preferencesSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FormaSectionHeader(title: "Preferences", actionLabel: "Edit") {
+            FormaSectionHeader(title: "Preferences", actionLabel: "EDITABLE") {
                 onEditProfile()
             }
 
             VStack(spacing: 8) {
-                if let prayer = viewModel.prayerFrequency {
+                // Prayer Times Section
+                HStack(spacing: 0) {
                     FormaSettingCard(
                         icon: "🕌",
                         iconTint: .accent,
                         title: "Prayer Times",
-                        subtitle: "\(prayer) · \(viewModel.location)",
-                        badge: "Auto",
-                        badgeStyle: .accent
+                        subtitle: viewModel.location,
+                        trailing: .none
                     ) { }
-                    FormaDivider()
+                    
+                    Text("Auto")
+                        .font(AppFont.ui(10, weight: .semibold))
+                        .foregroundColor(AppColor.accent)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(AppColor.accent.opacity(0.15))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .padding(.trailing, 16)
                 }
+                FormaDivider()
 
+                // Wake Time Section
                 FormaSettingCard(
                     icon: "🌅",
                     iconTint: .accent,
                     title: "Wake Time",
-                    subtitle: "Weekdays \(viewModel.wakeUpFormatted)"
+                    subtitle: "Weekdays \(viewModel.wakeUpFormatted)",
+                    trailing: .none
                 ) { }
                 FormaDivider()
 
+                // Sleep Time Section
                 FormaSettingCard(
                     icon: "🌙",
                     iconTint: .neutral,
                     title: "Sleep Time",
-                    subtitle: viewModel.sleepFormatted
+                    subtitle: viewModel.sleepFormatted,
+                    trailing: .none
                 ) { }
                 FormaDivider()
 
-                if let style = viewModel.workStyle {
-                    FormaSettingCard(
-                        icon: "💼",
-                        iconTint: .accent,
-                        title: "Work Style",
-                        subtitle: style
-                    ) { }
-                    FormaDivider()
-                }
+                // Work Style Section
+                FormaSettingCard(
+                    icon: "💼",
+                    iconTint: .accent,
+                    title: "Work Style",
+                    subtitle: viewModel.workStyle ?? "Not set",
+                    trailing: .none
+                ) { }
+                FormaDivider()
 
+                    // Goals Section
                 FormaSettingCard(
                     icon: "🎯",
                     iconTint: .neutral,
                     title: "Goals",
-                    subtitle: viewModel.goalsFormatted
+                    subtitle: viewModel.goalsFormatted,
+                    trailing: .none
                 ) { }
             }
             .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -185,6 +200,7 @@ struct ProfileView: View {
                     )
             )
         }
+        .padding(.horizontal, AppSpacing.sectionGap)
     }
 
     // MARK: - Notifications section
@@ -230,6 +246,7 @@ struct ProfileView: View {
                     )
             )
         }
+        .padding(.horizontal, AppSpacing.sectionGap)
     }
 
     // MARK: - App section
@@ -243,7 +260,8 @@ struct ProfileView: View {
                     icon: "🎨",
                     iconTint: .accent,
                     title: "Appearance",
-                    subtitle: "Dark · Always"
+                    subtitle: "Dark · Always",
+                    trailing: .none
                 ) { }
                 FormaDivider()
 
@@ -251,7 +269,8 @@ struct ProfileView: View {
                     icon: "🌍",
                     iconTint: .neutral,
                     title: "Language & Region",
-                    subtitle: "English · \(viewModel.timezone)"
+                    subtitle: "English · \(viewModel.timezone)",
+                    trailing: .none
                 ) { }
                 FormaDivider()
 
@@ -259,7 +278,8 @@ struct ProfileView: View {
                     icon: "🔒",
                     iconTint: .neutral,
                     title: "Privacy & Data",
-                    subtitle: "Manage your data"
+                    subtitle: "Manage your data",
+                    trailing: .none
                 ) { }
                 FormaDivider()
 
@@ -267,7 +287,8 @@ struct ProfileView: View {
                     icon: "⭐",
                     iconTint: .accent,
                     title: "Rate Forma",
-                    subtitle: "App Store · Takes 10 seconds"
+                    subtitle: "App Store · Takes 10 seconds",
+                    trailing: .none
                 ) {
                     if let url = URL(string: "itms-apps://itunes.apple.com/app/idYOUR_APP_ID") {
                         UIApplication.shared.open(url)
@@ -284,6 +305,7 @@ struct ProfileView: View {
                     )
             )
         }
+        .padding(.horizontal, AppSpacing.sectionGap)
     }
 
     // MARK: - Sign out
@@ -305,7 +327,7 @@ struct ProfileView: View {
                         .stroke(AppColor.destructive.opacity(0.3), lineWidth: 1)
                 )
         }
-        .padding(.horizontal, AppSpacing.blockGap)
+        .padding(.horizontal, AppSpacing.sectionGap)
         .disabled(viewModel.isSigningOut)
     }
 }

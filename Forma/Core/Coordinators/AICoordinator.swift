@@ -23,7 +23,7 @@ class AICoordinator: Coordinator {
     func start() {}
     
     func showAIGeneration(with userPreferences: UserPreferences) {
-        let vc = FormaHostingController(rootView: AIGenerationView(userPreferences: userPreferences, coordinator: self))
+        let vc = AIGenerationHostingController(rootView: AIGenerationView(userPreferences: userPreferences, coordinator: self))
         navigationController.setViewControllers([vc], animated: true)
     }
     

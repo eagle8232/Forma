@@ -2,16 +2,31 @@ import SwiftUI
 
 enum AppFont {
     static func display(_ size: CGFloat, weight: Font.Weight = .light) -> Font {
-        .custom("Cormorant Garamond", size: size).weight(weight)
+        .system(size: size, weight: mapWeight(weight), design: .serif)
     }
     static func displayItalic(_ size: CGFloat) -> Font {
-        .custom("Cormorant Garamond", size: size).italic()
+        .system(size: size, weight: .regular, design: .serif).italic()
     }
     static func ui(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        .custom("Manrope", size: size).weight(weight)
+        .system(size: size, weight: mapWeight(weight), design: .default)
     }
     static func uiMono(_ size: CGFloat) -> Font {
-        .custom("Manrope", size: size).weight(.light).monospaced()
+        .system(size: size, weight: mapWeight(.light), design: .monospaced)
+    }
+    
+    private static func mapWeight(_ weight: Font.Weight) -> Font.Weight {
+        switch weight {
+        case .ultraLight: return .ultraLight
+        case .thin: return .thin
+        case .light: return .light
+        case .regular: return .regular
+        case .medium: return .medium
+        case .semibold: return .semibold
+        case .bold: return .bold
+        case .heavy: return .heavy
+        case .black: return .black
+        default: return .regular
+        }
     }
 }
 

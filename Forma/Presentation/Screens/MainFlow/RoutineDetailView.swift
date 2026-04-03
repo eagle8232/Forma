@@ -284,6 +284,7 @@ extension RoutineDetailView {
                 return
             }
             onSave?(vm.routine)
+            vm.saveChanges()
             vm.showSuccessAlert = true
         } label: {
             Text("Save")

@@ -118,6 +118,7 @@ final class AIGenerationViewModel: ObservableObject {
     // MARK: - Main entry point
 
     func start() async {
+        guard questions.isEmpty else { return }
         await fetchQuestions()
     }
 
@@ -220,5 +221,6 @@ final class AIGenerationViewModel: ObservableObject {
     func updateRoutine(_ updated: RoutineBlock) {
         guard let i = newGeneratedRoutines.firstIndex(where: { $0.id == updated.id }) else { return }
         newGeneratedRoutines[i] = updated
+        DependencyContainer.shared.updateRoutines(newGeneratedRoutines)
     }
 }

@@ -33,7 +33,7 @@ struct Constants {
 
 extension Constants {
     
-    static let geminiApiKey = "AIzaSyDhgyPd0CZqkVABgRyd-91If_N9Qe-f-oE"
+    static let geminiApiKey = "AIzaSyDjYMN-QWDurfX-TZAEN-w3HAcLoHEenQI"
     static let geminiApiModel = "gemini-2.5-flash"
     
     static func prompt(with userPreferences: UserPreferences) -> String {

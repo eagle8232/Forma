@@ -35,8 +35,8 @@ class RoutineDetailViewModel: ObservableObject {
     @Published var durationMismatch: DurationMismatch? = nil
 
     // MARK: - Snapshots
-    private let originalRoutine: RoutineBlock
-    private let originalTasks:   [RoutineTask]
+    private var originalRoutine: RoutineBlock
+    private var originalTasks:   [RoutineTask]
 
     // MARK: - Computed
     var isValid: Bool { durationMismatch == nil && !routine.title.trimmingCharacters(in: .whitespaces).isEmpty && !tasks.isEmpty }
@@ -113,6 +113,13 @@ class RoutineDetailViewModel: ObservableObject {
         withAnimation(.spring(response: 0.6, dampingFraction: 0.78)) {
             appeared = true
         }
+    }
+    
+    // MARK: - Save
+    func saveChanges() {
+        originalRoutine = routine
+        originalTasks = tasks
+        detectChanges()
     }
 
 }

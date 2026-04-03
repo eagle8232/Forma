@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="UserEntity" representedClassName="UserEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isAnonymous" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="preferencesData" optional="YES" attributeType="Binary"/>
+        <relationship name="routines" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="RoutineBlockEntity" inverseName="user" inverseEntity="RoutineBlockEntity"/>
+    </entity>
+    <entity name="RoutineBlockEntity" representedClassName="RoutineBlockEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="accentColor" attributeType="String"/>
+        <attribute name="blockDescription" optional="YES" attributeType="String"/>
+        <attribute name="endTime" attributeType="String"/>
+        <attribute name="icon" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="intensity" optional="YES" attributeType="String"/>
+        <attribute name="startTime" attributeType="String"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="tasks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="RoutineTaskEntity" inverseName="routineBlock" inverseEntity="RoutineTaskEntity"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserEntity" inverseName="routines" inverseEntity="UserEntity"/>
+    </entity>
+    <entity name="RoutineTaskEntity" representedClassName="RoutineTaskEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="blockDescription" optional="YES" attributeType="String"/>
+        <attribute name="duration" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isBreak" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="startTime" attributeType="String"/>
+        <attribute name="state" attributeType="String" defaultValueString="upcoming"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="routineBlock" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="RoutineBlockEntity" inverseName="tasks" inverseEntity="RoutineBlockEntity"/>
+    </entity>
+</model>

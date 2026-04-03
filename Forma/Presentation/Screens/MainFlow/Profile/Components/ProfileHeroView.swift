@@ -15,14 +15,13 @@ struct ProfileHeroView: View {
     @State private var ringAngle: Double = 0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 16) {
 
-            // Avatar + name
-            HStack(alignment: .bottom, spacing: 20) {
+            // Avatar + name (stacked)
+            VStack(spacing: 12) {
                 avatarView
                 nameBlock
             }
-            .padding(.bottom, 24)
 
             // Score strip
             scoreStrip
@@ -95,30 +94,10 @@ struct ProfileHeroView: View {
     // MARK: - Name block
 
     private var nameBlock: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            // Two-line name in display font
-            VStack(alignment: .leading, spacing: -4) {
-                Text(viewModel.firstName)
-                    .font(AppFont.display(32))
-                    .foregroundColor(AppColor.textPrimary)
-                if !viewModel.lastName.isEmpty {
-                    Text(viewModel.lastName)
-                        .font(AppFont.display(32))
-                        .foregroundColor(AppColor.textPrimary)
-                }
-            }
-
-            if !viewModel.isAnonymous {
-                Text("· \(viewModel.location)")
-                    .font(AppFont.ui(11, weight: .light))
-                    .foregroundColor(AppColor.textMuted)
-            }
-
-            Text(viewModel.profession)
-                .font(AppFont.ui(11, weight: .light))
-                .foregroundColor(AppColor.textMuted)
-        }
-        .padding(.bottom, 4)
+        Text(viewModel.displayName)
+            .font(AppFont.display(28))
+            .foregroundColor(AppColor.textPrimary)
+            .multilineTextAlignment(.center)
     }
 
     // MARK: - Score strip

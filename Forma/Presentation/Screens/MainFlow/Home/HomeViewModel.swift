@@ -82,44 +82,21 @@ final class HomeViewModel: ObservableObject {
 
     func load() async {
         loadState = .loading
-        do {
-            if let preloaded = initialRoutines {
-                routines      = preloaded
-                activeRoutine = computeActiveRoutine()
-                tasks         = activeRoutine?.tasks ?? []
-
-                if let uid = Auth.auth().currentUser?.uid {
-                    user = try await DependencyContainer.shared
-                        .makeFetchUserUseCase()
-                        .execute(uid)
-                    DependencyContainer.shared.saveData(user: user)
-                }
-            } else {
-                guard let uid = Auth.auth().currentUser?.uid else {
-                    loadState = .error("No authenticated user found.")
-                    return
-                }
-
-                async let fetchedUser     = DependencyContainer.shared
-                    .makeFetchUserUseCase()
-                    .execute(uid)
-                
-                async let fetchedRoutines = DependencyContainer.shared
-                    .makeFetchRoutinesUseCase()
-                    .execute(userId: uid)
-            
-                user          = try await fetchedUser
-                routines      = try await fetchedRoutines
-                activeRoutine = computeActiveRoutine()
-                tasks         = activeRoutine?.tasks ?? []
-            }
-
-            recalculate()
-            loadState = .loaded
-
-        } catch {
-            loadState = .error(error.localizedDescription)
+        
+        if let preloaded = initialRoutines, !preloaded.isEmpty {
+            routines = preloaded.sorted { $0.startTime < $1.startTime }
+        } else {
+            routines = (DependencyContainer.shared.routines ?? []).sorted { $0.startTime < $1.startTime }
         }
+        
+        if let containerUser = DependencyContainer.shared.currentUser {
+            user = containerUser
+        }
+        
+        activeRoutine = computeActiveRoutine()
+        tasks         = activeRoutine?.tasks ?? []
+        recalculate()
+        loadState = .loaded
     }
 
     // MARK: - Timer
