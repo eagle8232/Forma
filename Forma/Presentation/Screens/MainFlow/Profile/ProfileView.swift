@@ -13,12 +13,10 @@ struct ProfileView: View {
 
     @StateObject private var viewModel: ProfileViewModel
 
-    // Notification toggles — local state
-    @State private var taskReminders: Bool  = true
-    @State private var aiCheckIns: Bool     = true
-    @State private var weeklyReview: Bool   = false
+    @State private var taskReminders: Bool  = NotificationManager.shared.isTaskRemindersEnabled
+    @State private var aiCheckIns: Bool     = NotificationManager.shared.isAICheckInsEnabled
+    @State private var weeklyReview: Bool   = NotificationManager.shared.isWeeklyReviewEnabled
 
-    // Coordinator callback — called on sign out
     var onSignOut: () -> Void
     var onEditProfile: () -> Void
 
@@ -215,7 +213,14 @@ struct ProfileView: View {
                     iconTint: .neutral,
                     title: "Task Reminders",
                     subtitle: "5 min before each routine",
-                    trailing: .toggle(isOn: $taskReminders, onToggle: { _ in })
+                    trailing: .toggle(isOn: $taskReminders, onToggle: { isOn in
+                        NotificationManager.shared.isTaskRemindersEnabled = isOn
+                        if isOn {
+                            scheduleNotifications()
+                        } else {
+                            NotificationManager.shared.cancelAllNotifications()
+                        }
+                    })
                 )
                 FormaDivider()
 
@@ -224,7 +229,9 @@ struct ProfileView: View {
                     iconTint: .accent,
                     title: "AI Check-ins",
                     subtitle: "After skipped tasks",
-                    trailing: .toggle(isOn: $aiCheckIns, onToggle: { _ in })
+                    trailing: .toggle(isOn: $aiCheckIns, onToggle: { isOn in
+                        NotificationManager.shared.isAICheckInsEnabled = isOn
+                    })
                 )
                 FormaDivider()
 
@@ -233,7 +240,14 @@ struct ProfileView: View {
                     iconTint: .neutral,
                     title: "Weekly Review",
                     subtitle: "Every Sunday, 20:00",
-                    trailing: .toggle(isOn: $weeklyReview, onToggle: { _ in })
+                    trailing: .toggle(isOn: $weeklyReview, onToggle: { isOn in
+                        NotificationManager.shared.isWeeklyReviewEnabled = isOn
+                        if isOn {
+                            NotificationManager.shared.scheduleWeeklyReview()
+                        } else {
+                            NotificationManager.shared.cancelWeeklyReview()
+                        }
+                    })
                 )
             }
             .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -247,6 +261,17 @@ struct ProfileView: View {
             )
         }
         .padding(.horizontal, AppSpacing.sectionGap)
+    }
+    
+    private func scheduleNotifications() {
+        guard let routines = DependencyContainer.shared.routines else { return }
+        for routine in routines {
+            NotificationManager.shared.scheduleRoutineReminder(routine: routine)
+            NotificationManager.shared.scheduleRoutineStartNotification(routine: routine)
+        }
+        if weeklyReview {
+            NotificationManager.shared.scheduleWeeklyReview()
+        }
     }
 
     // MARK: - App section

@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import FirebaseAuth
+import UserNotifications
 
 @MainActor
 final class HomeViewModel: ObservableObject {
@@ -97,6 +98,37 @@ final class HomeViewModel: ObservableObject {
         tasks         = activeRoutine?.tasks ?? []
         recalculate()
         loadState = .loaded
+        
+        requestNotificationPermissionIfNeeded()
+        scheduleNotificationsForRoutines()
+    }
+    
+    private func requestNotificationPermissionIfNeeded() {
+        NotificationManager.shared.checkPermissionStatus { [weak self] (status: UNAuthorizationStatus) in
+            switch status {
+            case .notDetermined:
+                NotificationManager.shared.requestPermission { granted in
+                    if granted {
+                        self?.scheduleNotificationsForRoutines()
+                    }
+                }
+            case .authorized:
+                self?.scheduleNotificationsForRoutines()
+            default:
+                break
+            }
+        }
+    }
+    
+    private func scheduleNotificationsForRoutines() {
+        guard NotificationManager.shared.isNotificationsEnabled else { return }
+        
+        for routine in routines {
+            NotificationManager.shared.scheduleRoutineReminder(routine: routine)
+            NotificationManager.shared.scheduleRoutineStartNotification(routine: routine)
+        }
+        
+        NotificationManager.shared.scheduleWeeklyReview()
     }
 
     // MARK: - Timer

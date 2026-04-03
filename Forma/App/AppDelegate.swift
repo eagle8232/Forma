@@ -1,5 +1,6 @@
 import UIKit
 import FirebaseCore
+import UserNotifications
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -10,6 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         FirebaseApp.configure()
         configureAppearance()
+        configureNotifications()
         return true
     }
 
@@ -25,7 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
     ) {
-        // Handle discarded scene sessions if needed
     }
 
     private func configureAppearance() {
@@ -33,6 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         navBarAppearance.configureWithOpaqueBackground()
         UINavigationBar.appearance().standardAppearance = navBarAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
+    }
+    
+    private func configureNotifications() {
+        UNUserNotificationCenter.current().delegate = NotificationManager.shared
+        _ = NotificationManager.shared
     }
 }
 
