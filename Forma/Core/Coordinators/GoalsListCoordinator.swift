@@ -1,10 +1,3 @@
-//
-//  GoalsListCoordinator.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 3/21/26.
-//
-
 import UIKit
 import SwiftUI
 
@@ -18,12 +11,12 @@ final class GoalsListCoordinator: Coordinator {
     }
     
     func start() {
-        let goalsListVC = UIHostingController(rootView: GoalsListView(coordinator: self))
-        navigationController.setViewControllers([goalsListVC], animated: true)
+        let vc = FormaHostingController(rootView: GoalsListView(coordinator: self))
+        navigationController.setViewControllers([vc], animated: true)
     }
     
     func showGoalDetails(_ goal: Goal) {
-        let goalDetailsVC = UIHostingController(rootView: GoalDetailView(goal: goal))
-        navigationController.pushViewController(goalDetailsVC, animated: true)
+        let vc = FormaHostingController(rootView: GoalDetailView(goal: goal))
+        navigationController.pushViewController(vc, animated: true)
     }
 }

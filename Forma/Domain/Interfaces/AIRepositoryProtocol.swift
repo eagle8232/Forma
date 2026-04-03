@@ -1,13 +1,7 @@
-//
-//  AIRepositoryProtocol.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 3/7/26.
-//
-
 import Foundation
 
 protocol AIRepositoryProtocol: AnyObject {
-    func generateRoutines(userPreferences: UserPreferences) async throws -> AsyncStream<RoutineBlock>
-    func summarize() // - Integration depends on further usage statistics
+    func generateRoutines(userPreferences: UserPreferences) -> AsyncStream<RoutineBlock>
+    func generateRoutinesEnriched(userPreferences: UserPreferences, answers: [String: AIAnswer]) -> AsyncStream<RoutineBlock>
+    func fetchQuestions(userPreferences: UserPreferences) async throws -> AIQuestionsResponse
 }

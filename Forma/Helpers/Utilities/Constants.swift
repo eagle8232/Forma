@@ -27,8 +27,13 @@ struct Constants {
         ("🔁", "Consistent focus start times improve deep work quality within just 5 days.")
     ]
     
-    // MARK: - Gemini API
-    static let geminiApiKey = "AIzaSyBLA2xMvHbsvNNKALp1HDaQvd-K2A_gzww"
+}
+
+// MARK: - AI Constants
+
+extension Constants {
+    
+    static let geminiApiKey = "AIzaSyDhgyPd0CZqkVABgRyd-91If_N9Qe-f-oE"
     static let geminiApiModel = "gemini-2.5-flash"
     
     static func prompt(with userPreferences: UserPreferences) -> String {
@@ -88,6 +93,7 @@ struct Constants {
           - Each activity startTime: HH:mm, in \(userPreferences.timezone) local time
           - Each activity description: 1 short sentence
           - duration: integer, in minutes
+          - Is it break time: False or true (Boolean)
           - Activities must be sequential and non-overlapping
           - First activity startTime must equal routine startTime
           - Last activity startTime + duration (in minutes) must equal routine endTime
@@ -95,6 +101,51 @@ struct Constants {
         - No field may be null or omitted
         - Do not output any text before, between, or after JSON objects except the word Finished
         - Do not wrap output in an array or any outer object
+        """
+    }
+
+    static func questionsPrompt(with userPreferences: UserPreferences) -> String {
+        let tz = TimeZone(identifier: userPreferences.timezone ?? "UTC") ?? .current
+
+        let timeFmt = DateFormatter()
+        timeFmt.dateFormat = "HH:mm"
+        timeFmt.timeZone   = tz
+        let currentTime    = timeFmt.string(from: Date())
+
+        return """
+        You are Forma AI. Based on the user profile below, generate 3–4 personalised
+        follow-up questions to better tailor their daily routine.
+
+        USER PROFILE:
+        \(userPreferences)
+
+        CURRENT TIME: \(currentTime) (\(userPreferences.timezone ?? "UTC"))
+
+        OUTPUT — raw JSON only, no prose, no markdown, no code fences:
+        {
+          "message": "one warm sentence intro (max 12 words)",
+          "questions": [
+            {
+              "id": "snake_case_id",
+              "text": "Question text (max 12 words)",
+              "type": "single_choice",
+              "options": [
+                { "id": "option_id", "label": "Max 4 words" }
+              ]
+            }
+          ]
+        }
+
+        STRICT RULES:
+        - Generate exactly 3–4 questions
+        - Each question must have 2–4 options
+        - Option labels: max 4 words each
+        - Question types: single_choice (pick one), multi_choice (pick many), yes_no
+        - ALWAYS include a prayer/spirituality question — critical for schedule blocking
+        - ALWAYS include a work-style question
+        - Make remaining questions relevant to the user's job and goal
+        - A software engineer gets different questions than a student or a parent
+        - Output JSON only — nothing before or after
         """
     }
 }

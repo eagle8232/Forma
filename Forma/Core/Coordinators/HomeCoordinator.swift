@@ -1,17 +1,15 @@
-//
-//  HomeCoordinator.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 3/18/26.
-//
-
 import UIKit
 import SwiftUI
+
+protocol HomeCoordinatorDelegate: AnyObject {
+    func homeCoordinatorDidRequestSignOut(_ coordinator: HomeCoordinator)
+}
 
 final class HomeCoordinator: Coordinator {
     
     var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
+    weak var delegate: HomeCoordinatorDelegate?
     
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -22,14 +20,42 @@ final class HomeCoordinator: Coordinator {
     }
     
     func showHomeView(with routines: [RoutineBlock]? = nil) {
-        let homeVC = UIHostingController(rootView: HomeView(routines: routines, coordinator: self))
+        let homeVC = FormaHostingController(rootView: HomeView(routines: routines, coordinator: self))
         navigationController.setViewControllers([homeVC], animated: true)
     }
     
     func showRoutineDetails(_ routine: RoutineBlock) {
-        let routineDetailsVC = UIHostingController(rootView: RoutineDetailView(routine: routine, onSave: { routine in
-            // TODO: - Save routine func
-        }))
-        navigationController.pushViewController(routineDetailsVC, animated: true)
+        let vc = FormaHostingController(rootView: RoutineDetailView(routine: routine, onSave: { _ in }))
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func showProfileView(user: User) {
+        let profileView = ProfileView(
+            user: user,
+            authRepository: AuthRepository(),
+            onSignOut: { [weak self] in
+                self?.signOut()
+            },
+            onEditProfile: { }
+        )
+        
+        let vc = FormaHostingController(rootView: profileView)
+        vc.view.backgroundColor = UIColor(AppColor.background)
+        vc.title = "Profile"
+        
+        let editButton = UIBarButtonItem(
+            title: "Edit",
+            style: .plain,
+            target: nil,
+            action: nil
+        )
+        editButton.tintColor = .white
+        vc.navigationItem.rightBarButtonItem = editButton
+        
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
+    private func signOut() {
+        delegate?.homeCoordinatorDidRequestSignOut(self)
     }
 }

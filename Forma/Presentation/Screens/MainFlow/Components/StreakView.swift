@@ -30,36 +30,25 @@ struct StreakView: View {
     }
 
     var body: some View {
-        ZStack {
-            // ── Glass background ──
-            RoundedRectangle(cornerRadius: AppRadius.cardLg)
-                .fill(AppColor.surfaceFill)
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppRadius.cardLg)
-                        .stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline)
-                )
+        VStack(alignment: .leading, spacing: 0) {
+            topRow
+                .padding(.bottom, 18)
 
-            // ── Content ──
-            VStack(alignment: .leading, spacing: 0) {
-                topRow
-                    .padding(.bottom, 18)
+            dayBars
+                .padding(.bottom, 14)
 
-                dayBars
-                    .padding(.bottom, 14)
+            Rectangle()
+                .fill(AppColor.surfaceDivider)
+                .frame(height: AppSize.hairline)
+                .padding(.bottom, 12)
 
-                Rectangle()
-                    .fill(AppColor.surfaceDivider)
-                    .frame(height: AppSize.hairline)
-                    .padding(.bottom, 12)
+            statsRow
+                .padding(.bottom, 12)
 
-                statsRow
-                    .padding(.bottom, 12)
-
-                rotatingMessage
-            }
-            .padding(20)
+            rotatingMessage
         }
-        .clipShape(RoundedRectangle(cornerRadius: AppRadius.cardLg))
+        .padding(20)
+        .surfaceCard()
         .onReceive(timer) { _ in cycleMessage() }
         .padding(.horizontal, AppSpacing.screenH)
     }

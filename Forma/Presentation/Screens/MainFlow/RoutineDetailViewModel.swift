@@ -65,18 +65,10 @@ class RoutineDetailViewModel: ObservableObject {
         }
 
         durationMismatch = DurationMismatch(
-            tasksTotalFormatted:   formatDuration(Int(tasksSeconds)),
-            routineWindowFormatted: formatDuration(Int(routineSeconds)),
+            tasksTotalFormatted:   DurationFormatter.formatCompactFromSeconds(Int(tasksSeconds)),
+            routineWindowFormatted: DurationFormatter.formatCompactFromSeconds(Int(routineSeconds)),
             delta: Int(routineSeconds - CGFloat(tasksSeconds))
         )
-    }
-
-    private func formatDuration(_ totalSeconds: Int) -> String {
-        let h = totalSeconds / 3600
-        let m = (totalSeconds % 3600) / 60
-        if h > 0 && m > 0 { return "\(h)h \(m)m" }
-        if h > 0           { return "\(h)h" }
-        return "\(m)m"
     }
 
     // MARK: - Change Detection

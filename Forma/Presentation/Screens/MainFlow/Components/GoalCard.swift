@@ -30,16 +30,9 @@ struct GoalCard: View {
 
                 progressBar
             }
-            .background(
-                RoundedRectangle(cornerRadius: AppRadius.cardLg)
-                    .fill(AppColor.surfaceFill)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppRadius.cardLg)
-                            .stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline)
-                    )
-            )
         }
-        .buttonStyle(GoalCardStyle())
+        .surfaceCard()
+        .buttonStyle(CardButtonStyle())
         .onAppear {
             withAnimation(.easeOut(duration: 0.5).delay(0.1)) {
                 appeared = true
@@ -50,19 +43,12 @@ struct GoalCard: View {
     // MARK: - Icon
 
     private var iconView: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(goal.accent.opacity(0.1))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(goal.accent.opacity(0.2), lineWidth: AppSize.hairline)
-                )
-                .frame(width: 36, height: 36)
-
-            Image(systemName: iconName)
-                .font(.system(size: 14, weight: .ultraLight))
-                .foregroundStyle(goal.accent.opacity(0.8))
-        }
+        AccentIconBadge(
+            icon: iconName,
+            accent: goal.accent,
+            backgroundOpacity: 0.1,
+            borderOpacity: 0.2
+        )
     }
 
     private var iconName: String {
@@ -139,16 +125,5 @@ struct GoalCard: View {
         }
         .frame(height: 2)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.cardLg))
-    }
-}
-
-// MARK: - Button style
-
-private struct GoalCardStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .opacity(configuration.isPressed ? 0.85 : 1.0)
-            .animation(AppAnimation.press, value: configuration.isPressed)
     }
 }

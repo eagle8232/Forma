@@ -36,7 +36,6 @@ struct AIAssistantView: View {
                 inputSection
             }
         }
-        .navigationBarHidden(true)
     }
 }
 
@@ -47,15 +46,7 @@ extension AIAssistantView {
     private var navBar: some View {
         HStack {
             Button(action: { dismiss() }) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 14, weight: .ultraLight))
-                    .foregroundStyle(.white.opacity(0.45))
-                    .frame(width: 36, height: 36)
-                    .background(
-                        Circle()
-                            .fill(AppColor.surfaceFill)
-                            .overlay(Circle().stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline))
-                    )
+                IconCircleButton(icon: "chevron.left")
             }
             .buttonStyle(.plain)
 
@@ -80,15 +71,11 @@ extension AIAssistantView {
             Spacer()
 
             Button(action: { vm.clearConversation() }) {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 12, weight: .ultraLight))
-                    .foregroundStyle(.white.opacity(0.3))
-                    .frame(width: 36, height: 36)
-                    .background(
-                        Circle()
-                            .fill(AppColor.surfaceFill)
-                            .overlay(Circle().stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline))
-                    )
+                IconCircleButton(
+                    icon: "arrow.counterclockwise",
+                    iconSize: 12,
+                    foregroundColor: .white.opacity(0.3)
+                )
             }
             .buttonStyle(.plain)
             .opacity(vm.messages.isEmpty ? 0 : 1)
@@ -184,20 +171,7 @@ extension AIAssistantView {
             HStack(spacing: 8) {
                 ForEach(vm.suggestions, id: \.self) { suggestion in
                     Button(action: { vm.sendSuggestion(suggestion) }) {
-                        Text(suggestion)
-                            .customFont(.microTracked)
-                            .tracking(AppTracking.body)
-                            .foregroundStyle(.white.opacity(0.45))
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 9)
-                            .background(
-                                Capsule()
-                                    .fill(AppColor.surfaceFill)
-                                    .overlay(
-                                        Capsule()
-                                            .stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline)
-                                    )
-                            )
+                        SuggestionChip(text: suggestion)
                     }
                     .buttonStyle(.plain)
                 }

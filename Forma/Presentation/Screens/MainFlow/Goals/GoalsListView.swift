@@ -60,19 +60,11 @@ struct GoalsListView: View {
             Spacer()
 
             Button(action: { onAddGoal?() }) {
-                ZStack {
-                    Circle()
-                        .fill(AppColor.surfaceFill)
-                        .overlay(
-                            Circle()
-                                .stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline)
-                        )
-                        .frame(width: 36, height: 36)
-
-                    Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .ultraLight))
-                        .foregroundStyle(.white.opacity(0.5))
-                }
+                IconCircleButton(
+                    icon: "plus",
+                    iconSize: 13,
+                    foregroundColor: .white.opacity(0.5)
+                )
             }
             .buttonStyle(.plain)
         }

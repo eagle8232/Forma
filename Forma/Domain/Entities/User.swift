@@ -1,63 +1,56 @@
-//
-//  User.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/7/26.
-//
-
 import Foundation
 
-struct UserCredentials: Identifiable {
+struct UserCredentials: Identifiable, Codable {
     let id: String
     var name: String
     var email: String
     var isAnonymous: Bool
 }
 
-struct UserPreferences {
+struct UserPreferences: Codable {
     var profession: String
     var sleepTime: Date
     var wakeUpTime: Date
     var focusTime: Date?
     var goal: [String]
+    var prayerFrequency: String?
+    var workStyle: String?
+    var exerciseTime: String?
+    var lunchBreak: String?
+    var additionalContext: String?
     
     var timezone: String? {
-        return TimeZone.current.abbreviation()
+        TimeZone.current.abbreviation()
     }
 }
 
-struct User {
+struct User: Codable {
     var credentials: UserCredentials
-    var preferences: UserPreferences? // - For users who are coming back with earlier register profile
+    var preferences: UserPreferences?
 }
 
-// MARK: - Mock Data
-
 extension UserCredentials {
-    
-    static let mockCredentialData = UserCredentials(id: UUID().uuidString,
-                                          name: "Vusal",
-                                          email: "vusunuriyev@gmail.com",
-                                          isAnonymous: false)
+    static let mockCredentialData = UserCredentials(
+        id: UUID().uuidString,
+        name: "Vusal",
+        email: "vusunuriyev@gmail.com",
+        isAnonymous: false
+    )
 }
 
 extension UserPreferences {
-    
     static let mockPreferencesData = UserPreferences(
         profession: ProfessionRole.developer.rawValue,
-        sleepTime: DateHelper.today(at: 23, min: 0), // 11:00 PM
-        wakeUpTime: DateHelper.today(at: 7, min: 0), // 07:00 AM
-        focusTime: DateHelper.today(at: 9, min: 30), // 09:30 AM
-        goal: [UltimateGoal.deepWorkFocus.rawValue,
-               UltimateGoal.consistentExercise.rawValue,
-               UltimateGoal.improveSleepHygiene.rawValue],
+        sleepTime: DateHelper.today(at: 23, min: 0),
+        wakeUpTime: DateHelper.today(at: 7, min: 0),
+        focusTime: DateHelper.today(at: 9, min: 30),
+        goal: [UltimateGoal.deepWorkFocus.rawValue, UltimateGoal.consistentExercise.rawValue, UltimateGoal.improveSleepHygiene.rawValue]
     )
 }
 
 extension User {
-    
     static let mockUserData = User(
         credentials: .mockCredentialData,
-        preferences: .mockPreferencesData,
+        preferences: .mockPreferencesData
     )
 }

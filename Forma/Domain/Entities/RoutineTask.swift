@@ -1,23 +1,16 @@
-//
-//  Activity.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/7/26.
-//
-
 import Foundation
 
-struct RoutineTask: Identifiable, Equatable {
+struct RoutineTask: Identifiable, Equatable, Codable {
     let id: String
     var title: String
     var startTime: String
     var duration: Int
     var description: String?
     var state: TaskState = .upcoming
+    var isBreak: Bool = false
     
     var durationText: String {
-        let mins = duration
-        return mins < 60 ? "\(mins) mins" : "\(mins / 60)h \(mins % 60 > 0 ? "\(mins % 60)m" : "")"
+        duration < 60 ? "\(duration) mins" : "\(duration / 60)h \(duration % 60 > 0 ? "\(duration % 60)m" : "")"
     }
 }
 

@@ -1,10 +1,3 @@
-//
-//  UIImage + Ext.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 3/2/26.
-//
-
 import UIKit
 
 extension UIImage {
@@ -18,9 +11,8 @@ extension UIImage {
         let imageRenderer = UIGraphicsImageRenderer(size: gradientLayer.bounds.size)
         var gradientImage: UIImage?
         imageRenderer.image { context in
-            gradientLayer.render(in: context.cgContext )
-            let image = UIGraphicsGetImageFromCurrentImageContext()
-            gradientImage = image
+            gradientLayer.render(in: context.cgContext)
+            gradientImage = UIGraphicsGetImageFromCurrentImageContext()
         }
         
         return gradientImage

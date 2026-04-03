@@ -1,10 +1,3 @@
-//
-//  OnboardingCoordinator.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/15/26.
-//
-
 import UIKit
 
 protocol OnboardingCoordinatorDelegate: AnyObject {
@@ -14,8 +7,7 @@ protocol OnboardingCoordinatorDelegate: AnyObject {
 
 final class OnboardingCoordinator: Coordinator {
     
-    var childCoordinators = [Coordinator]()
-    
+    var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
     weak var delegate: OnboardingCoordinatorDelegate?
     
@@ -30,30 +22,30 @@ final class OnboardingCoordinator: Coordinator {
     }
     
     func showEnergyPeakScreen() {
-        let energyPeakVC = EnergyPeakViewController()
-        energyPeakVC.coordinator = self
-        navigationController.pushViewController(energyPeakVC, animated: true)
+        let vc = EnergyPeakViewController()
+        vc.coordinator = self
+        navigationController.pushViewController(vc, animated: true)
     }
     
     func showFocusBeginScreen(_ preferences: UserPreferences) {
-        let focusBeginVC = FocusBeginViewController()
-        focusBeginVC.userPreferences = preferences
-        focusBeginVC.coordinator = self
-        navigationController.pushViewController(focusBeginVC, animated: true)
+        let vc = FocusBeginViewController()
+        vc.userPreferences = preferences
+        vc.coordinator = self
+        navigationController.pushViewController(vc, animated: true)
     }
     
     func showProfessionalLifeScreen(_ preferences: UserPreferences) {
-        let professionalLifeVC = ProfessionalLifeViewController()
-        professionalLifeVC.userPreferences = preferences
-        professionalLifeVC.coordinator = self
-        navigationController.pushViewController(professionalLifeVC, animated: true)
+        let vc = ProfessionalLifeViewController()
+        vc.userPreferences = preferences
+        vc.coordinator = self
+        navigationController.pushViewController(vc, animated: true)
     }
     
     func showUltimateGoalScreen(_ preferences: UserPreferences) {
-        let ultimateGoalVC = UltimateGoalViewController()
-        ultimateGoalVC.userPreferences = preferences
-        ultimateGoalVC.coordinator = self
-        navigationController.pushViewController(ultimateGoalVC, animated: true)
+        let vc = UltimateGoalViewController()
+        vc.userPreferences = preferences
+        vc.coordinator = self
+        navigationController.pushViewController(vc, animated: true)
     }
     
     func didFinishOnboarding(_ preferences: UserPreferences) {

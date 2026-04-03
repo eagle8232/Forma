@@ -1,10 +1,3 @@
-//
-//  ActivityDTO.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/8/26.
-//
-
 import Foundation
 
 struct RoutineTaskDTO: Codable {
@@ -14,14 +7,10 @@ struct RoutineTaskDTO: Codable {
     var description: String?
     var duration: Int?
     var state: TaskState?
-    var intenisty: BlockIntensity?
+    var intensity: BlockIntensity?
+    var isBreak: Bool?
     
-    enum CodingKeys: CodingKey {
-        case id
-        case name
-        case startTime
-        case description
-        case duration
-        case state
+    enum CodingKeys: String, CodingKey {
+        case id, name, startTime, description, duration, state, intensity, isBreak
     }
 }

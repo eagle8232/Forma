@@ -88,7 +88,7 @@ final class RoutineTimelineCard: UIView {
                     self.remainingPill.layer.borderWidth = 1
                     self.remainingPill.layer.borderColor = UIColor(red: 1, green: 0.35, blue: 0.35, alpha: 0.4).cgColor
                     self.remainingLabel.textColor = UIColor(red: 1, green: 0.45, blue: 0.45, alpha: 1)
-                    self.remainingLabel.text = "⚠ \(self.formatMinutes(abs(remaining))) over"
+                    self.remainingLabel.text = "⚠ \(DurationFormatter.format(abs(remaining))) over"
                 } else {
                     // Exactly filled
                     self.remainingPill.backgroundColor = UIColor(red: 0.3, green: 0.9, blue: 0.55, alpha: 0.12)
@@ -103,20 +103,11 @@ final class RoutineTimelineCard: UIView {
                 self.remainingPill.layer.borderWidth = 1
                 self.remainingPill.layer.borderColor = UIColor(white: 1, alpha: 0.12).cgColor
                 self.remainingLabel.textColor = UIColor(white: 1, alpha: 0.45)
-                self.remainingLabel.text = "\(self.formatMinutes(remaining)) remaining"
+                self.remainingLabel.text = "\(DurationFormatter.format(remaining)) remaining"
             }
         }
     }
-
-    private func formatMinutes(_ total: Int) -> String {
-        let h = total / 60, m = total % 60
-        switch (h, m) {
-        case (0, let m): return "\(m) min"
-        case (let h, 0): return "\(h) hr"
-        default:         return "\(h) hr \(m) min"
-        }
-    }
-
+    
     private func parseDuration(_ string: String) -> Int {
         let parts = string.lowercased().components(separatedBy: " ")
         var total = 0, i = 0

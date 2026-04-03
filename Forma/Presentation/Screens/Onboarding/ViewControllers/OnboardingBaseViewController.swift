@@ -39,6 +39,22 @@ class OnboardingBaseViewController: BaseViewController {
         super.viewDidLayoutSubviews()
         bottomGradientLayer.frame = bottomGradientView.bounds
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        configureNavigationBar()
+    }
+    
+    private func configureNavigationBar() {
+        navigationController?.setNavigationBarHidden(false, animated: true)
+        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        navigationController?.navigationBar.shadowImage = nil
+        navigationController?.navigationBar.isTranslucent = false
+        navigationController?.navigationBar.barTintColor = UIColor.backgroundPrimary
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navigationItem.backButtonTitle = ""
+    }
 }
 
 extension OnboardingBaseViewController {

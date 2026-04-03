@@ -55,7 +55,7 @@ final class UltimateGoalViewController: OnboardingBaseViewController {
             buttonTitle: "✨ Generate My First Routine"
         )
         
-        button.isEnabled = false // Disable the button at the first start, as nothing was selected yet
+        button.isEnabled = false
         
         delegate = self
         setupLayout()

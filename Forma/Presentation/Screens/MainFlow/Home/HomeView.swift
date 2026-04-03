@@ -37,8 +37,23 @@ struct HomeView: View {
             }
         }
         .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                navBar
+            ToolbarItem(placement: .topBarLeading) {
+                dateHeader
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    if let user = vm.user {
+                        coordinator.showProfileView(user: user)
+                    }
+                } label: {
+                    IconCircleButton(
+                        icon: "person.fill",
+                        size: 36,
+                        iconSize: 14,
+                        foregroundColor: .white.opacity(0.5)
+                    )
+                }
+                .buttonStyle(.plain)
             }
         })
         .sheet(isPresented: $showAllTasks) {
@@ -70,6 +85,13 @@ struct HomeView: View {
                 
                 ringSection
                     .padding(.top, 16)
+
+                // Routine status badge — only when routine is loaded
+                if let routine = vm.activeRoutine {
+                    routineStatusBadge(routine)
+                        .padding(.top, 12)
+                        .staggered(appeared, delay: 0.12)
+                }
 
                 // Page indicator — only when more than one routine
                 if vm.routines.count > 1 {
@@ -157,52 +179,22 @@ struct HomeView: View {
     }
 }
 
-// MARK: - Nav Bar
+// MARK: - Date Header
 
 extension HomeView {
 
-    private var navBar: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text(vm.weekdayLabel)
-                    .customFont(.microTracked)
-                    .tracking(AppTracking.sectionLabel)
-                    .foregroundStyle(AppColor.textTertiary)
+    private var dateHeader: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(vm.weekdayLabel)
+                .customFont(.microTracked)
+                .tracking(AppTracking.sectionLabel)
+                .foregroundStyle(AppColor.textTertiary)
 
-                Text(vm.dateLabel)
-                    .customFont(.displaySmall)
-                    .tracking(AppTracking.display)
-                    .foregroundStyle(AppColor.textPrimary)
-            }
-
-            Spacer()
-
-            if let routine = vm.activeRoutine {
-                VStack(alignment: .trailing, spacing: 5) {
-                    HStack(spacing: 6) {
-                        StatusDot(isDone: vm.progress >= 1.0)
-                        Text(statusString)
-                            .customFont(.microTracked)
-                            .tracking(AppTracking.microLabel)
-                            .foregroundStyle(AppColor.textTertiary)
-                    }
-                    Text(routine.title)
-                        .customFont(.caption)
-                        .tracking(AppTracking.bodyTight)
-                        .foregroundStyle(AppColor.textTertiary)
-                        .lineLimit(1)
-                        .frame(maxWidth: 140, alignment: .trailing)
-                }
-                .padding(.top, 2)
-            }
+            Text(vm.dateLabel)
+                .customFont(.displaySmall)
+                .tracking(AppTracking.display)
+                .foregroundStyle(AppColor.textPrimary)
         }
-    }
-    
-    private var statusString: String {
-        guard let routine = vm.activeRoutine else { return "" }
-        if vm.isRoutineCompleted(routine) { return "COMPLETED" }
-        else if vm.isRoutineUpcoming(routine) { return "UPCOMING" }
-        else { return "ACTIVE" }
     }
 }
 
@@ -348,6 +340,33 @@ extension HomeView {
                     .animation(AppAnimation.spring, value: selectedIndex)
             }
         }
+    }
+    
+    private func routineStatusBadge(_ routine: RoutineBlock) -> some View {
+        HStack(spacing: 8) {
+            StatusDot(isDone: vm.progress >= 1.0)
+            
+            Text(routine.title)
+                .customFont(.caption)
+                .tracking(AppTracking.bodyTight)
+                .foregroundStyle(AppColor.textTertiary)
+                .lineLimit(1)
+            
+            Text("•")
+                .foregroundStyle(AppColor.textTertiary.opacity(0.5))
+            
+            Text(statusString)
+                .customFont(.microTracked)
+                .tracking(AppTracking.microLabel)
+                .foregroundStyle(AppColor.textTertiary)
+        }
+    }
+    
+    private var statusString: String {
+        guard let routine = vm.activeRoutine else { return "" }
+        if vm.isRoutineCompleted(routine) { return "COMPLETED" }
+        else if vm.isRoutineUpcoming(routine) { return "UPCOMING" }
+        else { return "ACTIVE" }
     }
 }
 

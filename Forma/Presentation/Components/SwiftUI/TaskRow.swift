@@ -20,7 +20,7 @@ struct TaskRow: View {
     private var accent: Color { vm.accent }
     
     private var durationLabel: String {
-        formatMinutes(task.duration)
+        DurationFormatter.formatCompact(task.duration)
     }
     
     var body: some View {
@@ -149,7 +149,7 @@ struct TaskRow: View {
                             
                             // Center label
                             VStack(spacing: 3) {
-                                Text(formatMinutes(draftMinutes))
+                                Text(DurationFormatter.formatCompact(draftMinutes))
                                     .font(.system(size: 22, weight: .ultraLight))
                                     .foregroundStyle(.white.opacity(0.88))
                                     .contentTransition(.numericText())
@@ -287,16 +287,6 @@ struct TaskRow: View {
         guard next != draftMinutes else { return }
         draftMinutes = next
         vm.updateTaskDuration(id: task.id, minutes: next)
-    }
-    
-    private func formatMinutes(_ minutes: Int) -> String {
-        let h = minutes / 60
-        let m = minutes % 60
-        switch (h, m) {
-        case (0, _): return "\(m)m"
-        case (_, 0): return "\(h)h"
-        default:     return "\(h)h \(m)m"
-        }
     }
 }
 

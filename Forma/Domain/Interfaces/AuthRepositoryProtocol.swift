@@ -1,10 +1,3 @@
-//
-//  AuthRepositoryProtocol.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/8/26.
-//
-
 import Foundation
 
 enum AuthProvider {

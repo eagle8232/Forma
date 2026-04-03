@@ -180,14 +180,6 @@ final class RoutineTimelineView: UIView {
         max(endDate.timeIntervalSince(startDate) / 60, 1)
     }
 
-    private func shortDuration(_ mins: Double) -> String {
-        let h = Int(mins) / 60
-        let m = Int(mins) % 60
-        if h == 0 { return "\(m)m" }
-        if m == 0 { return "\(h)h" }
-        return "\(h)h \(m)m"
-    }
-
     private func rebuildSegments() {
         segmentViews.forEach { $0.removeFromSuperview() }
         segmentViews = []
@@ -235,7 +227,7 @@ final class RoutineTimelineView: UIView {
             }
 
             // Duration label inside segment (only if wide enough)
-            let durText = mins > 0 ? shortDuration(Double(mins)) : ""
+            let durText = mins > 0 ? DurationFormatter.formatCompact(Double(mins)) : ""
             if w > 22 && !durText.isEmpty {
                 let lbl = UILabel()
                 lbl.text = durText

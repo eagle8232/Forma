@@ -1,13 +1,5 @@
-//
-//  UIColor + Ext.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/17/26.
-//
-
 import UIKit
 
-// MARK: - HEX Color init
 extension UIColor {
     convenience init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -31,11 +23,7 @@ extension UIColor {
             alpha: CGFloat(a) / 255
         )
     }
-}
-
-
-// MARK: - Lighter & Darker versions
-extension UIColor {
+    
     func lighter(by amount: CGFloat) -> UIColor {
         adjusted(brightness: amount, saturation: -amount * 0.3)
     }
@@ -48,10 +36,10 @@ extension UIColor {
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         return UIColor(
-            hue:        h,
+            hue: h,
             saturation: max(0, min(1, s + saturation)),
             brightness: max(0, min(1, b + brightness)),
-            alpha:      a
+            alpha: a
         )
     }
 }

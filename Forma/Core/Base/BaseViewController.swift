@@ -1,22 +1,23 @@
-//
-//  BaseViewController.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/10/26.
-//
-
 import UIKit
 
 class BaseViewController: UIViewController {
 
-    // MARK: - Gradient
-
     private var gradientLayer: CAGradientLayer?
     private var glowLayer: CAGradientLayer?
+    private lazy var loadingView: LoadingView = {
+        let view = LoadingView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
 
-    /// Use this background for main screens like auth, AI generations, routine info views and profile.
-    /// It provides a subtle gradient with an optional accent glow.
-    /// Adjust colors and glow settings as needed for different themes or sections of the app.
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = UIColor.backgroundPrimary
+        setupViews()
+    }
+
+    func setupViews() {}
+
     func applyGradientBackground(
         colors: [UIColor] = [
             UIColor(red: 0.06, green: 0.06, blue: 0.08, alpha: 1),
@@ -29,7 +30,6 @@ class BaseViewController: UIViewController {
     ) {
         view.backgroundColor = colors.last ?? .black
 
-        // Main gradient
         let gradient = CAGradientLayer()
         gradient.colors = colors.map { $0.cgColor }
         gradient.startPoint = startPoint
@@ -38,7 +38,6 @@ class BaseViewController: UIViewController {
         view.layer.insertSublayer(gradient, at: 0)
         gradientLayer = gradient
 
-        // Optional radial accent glow
         if let glow = glowColor, glowOpacity > 0 {
             let glowL = CAGradientLayer()
             glowL.type = .radial
@@ -48,9 +47,7 @@ class BaseViewController: UIViewController {
             ]
             glowL.startPoint = CGPoint(x: 0.5, y: 0)
             glowL.endPoint = CGPoint(x: 1, y: 1)
-            glowL.frame = CGRect(x: 0, y: 0,
-                                 width: view.bounds.width,
-                                 height: view.bounds.height * 0.45)
+            glowL.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height * 0.45)
             view.layer.insertSublayer(glowL, at: 1)
             glowLayer = glowL
         }
@@ -59,30 +56,12 @@ class BaseViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer?.frame = view.bounds
-        glowLayer?.frame = CGRect(x: 0, y: 0,
-                                  width: view.bounds.width,
-                                  height: view.bounds.height * 0.55)
+        glowLayer?.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height * 0.55)
     }
-
-    // MARK: - Loading
-
-    private lazy var loadingView: LoadingView = {
-        let loadingView = LoadingView()
-        loadingView.translatesAutoresizingMaskIntoConstraints = false
-        return loadingView
-    }()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = UIColor.backgroundPrimary
-        setupViews()
-    }
-
-    func setupViews() {}
 
     func showLoadingView() {
         view.insertSubview(loadingView, at: view.subviews.count)
-
+        
         NSLayoutConstraint.activate([
             loadingView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadingView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -114,13 +93,13 @@ class BaseViewController: UIViewController {
         loadingView.removeFromSuperview()
     }
 
-    func animateIn(_ views: [UIView]) {
+    func animateIn(_ views: [UIView], delay: Double = 0.08) {
         views.enumerated().forEach { index, view in
             view.alpha = 0
             view.transform = CGAffineTransform(translationX: 0, y: 20)
             UIView.animate(
                 withDuration: 0.4,
-                delay: Double(index) * 0.08,
+                delay: Double(index) * delay,
                 usingSpringWithDamping: 0.8,
                 initialSpringVelocity: 0.3
             ) {

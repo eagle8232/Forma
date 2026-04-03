@@ -46,7 +46,6 @@ final class ProfessionalLifeViewController: OnboardingBaseViewController {
     override func setupViews() {
         super.setupViews()
         
-        // ✅ Keep setupViews() for title/subtitle generation
         setupViews(
             onboardingTitle: "What defines your\nprofessional life?",
             onboardingSubtitle: "Select the role that best fits. We use this to tailor energy requirements.",
@@ -55,7 +54,6 @@ final class ProfessionalLifeViewController: OnboardingBaseViewController {
         )
         
         delegate = self
-        
         setupLayout()
     }
     

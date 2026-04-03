@@ -1,10 +1,3 @@
-//
-//  UltimateGoals.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/17/26.
-//
-
 import Foundation
 
 enum UltimateGoal: String, CaseIterable {
@@ -40,9 +33,9 @@ enum UltimateGoal: String, CaseIterable {
         case .reduceOverwhelm:      return "Find calm in the chaos"
         case .improveSleepHygiene:  return "Wake up fully restored"
         case .buildHealthyHabits:   return "Small steps, big changes"
-        case .consistentExercise:   return "Move your body every day"
+        case .consistentExercise:    return "Move your body every day"
         case .workLifeBalance:      return "Harmony between work and life"
-        case .gainClarity:          return "Clear mind, clear purpose"
+        case .gainClarity:         return "Clear mind, clear purpose"
         }
     }
 }

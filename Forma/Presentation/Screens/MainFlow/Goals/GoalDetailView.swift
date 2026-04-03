@@ -79,7 +79,6 @@ struct GoalDetailView: View {
                 }
             }
         }
-        .navigationBarHidden(true)
         .onAppear {
             withAnimation { appeared = true }
             withAnimation(.easeOut(duration: 0.9).delay(0.3)) {
@@ -104,32 +103,18 @@ extension GoalDetailView {
     private var navBar: some View {
         HStack {
             Button(action: { onBack?() }) {
-                ZStack {
-                    Circle()
-                        .fill(AppColor.surfaceFill)
-                        .overlay(Circle().stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline))
-                        .frame(width: 36, height: 36)
-
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .ultraLight))
-                        .foregroundStyle(.white.opacity(0.45))
-                }
+                IconCircleButton(icon: "chevron.left", iconSize: 12)
             }
             .buttonStyle(.plain)
 
             Spacer()
 
             Button(action: { showDeleteAlert = true }) {
-                ZStack {
-                    Circle()
-                        .fill(AppColor.surfaceFill)
-                        .overlay(Circle().stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline))
-                        .frame(width: 36, height: 36)
-
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 12, weight: .ultraLight))
-                        .foregroundStyle(.white.opacity(0.35))
-                }
+                IconCircleButton(
+                    icon: "ellipsis",
+                    iconSize: 12,
+                    foregroundColor: .white.opacity(0.35)
+                )
             }
             .buttonStyle(.plain)
         }

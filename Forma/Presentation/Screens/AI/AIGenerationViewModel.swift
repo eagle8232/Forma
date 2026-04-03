@@ -5,120 +5,220 @@
 //  Created by Vusal Nuriyev on 2/18/26.
 //
 
-import Foundation
-import Combine
 import SwiftUI
+
+// MARK: - AIGenerationViewModel
 
 @MainActor
 final class AIGenerationViewModel: ObservableObject {
-    
-    // MARK: - Published Properties
-    
-    private(set) var currentStep: GenerationStep = .analyzing
-    private(set) var progress: Float = 0.0
-    private(set) var progressPercentage: Int = 0
-    private(set) var isGenerating: Bool = false
-    private(set) var isCompleted: Bool = false
-    private(set) var generationError: Error?
-    private(set) var phase: GenerationPhase = .thinking
-    
-    // MARK: - Private Properties
-    
-    private var timer: Timer?
-    private var cancellables = Set<AnyCancellable>()
-    
+
+    // MARK: - Generation phase (existing)
+
+    enum GenerationPhase: Equatable {
+        case thinking
+        case firstArrived
+        case streaming(Int)
+        case done
+
+        static func == (lhs: GenerationPhase, rhs: GenerationPhase) -> Bool {
+            switch (lhs, rhs) {
+            case (.thinking, .thinking),
+                 (.firstArrived, .firstArrived),
+                 (.done, .done):          return true
+            case (.streaming(let a), .streaming(let b)): return a == b
+            default:                      return false
+            }
+        }
+    }
+
+    // MARK: - Question phase
+
+    enum QuestionPhase: Equatable {
+        case loading
+        case asking
+        case transitioning
+        case generating
+    }
+
+    // MARK: - Published
+
+    @Published var phase:                  GenerationPhase = .thinking
+    @Published var questionPhase:          QuestionPhase   = .loading
+    @Published var newGeneratedRoutines:   [RoutineBlock]  = []
+    @Published var questions:              [AIQuestion]    = []
+    @Published var answers:                [String: AIAnswer] = [:]
+    @Published var aiMessage:              String          = ""
+    @Published var visibleQuestionCount:   Int             = 0
+
+    // MARK: - Input
+
     var userPreferences: UserPreferences
-    @Published var newGeneratedRoutines: [RoutineBlock] = []
-    
-    // MARK: - Initialization
-    
-    init(userPreferences: UserPreferences) {
+
+    // MARK: - Dependencies
+
+    private let repository: AIRepositoryProtocol
+
+    // MARK: - Init
+
+    init(
+        userPreferences: UserPreferences,
+        repository: AIRepositoryProtocol = DependencyContainer.shared.resolve() ?? AIRepository()
+    ) {
         self.userPreferences = userPreferences
+        self.repository      = repository
     }
 
-    deinit {}
-    
-    // MARK: - Public Methods
-    
-    func startGeneration() async {
-        guard newGeneratedRoutines.isEmpty, !isGenerating else { return }
-        await generateRoutines()
-    }
-    
-    func stopGeneration() {
-        withAnimation {
-            phase = .done
+    // MARK: - Computed
+
+    var allAnswered: Bool {
+        !questions.isEmpty && questions.allSatisfy {
+            answers[$0.id]?.isAnswered == true
         }
     }
-    
-    func reset() {
-        stopGeneration()
-        currentStep = .analyzing
-        progress = 0.0
-        isCompleted = false
-        generationError = nil
+
+    var answeredCount: Int {
+        answers.values.filter { $0.isAnswered }.count
     }
-    
-    // MARK: - Private Methods
-    func generateRoutines() async {
-        isGenerating = true
-        
+
+    var statusLabel: String {
+        switch questionPhase {
+        case .loading:       return "THINKING"
+        case .asking:
+            return answeredCount == 0 ? "QUESTIONS" : "\(answeredCount) ANSWERED"
+        case .transitioning: return "READY"
+        case .generating:
+            switch phase {
+            case .thinking:          return "THINKING"
+            case .firstArrived:      return "READY"
+            case .streaming(let n):  return "\(n) CRAFTED"
+            case .done:              return "COMPLETE"
+            }
+        }
+    }
+
+    var isGenerationDone: Bool {
+        questionPhase == .generating && phase == .done
+    }
+
+    // MARK: - Answer binding
+
+    func answerBinding(for question: AIQuestion) -> Binding<AIAnswer> {
+        Binding(
+            get: {
+                self.answers[question.id] ?? AIAnswer(
+                    questionId:     question.id,
+                    selectedIds:    [],
+                    selectedLabels: []
+                )
+            },
+            set: { self.answers[question.id] = $0 }
+        )
+    }
+
+    // MARK: - Main entry point
+
+    func start() async {
+        await fetchQuestions()
+    }
+
+    // MARK: - Fetch questions
+
+    private func fetchQuestions() async {
+        questionPhase = .loading
+
         do {
-            let makeGenerateRoutineUseCase = DependencyContainer.shared.makeGenerateRoutineUseCase()
-            var routinesBuffer: [RoutineBlock] = []
-            for await routine in try await makeGenerateRoutineUseCase.execute(userPreferences: userPreferences) {
-                let isFirst = newGeneratedRoutines.isEmpty
-                routinesBuffer.append(routine)
-                self.newGeneratedRoutines = routinesBuffer
-                
-                withAnimation {
-                    phase = isFirst ? .firstArrived : .streaming(count: newGeneratedRoutines.count)
+            let response = try await repository.fetchQuestions(userPreferences: userPreferences)
+
+            aiMessage = response.message ?? "A few quick questions to personalise your routine."
+            questions  = response.questions
+
+            for q in questions {
+                answers[q.id] = AIAnswer(questionId: q.id, selectedIds: [], selectedLabels: [])
+            }
+
+            withAnimation(.easeOut(duration: 0.4)) {
+                questionPhase = .asking
+            }
+
+            // Stagger question reveal
+            for i in 0..<questions.count {
+                try? await Task.sleep(for: .milliseconds(200))
+                withAnimation(.easeOut(duration: 0.4)) {
+                    visibleQuestionCount = i + 1
                 }
-                if isFirst {
-                    UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
-                    try? await Task.sleep(for: .seconds(0.8))
-                    withAnimation { phase = .streaming(count: newGeneratedRoutines.count) }
+            }
+
+        } catch {
+            // Questions failed — skip straight to generation
+            await beginGeneration()
+        }
+    }
+
+    // MARK: - Proceed after questions answered
+
+    func proceedToGeneration() async {
+        withAnimation(.easeInOut(duration: 0.5)) {
+            questionPhase = .transitioning
+        }
+
+        try? await Task.sleep(for: .milliseconds(400))
+
+        withAnimation(.easeInOut(duration: 0.5)) {
+            questionPhase = .generating
+        }
+
+        await beginGeneration()
+    }
+
+    // MARK: - Generation
+
+    func startGeneration() async {
+        await beginGeneration()
+    }
+
+    private func beginGeneration() async {
+        mergeAnswersIntoPreferences()
+        phase = .thinking
+
+        let stream = repository.generateRoutines(userPreferences: userPreferences)
+
+        for await routine in stream {
+            newGeneratedRoutines.append(routine)
+
+            withAnimation {
+                if newGeneratedRoutines.count == 1 {
+                    phase = .firstArrived
                 } else {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                }
-                
-                // Check if it is the last routine
-                if routine.endTime == DateManager.shared.dateToString(userPreferences.sleepTime) {
-                    stopGeneration()
+                    phase = .streaming(newGeneratedRoutines.count)
                 }
             }
-            
-        } catch let err {
-            print(err.localizedDescription)
-            self.generationError = err
         }
-        
+
+        withAnimation { phase = .done }
     }
-}
 
-// MARK: - Generation Steps
+    // MARK: - Merge answers into preferences
 
-extension AIGenerationViewModel {
-    enum GenerationStep: Int, CaseIterable {
-        case analyzing  = 0
-        case mapping    = 1
-        case optimizing = 2
-        case curating   = 3
-        case finalizing = 4
-        
-        var title: String {
-            switch self {
-            case .analyzing:  return "✨ Analyzing circadian rhythms"
-            case .mapping:    return "🧠 Mapping focus blocks"
-            case .optimizing: return "🎯 Optimizing energy peaks"
-            case .curating:   return "📋 Curating narrative scenes"
-            case .finalizing: return "⚡️ Finalizing your routine"
+    private func mergeAnswersIntoPreferences() {
+        for (questionId, answer) in answers {
+            guard let label = answer.firstLabel else { continue }
+            switch questionId {
+            case "prayer":      userPreferences.prayerFrequency   = label
+            case "work_style":  userPreferences.workStyle         = label
+            case "exercise":    userPreferences.exerciseTime      = label
+            case "lunch_break": userPreferences.lunchBreak        = label
+            default:
+                userPreferences.additionalContext =
+                    (userPreferences.additionalContext ?? "")
+                    + "\(questionId): \(label). "
             }
         }
-        
-        var progressThreshold: Float {
-            return Float(rawValue + 1) * 0.2
-        }
     }
-    
+
+    // MARK: - Update routine (called from coordinator after edit)
+
+    func updateRoutine(_ updated: RoutineBlock) {
+        guard let i = newGeneratedRoutines.firstIndex(where: { $0.id == updated.id }) else { return }
+        newGeneratedRoutines[i] = updated
+    }
 }

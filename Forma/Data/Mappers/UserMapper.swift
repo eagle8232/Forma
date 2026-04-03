@@ -1,15 +1,8 @@
-//
-//  UserMapper.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/9/26.
-//
-
 import Foundation
 
 extension UserDTO {
-    func toEntity() -> User{
-        return User(
+    func toEntity() -> User {
+        User(
             credentials: self.credentials?.toEntity() ?? .mockCredentialData,
             preferences: self.preferences?.toEntity() ?? .mockPreferencesData
         )
@@ -18,18 +11,16 @@ extension UserDTO {
 
 extension User {
     func toDTO() -> UserDTO {
-        return UserDTO(
+        UserDTO(
             credentials: self.credentials.toDTO(),
             preferences: self.preferences?.toDTO()
         )
     }
 }
 
-// MARK: - UserCredentialsDTO Mapper
-
 extension UserCredentialsDTO {
     func toEntity() -> UserCredentials {
-        return UserCredentials(
+        UserCredentials(
             id: self.id ?? "No id",
             name: self.name ?? "No name",
             email: self.email ?? "No email",
@@ -40,9 +31,9 @@ extension UserCredentialsDTO {
 
 extension UserCredentials {
     func toDTO() -> UserCredentialsDTO {
-        return UserCredentialsDTO(
+        UserCredentialsDTO(
             id: self.id,
-            name: self.name ,
+            name: self.name,
             email: self.email
         )
     }
@@ -50,24 +41,34 @@ extension UserCredentials {
 
 extension UserPreferencesDTO {
     func toEntity() -> UserPreferences {
-        return UserPreferences(
+        UserPreferences(
             profession: self.profession ?? "No profession",
             sleepTime: self.sleepTime ?? Date(),
             wakeUpTime: self.wakeUpTime ?? Date(),
             focusTime: self.focusTime ?? Date(),
-            goal: self.goal ?? ["No goal"]
+            goal: self.goal ?? ["No goal"],
+            prayerFrequency: self.prayerFrequency,
+            workStyle: self.workStyle,
+            exerciseTime: self.exerciseTime,
+            lunchBreak: self.lunchBreak,
+            additionalContext: self.additionalContext
         )
     }
 }
 
 extension UserPreferences {
     func toDTO() -> UserPreferencesDTO {
-        return UserPreferencesDTO(
+        UserPreferencesDTO(
             profession: self.profession,
             sleepTime: self.sleepTime,
             wakeUpTime: self.wakeUpTime,
             focusTime: self.focusTime,
-            goal: self.goal
+            goal: self.goal,
+            prayerFrequency: self.prayerFrequency,
+            workStyle: self.workStyle,
+            exerciseTime: self.exerciseTime,
+            lunchBreak: self.lunchBreak,
+            additionalContext: self.additionalContext
         )
     }
 }

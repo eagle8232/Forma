@@ -1,10 +1,3 @@
-//
-//  UserDTO.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/8/26.
-//
-
 import Foundation
 
 struct UserCredentialsDTO: Codable {
@@ -13,11 +6,8 @@ struct UserCredentialsDTO: Codable {
     var email: String?
     var isAnonymous: Bool?
     
-    enum CodingKeys: CodingKey {
-        case id
-        case name
-        case email
-        case isAnonymous
+    enum CodingKeys: String, CodingKey {
+        case id, name, email, isAnonymous
     }
 }
 
@@ -27,23 +17,22 @@ struct UserPreferencesDTO: Codable {
     var wakeUpTime: Date?
     var focusTime: Date?
     var goal: [String]?
+    var prayerFrequency: String?
+    var workStyle: String?
+    var exerciseTime: String?
+    var lunchBreak: String?
+    var additionalContext: String?
     
-    enum CodingKeys: CodingKey {
-        case profession
-        case sleepTime
-        case wakeUpTime
-        case focusTime
-        case goal
+    enum CodingKeys: String, CodingKey {
+        case profession, sleepTime, wakeUpTime, focusTime, goal, prayerFrequency, workStyle, exerciseTime, lunchBreak, additionalContext
     }
 }
-
 
 struct UserDTO: Codable {
     var credentials: UserCredentialsDTO?
     var preferences: UserPreferencesDTO?
     
-    enum CodingKeys: CodingKey {
-        case credentials
-        case preferences
+    enum CodingKeys: String, CodingKey {
+        case credentials, preferences
     }
 }

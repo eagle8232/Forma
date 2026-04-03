@@ -1,10 +1,3 @@
-//
-//  AuthCoordinator.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/18/26.
-//
-
 import UIKit
 import SwiftUI
 
@@ -18,7 +11,6 @@ final class AuthCoordinator: Coordinator {
     
     var navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
-    
     weak var delegate: AuthCoordinatorDelegate?
     
     init(navigationController: UINavigationController) {
@@ -29,38 +21,36 @@ final class AuthCoordinator: Coordinator {
         showSignInScreen()
     }
     
-    func finish() {
-        // Clean up if needed
-    }
-    
-    // MARK: - Navigation
-    
-    /// Show Sign In screen (for returning users)
     func showSignInScreen() {
-        let authVC = UIHostingController(rootView: AuthView { [weak self] user in
-                self?.didCompleteSignIn(with: user)
-            })
+        let authVC = AuthHostingController(rootView: AuthView { [weak self] user in
+            self?.didCompleteSignIn(with: user)
+        }, onDismiss: { [weak self] in
+            self?.dismissAuth()
+        })
         navigationController.pushViewController(authVC, animated: true)
     }
     
-    /// Show Sign Up screen with user data from onboarding
+    private func dismissAuth() {
+        navigationController.popViewController(animated: true)
+    }
+    
     func showSignUpScreen(with userPreferences: UserPreferences, routines: [RoutineBlock]) {
-        let authVC = UIHostingController(rootView: AuthView(
+        let authVC = AuthHostingController(rootView: AuthView(
             userPreferences: userPreferences,
             routines: routines,
             onSuccess: { [weak self] user in
                 self?.didCompleteSignUp(with: user, routines: routines)
-            }))
+            }), onDismiss: { [weak self] in
+                self?.dismissAuth()
+            })
         navigationController.pushViewController(authVC, animated: true)
     }
     
-    // MARK: - Completion
-    
-    func didCompleteSignIn(with user: User) {
+    private func didCompleteSignIn(with user: User) {
         delegate?.didCompleteSignIn(self, with: user)
     }
     
-    func didCompleteSignUp(with user: User, routines: [RoutineBlock]) {
+    private func didCompleteSignUp(with user: User, routines: [RoutineBlock]) {
         delegate?.didCompleteSignUp(self, with: user, routines: routines)
     }
 }

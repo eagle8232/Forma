@@ -1,10 +1,3 @@
-//
-//  RoutineRepositoryProtocol.swift
-//  Forma
-//
-//  Created by Vusal Nuriyev on 2/7/26.
-//
-
 import Foundation
 
 protocol RoutineRepositoryProtocol {

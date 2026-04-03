@@ -40,7 +40,7 @@ struct DurationStepperView: View {
             Spacer()
 
             VStack(spacing: 2) {
-                Text(formatted(draft))
+                Text(DurationFormatter.formatCompact(draft))
                     .font(.system(size: 18, weight: .ultraLight))
                     .foregroundStyle(.white.opacity(0.88))
                     .contentTransition(.numericText())
@@ -74,23 +74,11 @@ struct DurationStepperView: View {
         )
     }
 
-    // MARK: - Helpers
-
     private func step(by delta: Int) {
         let next = (draft + delta).clamped(to: minMinutes...maxMinutes)
         guard next != draft else { return }
         draft = next
         onCommit(next)
-    }
-
-    private func formatted(_ minutes: Int) -> String {
-        let h = minutes / 60
-        let m = minutes % 60
-        switch (h, m) {
-        case (0, _):       return "\(m)m"
-        case (_, 0):       return "\(h)h"
-        default:           return "\(h)h \(m)m"
-        }
     }
 }
 
