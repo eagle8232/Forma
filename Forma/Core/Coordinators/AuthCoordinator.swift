@@ -18,16 +18,20 @@ final class AuthCoordinator: Coordinator {
     }
     
     func start() {
+        print("[AuthCoordinator] start() called")
         showSignInScreen()
     }
     
     func showSignInScreen() {
+        print("[AuthCoordinator] showSignInScreen() called")
         let authVC = AuthHostingController(rootView: AuthView { [weak self] user in
             self?.didCompleteSignIn(with: user)
         }, onDismiss: { [weak self] in
             self?.dismissAuth()
         })
+        print("[AuthCoordinator] Pushing AuthVC")
         navigationController.pushViewController(authVC, animated: true)
+        print("[AuthCoordinator] Push completed. VCs: \(navigationController.viewControllers.count)")
     }
     
     private func dismissAuth() {

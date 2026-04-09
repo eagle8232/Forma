@@ -28,10 +28,6 @@ public final class AppCoordinator: Coordinator {
             if navigationController.viewControllers.isEmpty {
                 showMainFlow()
             }
-        } else if DependencyContainer.shared.hasCompletedOnboarding {
-            if navigationController.viewControllers.isEmpty {
-                showOnboardingView()
-            }
         } else {
             if navigationController.viewControllers.isEmpty {
                 showOnboardingView()
@@ -47,63 +43,87 @@ public final class AppCoordinator: Coordinator {
     }
     
     func showAuthScreen(userPreferences: UserPreferences? = nil, routines: [RoutineBlock]? = nil) {
+        print("[Auth] showAuthScreen called")
+        print("[Auth] Nav controller: \(navigationController)")
+        print("[Auth] Nav controller VCs: \(navigationController.viewControllers.map { String(describing: type(of: $0)) })")
         let authCoordinator = AuthCoordinator(navigationController: navigationController)
         authCoordinator.delegate = self
         addChild(authCoordinator)
+        print("[Auth] AuthCoordinator created and added. Child count: \(childCoordinators.count)")
         
         if let userPreferences, let routines {
             authCoordinator.showSignUpScreen(with: userPreferences, routines: routines)
         } else {
             authCoordinator.start()
         }
+        print("[Auth] Auth flow started. VC count: \(navigationController.viewControllers.count)")
     }
     
     func showAIGeneration(with userPreferences: UserPreferences) {
+        print("[AI] showAIGeneration called with preferences: \(userPreferences)")
+        print("[AI] Nav controller: \(navigationController)")
+        print("[AI] Nav VCs before: \(navigationController.viewControllers.map { String(describing: type(of: $0)) })")
+        
         let aiGenerationCoordinator = AICoordinator(navigationController: navigationController)
         aiGenerationCoordinator.delegate = self
         addChild(aiGenerationCoordinator)
         aiGenerationCoordinator.showAIGeneration(with: userPreferences)
+        
+        print("[AI] Nav VCs after: \(navigationController.viewControllers.map { String(describing: type(of: $0)) })")
     }
     
     func showMainFlow(isSignIn: Bool = false) {
         DependencyContainer.shared.loadCachedData()
         
-        if isSignIn {
-            Task { @MainActor in
-                await DependencyContainer.shared.syncWithFirebaseAndWait()
-                self.presentMainFlow()
-            }
-        } else {
-            presentMainFlow()
-            Task { @MainActor in
-                await DependencyContainer.shared.syncWithFirebase()
-            }
-        }
-    }
-    
-    private func presentMainFlow() {
         let homeCoordinator = HomeCoordinator(navigationController: navigationController)
         homeCoordinator.delegate = self
         addChild(homeCoordinator)
-        homeCoordinator.start()
+        
+        if isSignIn {
+            homeCoordinator.showHomeView(with: DependencyContainer.shared.routines)
+            Task {
+                await DependencyContainer.shared.syncWithFirebaseAndWait()
+                await MainActor.run {
+                    homeCoordinator.clearAndShowHomeView(with: DependencyContainer.shared.routines)
+                }
+            }
+        } else {
+            homeCoordinator.startWithCachedData()
+            Task {
+                await DependencyContainer.shared.syncWithFirebase()
+            }
+        }
     }
 }
 
 extension AppCoordinator: HomeCoordinatorDelegate {
     func homeCoordinatorDidRequestSignOut(_ coordinator: HomeCoordinator) {
-        if let userId = DependencyContainer.shared.currentUser?.credentials.id {
-            CoreDataManager.shared.deleteAllRoutines(forUserId: userId)
-            CoreDataManager.shared.deleteUser(byId: userId)
-        }
+        CoreDataManager.shared.clearAllData()
+        
         DependencyContainer.shared.clearSession()
+        
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("Error signing out: \(error)")
+        }
+        
         removeChild(coordinator)
-        navigationController.popToRootViewController(animated: false)
-        showAuthScreen()
+        
+        let newNavController = UINavigationController()
+        navigationController = newNavController
+        let onboardingCoordinator = OnboardingCoordinator(navigationController: newNavController)
+        onboardingCoordinator.delegate = self
+        addChild(onboardingCoordinator)
+        onboardingCoordinator.start()
+        
+        window.rootViewController = newNavController
     }
 }
 
 extension AppCoordinator: OnboardingCoordinatorDelegate {
     func didTapSignIn(_ coordinator: OnboardingCoordinator) {
+        print("[Auth] didTapSignIn called")
         showAuthScreen()
     }
     

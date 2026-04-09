@@ -17,6 +17,8 @@ struct HomeView: View {
     @State private var selectedIndex: Int = 0
     @State private var dragOffset: CGFloat = 0
     @State private var showAllTasks: Bool = false
+    @State private var showCompletionSheet: Bool = false
+    @State private var completionRoutines: [RoutineBlock] = []
 
     init(routines: [RoutineBlock]? = nil, coordinator: HomeCoordinator) {
         self._vm = StateObject(wrappedValue: HomeViewModel(routines: routines))
@@ -25,7 +27,7 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            Color.backgroundPrimary.ignoresSafeArea()
+            AppColor.background.ignoresSafeArea()
 
             switch vm.loadState {
             case .loading, .idle:
@@ -50,7 +52,7 @@ struct HomeView: View {
                         icon: "person.fill",
                         size: 36,
                         iconSize: 14,
-                        foregroundColor: .white.opacity(0.5)
+                        foregroundColor: Color.adaptiveWhiteOpacity(0.5, lightOpacity: 0.4)
                     )
                 }
                 .buttonStyle(.plain)
@@ -65,6 +67,38 @@ struct HomeView: View {
                         coordinator.showRoutineDetails(routine)
                     }
                 )
+            }
+        }
+        .sheet(isPresented: $showCompletionSheet) {
+            if !completionRoutines.isEmpty {
+                RoutineCompletionSheet(
+                    routines: completionRoutines,
+                    onComplete: { routineId, taskStates in
+                        CompletionService.shared.saveCompletion(
+                            routineId: routineId,
+                            completedTasks: taskStates
+                        )
+                        vm.markRoutineAsCompleted(routineId)
+                    },
+                    onDismiss: {
+                        showCompletionSheet = false
+                        vm.clearPendingRoutine()
+                    }
+                )
+            }
+        }
+        .onChange(of: vm.shouldShowCompletionSheet) { _, newValue in
+            if newValue {
+                completionRoutines = vm.getPendingRoutines()
+                print("[DEBUG] onChange: showing completion sheet, routines: \(completionRoutines.map { $0.title })")
+                showCompletionSheet = true
+            }
+        }
+        .onAppear {
+            if vm.shouldShowCompletionSheet {
+                completionRoutines = vm.getPendingRoutines()
+                print("[DEBUG] onAppear: showing completion sheet, routines: \(completionRoutines.map { $0.title })")
+                showCompletionSheet = true
             }
         }
         .onAppear {
@@ -111,6 +145,11 @@ struct HomeView: View {
                         routineStart: vm.activeRoutine?.startTime ?? "",
                         routineEnd:   vm.activeRoutine?.endTime   ?? "",
                         now: vm.now,
+                        onTap: {
+                            if let routine = vm.activeRoutine, let user = vm.user {
+                                coordinator.showFocusMode(task: currentTask, routine: routine, user: user)
+                            }
+                        }
                     )
                     .padding(.top, 20)
                     .padding(.horizontal, 20)
@@ -118,7 +157,7 @@ struct HomeView: View {
                 }
 
                 TaskListView(
-                    tasks: vm.tasks,
+                    tasks: vm.sortedTasks,
                     accent: vm.accent,
                     onTaskTap: { _ in }
                 )
@@ -134,10 +173,6 @@ struct HomeView: View {
                 )
                 .padding(.top, 28)
                 .staggered(appeared, delay: 0.36)
-                
-                StreakView(data: .mock, accent: vm.accent)
-                    .padding(.top, 28)
-                    .staggered(appeared, delay: 0.40)
                 
                 Spacer().frame(height: AppSpacing.screenBottom)
             }
@@ -217,7 +252,7 @@ extension HomeView {
                                              : isUpcoming  ? 0.0
                                              : vm.progressFor(routine)
                     let ringAccent: Color    = (isCompleted || isUpcoming)
-                                             ? .white.opacity(0.3)
+                                             ? Color.adaptiveWhiteOpacity(0.5, lightOpacity: 0.4)
                                              : accent
 
                     CircleProgressView(
@@ -315,14 +350,14 @@ extension HomeView {
         } label: {
             Image(systemName: direction == .left ? "chevron.left" : "chevron.right")
                 .font(.system(size: 11, weight: .ultraLight))
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Color.adaptiveWhiteOpacity(0.4, lightOpacity: 0.35))
                 .frame(width: 32, height: 32)
                 .background(
                     Circle()
-                        .fill(.white.opacity(0.055))
+                        .fill(Color.adaptiveWhiteOpacity(0.055, lightOpacity: 0.08))
                         .overlay(
                             Circle()
-                                .stroke(.white.opacity(0.09), lineWidth: 0.5)
+                                .stroke(Color.adaptiveWhiteOpacity(0.09, lightOpacity: 0.15), lineWidth: 0.5)
                         )
                 )
         }

@@ -13,6 +13,7 @@ struct NowWorkingOnView: View {
     let routineStart: String
     let routineEnd: String
     let now: Date
+    var onTap: (() -> Void)? = nil
     
     @State private var animatedProgress: CGFloat = 0
     @State private var shimmerOffset: CGFloat = -300
@@ -58,7 +59,7 @@ struct NowWorkingOnView: View {
                 .fill(AppColor.surfaceFill)
                 .overlay(
                     RoundedRectangle(cornerRadius: AppRadius.card)
-                        .stroke(AppColor.surfaceBorder, lineWidth: AppSize.hairline)
+                        .stroke(AppColor.accentPrimary.opacity(0.3), lineWidth: 1)
                 )
             
             shimmerView
@@ -79,6 +80,7 @@ struct NowWorkingOnView: View {
                 
                 remainingRow.padding(.top, 14)
                 progressBar.padding(.top, 8)
+                focusModeHint.padding(.top, 16)
             }
             .padding(.horizontal, AppSpacing.panelH)
             .padding(.vertical, AppSpacing.panelV)
@@ -94,6 +96,9 @@ struct NowWorkingOnView: View {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 animatedProgress = newValue
             }
+        }
+        .onTapGesture {
+            onTap?()
         }
     }
 }
@@ -164,7 +169,7 @@ extension NowWorkingOnView {
                         LinearGradient(
                             colors: [
                                 AppColor.accentPrimary.opacity(0.85),
-                                AppColor.accentSecondary.opacity(0.95)
+                                AppColor.accentPrimary.opacity(0.65)
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
@@ -174,6 +179,20 @@ extension NowWorkingOnView {
             }
         }
         .frame(height: 1.5)
+    }
+    
+    private var focusModeHint: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "target")
+                .font(.system(size: 10, weight: .light))
+                .foregroundStyle(AppColor.accentPrimary.opacity(0.6))
+            
+            Text("Tap to enter Focus Mode")
+                .customFont(.microTracked)
+                .tracking(AppTracking.microLabel)
+                .foregroundStyle(AppColor.textTertiary)
+        }
+        .frame(maxWidth: .infinity)
     }
     
     private var shimmerView: some View {

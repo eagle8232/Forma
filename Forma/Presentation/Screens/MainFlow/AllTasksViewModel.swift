@@ -63,9 +63,25 @@ final class AllTasksViewModel: ObservableObject {
 
     func refresh() {
         now = Date()
-        completedTasks = tasks.filter { $0.state == .completed }
-        activeTasks    = tasks.filter { $0.state == .inProgress }
-        upcomingTasks  = tasks.filter { $0.state == .upcoming }
+        let uniqueTasks = removeDuplicates(from: tasks)
+        completedTasks = uniqueTasks.filter { $0.state == .completed }.sorted { time($0) < time($1) }
+        activeTasks    = uniqueTasks.filter { $0.state == .inProgress }.sorted { time($0) < time($1) }
+        upcomingTasks  = uniqueTasks.filter { $0.state == .upcoming }.sorted { time($0) < time($1) }
+    }
+    
+    private func time(_ task: RoutineTask) -> CGFloat {
+        DateManager.shared.convertToSeconds(string: task.startTime)
+    }
+    
+    private func removeDuplicates(from tasks: [RoutineTask]) -> [RoutineTask] {
+        var seen = Set<String>()
+        return tasks.filter { task in
+            if seen.contains(task.id) {
+                return false
+            }
+            seen.insert(task.id)
+            return true
+        }
     }
 
     // MARK: - Minutes remaining for a task

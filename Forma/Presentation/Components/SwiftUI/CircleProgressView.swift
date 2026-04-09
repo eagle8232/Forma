@@ -75,10 +75,15 @@ struct CircleProgressView<Center: View>: View {
 
     private func drawRing(in ctx: GraphicsContext) {
         let center = CGPoint(x: size / 2, y: size / 2)
+        
+        // Ghost track color - adaptive for light/dark mode
+        let trackColor = Color.adaptive(dark: Color.white.opacity(0.07), light: Color.black.opacity(0.12))
+        // Tip dot color - adaptive for light/dark mode
+        let tipColor = Color.adaptive(dark: Color.white.opacity(0.85), light: accent)
 
         // ── Ghost track — single hairline ──
         drawArc(ctx: ctx, center: center, r: radius,
-                color: .white.opacity(0.07), width: 3,
+                color: trackColor, width: 3,
                 dashOffset: 0)
 
         // ── Progress arc — thin, clean ──
@@ -90,7 +95,7 @@ struct CircleProgressView<Center: View>: View {
         if animatedProgress > 0.01 {
             ctx.fill(
                 dotPath(r: 3),
-                with: .color(.white.opacity(0.85))
+                with: .color(tipColor)
             )
         }
     }

@@ -48,7 +48,11 @@ final class AIGenerationViewModel: ObservableObject {
     @Published var questions:              [AIQuestion]    = []
     @Published var answers:                [String: AIAnswer] = [:]
     @Published var aiMessage:              String          = ""
-    @Published var visibleQuestionCount:   Int             = 0
+    @Published var visibleQuestionCount:    Int             = 0
+    
+    // MARK: - Private
+    
+    private var hasStarted = false
 
     // MARK: - Input
 
@@ -118,6 +122,8 @@ final class AIGenerationViewModel: ObservableObject {
     // MARK: - Main entry point
 
     func start() async {
+        guard !hasStarted else { return }
+        hasStarted = true
         guard questions.isEmpty else { return }
         await fetchQuestions()
     }
@@ -204,7 +210,6 @@ final class AIGenerationViewModel: ObservableObject {
         for (questionId, answer) in answers {
             guard let label = answer.firstLabel else { continue }
             switch questionId {
-            case "prayer":      userPreferences.prayerFrequency   = label
             case "work_style":  userPreferences.workStyle         = label
             case "exercise":    userPreferences.exerciseTime      = label
             case "lunch_break": userPreferences.lunchBreak        = label

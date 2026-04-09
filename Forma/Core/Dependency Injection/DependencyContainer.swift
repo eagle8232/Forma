@@ -1,5 +1,6 @@
 import Foundation
 import FirebaseAuth
+import SwiftUI
 
 final class DependencyContainer {
     
@@ -62,10 +63,11 @@ final class DependencyContainer {
                 CoreDataManager.shared.saveUser(fetchedUser)
             }
             
-            if !fetchedRoutines.isEmpty {
-                routines = fetchedRoutines.sorted { $0.startTime < $1.startTime }
-                CoreDataManager.shared.saveRoutines(fetchedRoutines, forUserId: userId)
-            }
+            routines = fetchedRoutines.sorted { $0.startTime < $1.startTime }
+            CoreDataManager.shared.saveRoutines(fetchedRoutines, forUserId: userId)
+            
+            let completionRepo = CompletionRepository()
+            try await completionRepo.syncFromFirebase(userId: userId)
         } catch {
             print("⚠️ Failed to sync with Firebase: \(error)")
         }
@@ -86,6 +88,8 @@ final class DependencyContainer {
         routines = newRoutines
         guard let userId = currentUser?.credentials.id else { return }
         CoreDataManager.shared.saveRoutines(newRoutines, forUserId: userId)
+        
+        UserDefaults.standard.set(Date(), forKey: "routinesRecentlyCreatedAt")
         
         Task {
             try? await routineRepository.saveRoutine(newRoutines, userId: userId)
@@ -165,6 +169,7 @@ extension DependencyContainer {
         
         if let routines = routines, let userId = user?.credentials.id {
             CoreDataManager.shared.saveRoutines(routines, forUserId: userId)
+            UserDefaults.standard.set(Date(), forKey: "routinesRecentlyCreatedAt")
             Task {
                 try? await routineRepository.saveRoutine(routines, userId: userId)
             }
@@ -177,11 +182,53 @@ extension DependencyContainer {
         UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
     }
     
+    func clearOnboardingCompletion() {
+        UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
+    }
+    
     var hasCompletedOnboarding: Bool {
         UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     }
     
     func markOnboardingCompleted() {
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+    }
+    
+    func saveIntroAnswers(_ answers: [String: Any]) {
+        if let wakeAnswer = answers["wakeAnswer"] as? FormaIntroViewModel.WakeAnswer {
+            UserDefaults.standard.set(wakeAnswerToString(wakeAnswer), forKey: "introWakeAnswer")
+        }
+        if let struggleAnswer = answers["struggleAnswer"] as? FormaIntroViewModel.StruggleAnswer {
+            UserDefaults.standard.set(struggleAnswerToString(struggleAnswer), forKey: "introStruggleAnswer")
+        }
+        if let goalAnswer = answers["goalAnswer"] as? FormaIntroViewModel.GoalAnswer {
+            UserDefaults.standard.set(goalAnswerToString(goalAnswer), forKey: "introGoalAnswer")
+        }
+    }
+    
+    private func wakeAnswerToString(_ answer: FormaIntroViewModel.WakeAnswer) -> String {
+        switch answer {
+        case .early: return "early"
+        case .mid: return "mid"
+        case .late: return "late"
+        }
+    }
+    
+    private func struggleAnswerToString(_ answer: FormaIntroViewModel.StruggleAnswer) -> String {
+        switch answer {
+        case .motivation: return "motivation"
+        case .distracted: return "distracted"
+        case .forgetting: return "forgetting"
+        case .starting: return "starting"
+        }
+    }
+    
+    private func goalAnswerToString(_ answer: FormaIntroViewModel.GoalAnswer) -> String {
+        switch answer {
+        case .deepwork: return "deepwork"
+        case .exercise: return "exercise"
+        case .sleep: return "sleep"
+        case .morning: return "morning"
+        }
     }
 }

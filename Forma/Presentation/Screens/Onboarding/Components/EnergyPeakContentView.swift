@@ -40,7 +40,7 @@ final class EnergyPeakContentView: UIView {
         view.backgroundColor = .clear
         view.layer.cornerRadius = 16
         view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.white.withAlphaComponent(0.06).cgColor
+        view.layer.borderColor = UIColor.adaptiveTextSecondary.withAlphaComponent(0.06).cgColor
         view.clipsToBounds = false
         return view
     }()
@@ -48,7 +48,7 @@ final class EnergyPeakContentView: UIView {
     private lazy var qualityBgView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(white: 1, alpha: 0.04)
+        view.backgroundColor = UIColor.adaptiveTextSecondary.withAlphaComponent(0.04)
         view.layer.cornerRadius = 16
         view.clipsToBounds = true
         return view
@@ -65,7 +65,7 @@ final class EnergyPeakContentView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "SLEEP QUALITY"
         label.font = .systemFont(ofSize: 9, weight: .semibold)
-        label.textColor = .textSecondary
+        label.textColor = .adaptiveTextSecondary
         label.letterSpacing(1.2)
         return label
     }()
@@ -82,7 +82,7 @@ final class EnergyPeakContentView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.typography(.overline)
-        label.textColor = .textSecondary
+        label.textColor = .adaptiveTextSecondary
         label.textAlignment = .right
         return label
     }()
@@ -90,7 +90,7 @@ final class EnergyPeakContentView: UIView {
     private lazy var trackView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(white: 1, alpha: 0.07)
+        view.backgroundColor = UIColor.adaptiveTextSecondary.withAlphaComponent(0.07)
         view.layer.cornerRadius = 4
         view.clipsToBounds = true
         return view
@@ -370,7 +370,7 @@ extension EnergyPeakContentView {
             case .poor:    return UIColor(red: 1, green: 0.35, blue: 0.35, alpha: 1)
             case .fair:    return UIColor(red: 1, green: 0.65, blue: 0.2, alpha: 1)
             case .okay:    return UIColor(red: 0.4, green: 0.85, blue: 0.6, alpha: 1)
-            case .optimal: return .accent
+            case .optimal: return .adaptiveAccent
             }
         }
         
@@ -386,7 +386,7 @@ extension EnergyPeakContentView {
                 return [UIColor(red: 0.2, green: 0.75, blue: 0.5, alpha: 1).cgColor,
                         UIColor(red: 0.4, green: 0.9, blue: 0.65, alpha: 1).cgColor]
             case .optimal:
-                return [UIColor.accent.cgColor, UIColor.accentGradient.cgColor]
+                return [UIColor.adaptiveAccent.cgColor, UIColor.adaptiveAccent.cgColor]
             }
         }
     }

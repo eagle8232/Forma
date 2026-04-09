@@ -19,9 +19,18 @@ final class HomeCoordinator: Coordinator {
         showHomeView()
     }
     
+    func startWithCachedData() {
+        showHomeView(with: DependencyContainer.shared.routines)
+    }
+    
     func showHomeView(with routines: [RoutineBlock]? = nil) {
         let homeVC = FormaHostingController(rootView: HomeView(routines: routines, coordinator: self))
         navigationController.setViewControllers([homeVC], animated: true)
+    }
+    
+    func clearAndShowHomeView(with routines: [RoutineBlock]? = nil) {
+        let homeVC = FormaHostingController(rootView: HomeView(routines: routines, coordinator: self))
+        navigationController.setViewControllers([homeVC], animated: false)
     }
     
     func showRoutineDetails(_ routine: RoutineBlock) {
@@ -30,14 +39,18 @@ final class HomeCoordinator: Coordinator {
     }
     
     func showProfileView(user: User) {
-        let profileView = ProfileView(
-            user: user,
-            authRepository: AuthRepository(),
-            onSignOut: { [weak self] in
-                self?.signOut()
-            },
-            onEditProfile: { }
-        )
+        let profileView = NavigationStack {
+            ProfileView(
+                user: user,
+                authRepository: AuthRepository(),
+                coordinator: self,
+                onSignOut: { [weak self] in
+                    self?.signOut()
+                },
+                onEditProfile: { }
+            )
+        }
+        .tint(AppColor.accentPrimary)
         
         let vc = FormaHostingController(rootView: profileView)
         vc.view.backgroundColor = UIColor(AppColor.background)

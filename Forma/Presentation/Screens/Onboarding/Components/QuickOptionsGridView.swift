@@ -51,7 +51,7 @@ final class QuickOptionsGridView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Quick Select"
         label.font = .typography(.label)
-        label.textColor = .textSecondary
+        label.textColor = .adaptiveTextSecondary
         return label
     }()
     

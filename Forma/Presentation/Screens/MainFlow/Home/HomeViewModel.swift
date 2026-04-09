@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import FirebaseAuth
 import UserNotifications
 
 @MainActor
@@ -32,11 +31,15 @@ final class HomeViewModel: ObservableObject {
     @Published var currentTask: RoutineTask? = nil
     @Published var now: Date = Date()
     @Published var loadState: LoadState = .idle
+    @Published var shouldShowCompletionSheet: Bool = false
+    @Published var pendingRoutineIds: [String] = []
 
     // MARK: - Private
 
     private var timer: AnyCancellable?
     private let initialRoutines: [RoutineBlock]?
+    private var completedRoutineIds: Set<String> = []
+    private var hasCheckedTodayCompletions: Bool = false
 
     // MARK: - Computed
 
@@ -78,11 +81,104 @@ final class HomeViewModel: ObservableObject {
     init(routines: [RoutineBlock]? = nil) {
         self.initialRoutines = routines
     }
+    
+    // MARK: - Computed (sorted tasks)
+
+    var sortedTasks: [RoutineTask] {
+        let uniqueTasks = removeDuplicates(from: tasks)
+        return uniqueTasks.sorted { t1, t2 in
+            DateManager.shared.convertToSeconds(string: t1.startTime) < DateManager.shared.convertToSeconds(string: t2.startTime)
+        }
+    }
+    
+    private func removeDuplicates(from tasks: [RoutineTask]) -> [RoutineTask] {
+        var seen = Set<String>()
+        return tasks.filter { task in
+            if seen.contains(task.id) {
+                return false
+            }
+            seen.insert(task.id)
+            return true
+        }
+    }
+    
+    // MARK: - Streak Data
+    
+    var streakData: StreakData {
+        let currentStreak = CompletionService.shared.getStreak()
+        let weeklyStats = CompletionService.shared.getWeeklyStats()
+        let completionRate = weeklyStats.completedRoutines > 0 ? 1.0 : 0.0
+        
+        return StreakData(
+            currentStreak: currentStreak,
+            bestStreak: max(currentStreak, 1),
+            totalDays: currentStreak,
+            completionRate: completionRate,
+            weekDays: generateWeekDays()
+        )
+    }
+    
+    private func generateWeekDays() -> [StreakData.DayEntry] {
+        let calendar = Calendar.current
+        let today = Date()
+        
+        let weekdayLabels: [Int: String] = [
+            1: "S", 2: "M", 3: "T", 4: "W", 5: "T", 6: "F", 7: "S"
+        ]
+        
+        let weekStart: Date
+        if let monday = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)) {
+            weekStart = monday
+        } else {
+            let currentWeekday = calendar.component(.weekday, from: today)
+            let daysToSubtract = (currentWeekday - calendar.firstWeekday + 7) % 7
+            weekStart = calendar.date(byAdding: .day, value: -daysToSubtract, to: today)!
+        }
+        
+        var entries: [StreakData.DayEntry] = []
+        
+        for i in 0..<7 {
+            guard let date = calendar.date(byAdding: .day, value: i, to: weekStart) else { continue }
+            
+            let weekday = calendar.component(.weekday, from: date)
+            let label = weekdayLabels[weekday] ?? "M"
+            let isToday = calendar.isDateInToday(date)
+            let isFuture = date > today
+            
+            let stats = CompletionService.shared.getStats(for: date)
+            let completion = stats.score > 0 ? Double(stats.score) / 100.0 : 0.0
+            
+            let state: StreakData.DayEntry.DayState
+            if isFuture {
+                state = .future
+            } else if isToday {
+                state = .today
+            } else if completion >= 0.8 {
+                state = .completed
+            } else if completion >= 0.3 {
+                state = .partial
+            } else {
+                state = .missed
+            }
+            
+            entries.append(StreakData.DayEntry(
+                label: label,
+                state: state,
+                completion: completion
+            ))
+        }
+        
+        return entries
+    }
 
     // MARK: - Load
 
     func load() async {
         loadState = .loading
+        
+        completedRoutineIds.removeAll()
+        pendingRoutineIds = []
+        shouldShowCompletionSheet = false
         
         if let preloaded = initialRoutines, !preloaded.isEmpty {
             routines = preloaded.sorted { $0.startTime < $1.startTime }
@@ -94,6 +190,8 @@ final class HomeViewModel: ObservableObject {
             user = containerUser
         }
         
+        prePopulateCompletedRoutineIds()
+        
         activeRoutine = computeActiveRoutine()
         tasks         = activeRoutine?.tasks ?? []
         recalculate()
@@ -101,6 +199,25 @@ final class HomeViewModel: ObservableObject {
         
         requestNotificationPermissionIfNeeded()
         scheduleNotificationsForRoutines()
+    }
+    
+    private func prePopulateCompletedRoutineIds() {
+        guard let userId = DependencyContainer.shared.currentUser?.credentials.id else { return }
+        
+        let recentlyCreated = UserDefaults.standard.object(forKey: "routinesRecentlyCreatedAt") as? Date
+        let isRecentCreation = recentlyCreated != nil && Date().timeIntervalSince(recentlyCreated!) < 300
+        
+        for routine in routines {
+            if CoreDataManager.shared.fetchTodayCompletionRecord(forUserId: userId, routineId: routine.id) != nil {
+                completedRoutineIds.insert(routine.id)
+            } else if isRecentCreation {
+                completedRoutineIds.insert(routine.id)
+            }
+        }
+        
+        if isRecentCreation {
+            UserDefaults.standard.removeObject(forKey: "routinesRecentlyCreatedAt")
+        }
     }
     
     private func requestNotificationPermissionIfNeeded() {
@@ -190,6 +307,28 @@ final class HomeViewModel: ObservableObject {
         let currentTimeInSeconds = DateManager.shared.convertToSeconds(date: now)
         return currentTimeInSeconds < startTimeInSeconds
     }
+    
+    func dismissCompletionSheet() {
+        shouldShowCompletionSheet = false
+    }
+    
+    func clearPendingRoutine() {
+        pendingRoutineIds = []
+    }
+    
+    func markRoutineAsCompleted(_ routineId: String) {
+        completedRoutineIds.insert(routineId)
+        pendingRoutineIds.removeAll { $0 == routineId }
+        if pendingRoutineIds.isEmpty {
+            shouldShowCompletionSheet = false
+        }
+    }
+    
+    func getPendingRoutines() -> [RoutineBlock] {
+        pendingRoutineIds.compactMap { id in
+            routines.first { $0.id == id }
+        }
+    }
 }
 
 // MARK: - Private helpers
@@ -235,19 +374,23 @@ private extension HomeViewModel {
     // upcoming   → now < startTime          (hasn't started yet)
 
     func updateTaskStates() {
-        let now = DateManager.shared.convertToSeconds(date: now)
-        for i in tasks.indices {
-            let start = DateManager.shared.convertToSeconds(string: tasks[i].startTime)
-            let end = start + CGFloat(tasks[i].duration * 60)
+        let currentTime = DateManager.shared.convertToSeconds(date: now)
+        var updatedTasks = tasks
+        
+        for i in updatedTasks.indices {
+            let start = DateManager.shared.convertToSeconds(string: updatedTasks[i].startTime)
+            let end = start + CGFloat(updatedTasks[i].duration * 60)
             
-            if now >= end {
-                tasks[i].state = .completed
-            } else if now >= start && now < end {
-                tasks[i].state = .inProgress
+            if currentTime >= end {
+                updatedTasks[i].state = .completed
+            } else if currentTime >= start && currentTime < end {
+                updatedTasks[i].state = .inProgress
             } else {
-                tasks[i].state = .upcoming
+                updatedTasks[i].state = .upcoming
             }
         }
+        
+        tasks = updatedTasks
     }
 
     func computeRoutineProgress() -> Double {
@@ -280,5 +423,48 @@ private extension HomeViewModel {
         updateTaskStates()
         progress    = computeRoutineProgress()
         currentTask = computeCurrentTask()
+        
+        checkForCompletedRoutines()
+    }
+    
+    // MARK: - Completion Sheet
+    
+    private func checkForCompletedRoutines() {
+        guard !shouldShowCompletionSheet else { return }
+        guard let userId = DependencyContainer.shared.currentUser?.credentials.id else { return }
+        
+        let currentTimeInSeconds = DateManager.shared.convertToSeconds(date: now)
+        
+        print("[DEBUG] checkForCompletedRoutines: routines count = \(routines.count), pending = \(pendingRoutineIds.count)")
+        
+        for routine in routines {
+            guard !completedRoutineIds.contains(routine.id) else { continue }
+            
+            let endTimeInSeconds = DateManager.shared.convertToSeconds(string: routine.endTime)
+            let hasEnded = currentTimeInSeconds >= endTimeInSeconds
+            
+            print("[DEBUG]   routine: \(routine.title), endTime: \(routine.endTime), now: \(currentTimeInSeconds), hasEnded: \(hasEnded)")
+            
+            guard hasEnded else { continue }
+            
+            let hasRecord = CoreDataManager.shared.fetchTodayCompletionRecord(forUserId: userId, routineId: routine.id) != nil
+            
+            print("[DEBUG]     hasRecord: \(hasRecord)")
+            
+            if hasRecord {
+                completedRoutineIds.insert(routine.id)
+                continue
+            }
+            
+            pendingRoutineIds.append(routine.id)
+            print("[DEBUG]     Added to pendingRoutineIds")
+        }
+        
+        print("[DEBUG] Final pendingRoutineIds: \(pendingRoutineIds)")
+        
+        if !pendingRoutineIds.isEmpty {
+            shouldShowCompletionSheet = true
+            print("[DEBUG] shouldShowCompletionSheet = true")
+        }
     }
 }

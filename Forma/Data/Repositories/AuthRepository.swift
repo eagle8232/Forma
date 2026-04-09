@@ -1,16 +1,20 @@
 import Foundation
 import FirebaseAuth
 import GoogleSignIn
+import AuthenticationServices
 
 final class AuthRepository: AuthRepositoryProtocol {
     
     fileprivate var isAnonymous: Bool = false
+    private var lastAuthCredential: AuthCredential?
     
     func signIn(with authProvider: AuthProvider) async throws -> UserCredentials? {
         guard let result = try await authProviderSetup(with: authProvider) else {
             print("Could not create Firebase credentials")
             return nil
         }
+        
+        lastAuthCredential = result.credential
         
         return UserCredentials(
             id: result.user.uid,
@@ -26,6 +30,8 @@ final class AuthRepository: AuthRepositoryProtocol {
             return nil
         }
         
+        lastAuthCredential = result.credential
+        
         return UserCredentials(
             id: result.user.uid,
             name: result.user.displayName ?? "Unknown name",
@@ -39,8 +45,31 @@ final class AuthRepository: AuthRepositoryProtocol {
     }
     
     func deleteUser() async throws {
-        guard let currentUser = Auth.auth().currentUser else { return }
+        guard let currentUser = Auth.auth().currentUser else {
+            throw AuthError.missingUserData
+        }
+        
+        if let googleToken = getGoogleStoredToken() {
+            let credential = GoogleAuthProvider.credential(withIDToken: googleToken.idToken, accessToken: googleToken.accessToken)
+            try await currentUser.reauthenticate(with: credential)
+        } else if let storedCredential = lastAuthCredential {
+            try await currentUser.reauthenticate(with: storedCredential)
+        } else {
+            for providerData in currentUser.providerData {
+                if providerData.providerID == GoogleAuthProviderID {
+                    throw AuthError.requiresReauthentication
+                }
+            }
+        }
+        
         try await currentUser.delete()
+    }
+    
+    private func getGoogleStoredToken() -> (idToken: String, accessToken: String)? {
+        guard let user = GIDSignIn.sharedInstance.currentUser else { return nil }
+        guard let idToken = user.idToken?.tokenString else { return nil }
+        let accessToken = user.accessToken.tokenString
+        return (idToken, accessToken)
     }
     
     fileprivate func authProviderSetup(with authProvider: AuthProvider) async throws -> AuthDataResult? {

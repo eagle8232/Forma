@@ -75,7 +75,7 @@ final class FormaTimePickerView: UIView {
     
     private lazy var containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .backgroundPrimary
+        view.backgroundColor = UIColor.adaptiveBackground
         view.layer.cornerRadius = 30
         view.translatesAutoresizingMaskIntoConstraints = false
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cardTapped))

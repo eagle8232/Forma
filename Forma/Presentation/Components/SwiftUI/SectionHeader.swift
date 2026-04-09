@@ -49,7 +49,7 @@ struct SectionHeader: View {
                     Text(actionTitle.uppercased())
                         .font(AppFont.ui(10, weight: .regular))
                         .tracking(1.8)
-                        .foregroundStyle(AppColor.gold)
+                        .foregroundStyle(AppColor.accentPrimary)
                 }
             }
         }

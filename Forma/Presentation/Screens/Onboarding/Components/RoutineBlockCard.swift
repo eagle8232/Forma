@@ -20,7 +20,7 @@ final class RoutineBlockCard: UIView {
     private lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .backgroundSecondary
+        view.backgroundColor = .adaptiveBackgroundSecondary
         view.layer.cornerRadius = 20
         view.layer.borderWidth = 1
         view.layer.borderColor = UIColor(hex: block.accentColor).withAlphaComponent(0.3).cgColor
@@ -55,7 +55,7 @@ final class RoutineBlockCard: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .typography(.heading2)
-        label.textColor = .textPrimary
+        label.textColor = .adaptiveTextPrimary
         return label
     }()
     
@@ -63,7 +63,7 @@ final class RoutineBlockCard: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .typography(.caption)
-        label.textColor = .textSecondary
+        label.textColor = .adaptiveTextSecondary
         return label
     }()
     
@@ -71,7 +71,7 @@ final class RoutineBlockCard: UIView {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "pencil"), for: .normal)
-        button.tintColor = .textSecondary
+        button.tintColor = .adaptiveTextSecondary
         button.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
         return button
     }()
@@ -86,7 +86,7 @@ final class RoutineBlockCard: UIView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = "Projected Intensity"
         titleLabel.font = .typography(.caption)
-        titleLabel.textColor = .textSecondary
+        titleLabel.textColor = .adaptiveTextSecondary
         
         let valueLabel = UILabel()
         valueLabel.translatesAutoresizingMaskIntoConstraints = false

@@ -56,7 +56,7 @@ final class OnboardingMainContentView: UIView {
     private lazy var separatorLine: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor.white.withAlphaComponent(0.20)
+        view.backgroundColor = UIColor.adaptiveTextSecondary.withAlphaComponent(0.2)
         return view
     }()
 
@@ -130,13 +130,13 @@ final class OnboardingMainContentView: UIView {
             string: fullText,
             attributes: [
                 .font: UIFont.systemFont(ofSize: 14, weight: .regular),
-                .foregroundColor: UIColor.white.withAlphaComponent(0.45)
+                .foregroundColor: UIColor.adaptiveTextSecondary.withAlphaComponent(0.45)
             ]
         )
         let signInRange = (fullText as NSString).range(of: "Sign in")
         attributed.addAttributes([
             .font: UIFont.systemFont(ofSize: 14, weight: .semibold),
-            .foregroundColor: UIColor.white.withAlphaComponent(0.9),
+            .foregroundColor: UIColor.adaptiveTextPrimary.withAlphaComponent(0.9),
             .underlineStyle: NSUnderlineStyle.single.rawValue
         ], range: signInRange)
 

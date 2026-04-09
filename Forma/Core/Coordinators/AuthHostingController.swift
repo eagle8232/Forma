@@ -14,9 +14,9 @@ final class AuthHostingController<Content: View>: UIHostingController<Content> {
         navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
         navigationController?.navigationBar.shadowImage = nil
         navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.barTintColor = UIColor.backgroundPrimary
-        navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navigationController?.navigationBar.barTintColor = UIColor.adaptiveBackground
+        navigationController?.navigationBar.tintColor = UIColor.adaptiveTextPrimary
+        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.adaptiveTextPrimary]
         navigationItem.backButtonTitle = ""
     }
 

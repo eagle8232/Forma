@@ -49,6 +49,7 @@ struct StreakView: View {
         }
         .padding(20)
         .surfaceCard()
+        .onAppear { appeared = true }
         .onReceive(timer) { _ in cycleMessage() }
         .padding(.horizontal, AppSpacing.screenH)
     }
@@ -61,47 +62,41 @@ extension StreakView {
     private var topRow: some View {
         HStack(alignment: .top) {
 
-            // Current streak
             VStack(alignment: .leading, spacing: 6) {
                 Text("CURRENT STREAK")
-                    .customFont(.microTracked)
-                    .tracking(AppTracking.sectionLabel)
+                    .font(.system(size: 8, weight: .regular))
+                    .tracking(2)
                     .foregroundStyle(AppColor.textTertiary)
 
                 HStack(alignment: .lastTextBaseline, spacing: 4) {
                     Text("\(data.currentStreak)")
-                        .font(.system(size: 48, weight: .thin))
+                        .font(.system(size: 42, weight: .ultraLight))
                         .foregroundStyle(AppColor.textPrimary)
                         .contentTransition(.numericText())
 
                     Text("days")
-                        .customFont(.bodySmall)
+                        .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(AppColor.textTertiary)
                 }
             }
 
             Spacer()
 
-            // Best streak pill
             VStack(alignment: .trailing, spacing: 6) {
                 Text("BEST")
-                    .customFont(.microTracked)
-                    .tracking(AppTracking.sectionLabel)
+                    .font(.system(size: 8, weight: .regular))
+                    .tracking(2)
                     .foregroundStyle(AppColor.textTertiary)
 
                 Text("\(data.bestStreak) days")
-                    .customFont(.microTracked)
-                    .tracking(AppTracking.body)
+                    .font(.system(size: 10, weight: .regular))
+                    .tracking(1)
                     .foregroundStyle(accent.opacity(0.65))
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
                     .background(
-                        RoundedRectangle(cornerRadius: AppRadius.tag)
+                        RoundedRectangle(cornerRadius: 6)
                             .fill(accent.opacity(0.08))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppRadius.tag)
-                                    .stroke(accent.opacity(0.18), lineWidth: AppSize.hairline)
-                            )
                     )
             }
             .padding(.top, 2)
@@ -124,9 +119,21 @@ extension StreakView {
 
     private func dayBar(_ day: StreakData.DayEntry, index: Int) -> some View {
         let maxBarH: CGFloat = 36
-        let barH: CGFloat    = day.state == .future
-                               ? 4
-                               : max(CGFloat(day.completion) * maxBarH, 4)
+        
+        var barH: CGFloat = CGFloat(day.completion) * maxBarH
+        
+        switch day.state {
+        case .future:
+            barH = 4
+        case .missed:
+            barH = 4
+        case .completed:
+            barH = max(barH, 8)
+        case .today:
+            barH = max(barH, 8)
+        case .partial:
+            barH = max(barH, 6)
+        }
 
         let barColor: Color = {
             switch day.state {
@@ -134,7 +141,7 @@ extension StreakView {
             case .today:     return accent.opacity(0.9)
             case .partial:   return accent.opacity(0.3)
             case .missed:    return .clear
-            case .future:    return .white.opacity(0.07)
+            case .future:    return Color.adaptiveWhiteOpacity(0.07, lightOpacity: 0.15)
             }
         }()
 
@@ -146,7 +153,7 @@ extension StreakView {
             ZStack {
                 if day.state == .missed {
                     RoundedRectangle(cornerRadius: 3)
-                        .stroke(.white.opacity(0.1), lineWidth: AppSize.hairline)
+                        .stroke(Color.adaptiveWhiteOpacity(0.1, lightOpacity: 0.2), lineWidth: AppSize.hairline)
                         .frame(height: 4)
                 } else {
                     RoundedRectangle(cornerRadius: 3)
@@ -179,24 +186,24 @@ extension StreakView {
 
     private var statsRow: some View {
         HStack {
-            statItem(value: "\(data.totalDays)", label: "TOTAL DAYS")
+            statItem(value: "\(data.totalDays)", label: "TOTAL")
             statDivider
-            statItem(value: "\(Int(data.completionRate * 100))%", label: "COMPLETION")
+            statItem(value: "\(Int(data.completionRate * 100))%", label: "RATE")
             statDivider
-            statItem(value: "\(data.thisWeekCompleted)/7", label: "THIS WEEK")
+            statItem(value: "\(data.thisWeekCompleted)/7", label: "WEEK")
         }
     }
 
     private func statItem(value: String, label: String) -> some View {
-        VStack(alignment: .center, spacing: 3) {
+        VStack(alignment: .center, spacing: 2) {
             Text(value)
-                .font(.system(size: 15, weight: .ultraLight))
-                .foregroundStyle(.white.opacity(0.7))
+                .font(.system(size: 14, weight: .ultraLight))
+                .foregroundStyle(AppColor.textSecondary)
                 .contentTransition(.numericText())
 
             Text(label)
-                .customFont(.microTracked)
-                .tracking(AppTracking.microLabel)
+                .font(.system(size: 8, weight: .regular))
+                .tracking(1.5)
                 .foregroundStyle(AppColor.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -215,10 +222,10 @@ extension StreakView {
 
     private var rotatingMessage: some View {
         Text(messages[messageIndex])
-            .customFont(.microTracked)
-            .tracking(AppTracking.body)
+            .font(.system(size: 10, weight: .regular))
             .foregroundStyle(AppColor.textTertiary)
-            .lineSpacing(4)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
             .opacity(messageOpacity)
             .animation(.easeInOut(duration: 0.3), value: messageOpacity)
     }

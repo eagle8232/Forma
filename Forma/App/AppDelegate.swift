@@ -1,5 +1,6 @@
 import UIKit
 import FirebaseCore
+import FirebaseAuth
 import UserNotifications
 
 @main
@@ -10,11 +11,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         FirebaseApp.configure()
+        
         configureAppearance()
         configureNotifications()
         return true
     }
-
+    
     func application(
         _ application: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,

@@ -43,3 +43,53 @@ extension UIColor {
         )
     }
 }
+
+extension UIColor {
+    static var adaptiveBackground: UIColor {
+        UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "#060606")
+                : UIColor.white
+        }
+    }
+    
+    static var adaptiveSurface: UIColor {
+        UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "#1A1A1A")
+                : UIColor(red: 0.96, green: 0.96, blue: 0.97, alpha: 1.0)
+        }
+    }
+    
+    static var adaptiveBackgroundSecondary: UIColor {
+        UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "#0E0E0E")
+                : UIColor(red: 0.96, green: 0.96, blue: 0.97, alpha: 1.0)
+        }
+    }
+    
+    static var adaptiveTextPrimary: UIColor {
+        UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor.white
+                : UIColor.black
+        }
+    }
+    
+    static var adaptiveTextSecondary: UIColor {
+        UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor.white.withAlphaComponent(0.75)
+                : UIColor.black.withAlphaComponent(0.75)
+        }
+    }
+    
+    static var adaptiveAccent: UIColor {
+        UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "#A259FF")
+                : UIColor.black
+        }
+    }
+}

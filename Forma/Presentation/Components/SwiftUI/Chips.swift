@@ -87,7 +87,7 @@ struct TagChip: View {
     let text: String
     var color: Color
 
-    init(text: String, color: Color = AppColor.accent) {
+    init(text: String, color: Color = AppColor.accentPrimary) {
         self.text = text
         self.color = color
     }

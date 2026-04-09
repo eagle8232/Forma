@@ -12,6 +12,7 @@ import SwiftUI
 struct FormaSectionHeader: View {
     let title: String
     var actionLabel: String? = nil
+    var actionColor: Color = AppColor.textMuted
     var onAction: (() -> Void)? = nil
 
     var body: some View {
@@ -23,10 +24,10 @@ struct FormaSectionHeader: View {
             Spacer()
             if let label = actionLabel, let action = onAction {
                 Button(action: action) {
-                    Text(label)
+                    Text(label.uppercased())
                         .font(AppFont.ui(10, weight: .regular))
                         .kerning(1.8)
-                        .foregroundColor(AppColor.textMuted)
+                        .foregroundColor(actionColor)
                 }
             }
         }
@@ -43,14 +44,14 @@ enum SettingIconTint {
     var background: Color {
         switch self {
         case .neutral: return AppColor.surface3
-        case .accent:  return AppColor.accent.opacity(0.15)
+        case .accent:  return AppColor.accentPrimary.opacity(0.15)
         }
     }
 
     var iconColor: Color {
         switch self {
         case .neutral: return AppColor.textSecondary
-        case .accent:  return AppColor.accent
+        case .accent:  return AppColor.accentPrimary
         }
     }
 }
@@ -59,6 +60,7 @@ enum SettingTrailing {
     case chevron
     case toggle(isOn: Binding<Bool>, onToggle: ((Bool) -> Void)?)
     case none
+    case edit
 }
 
 struct FormaSettingCard: View {
@@ -123,7 +125,7 @@ struct FormaSettingCard: View {
         case .toggle(let isOn, let onToggle):
             ZStack {
                 Capsule()
-                    .fill(isOn.wrappedValue ? AppColor.accent : AppColor.surface3)
+                    .fill(isOn.wrappedValue ? AppColor.accentPrimary : AppColor.surface3)
                     .frame(width: 44, height: 26)
                 Circle()
                     .fill(Color.white)
@@ -139,6 +141,11 @@ struct FormaSettingCard: View {
             }
         case .none:
             EmptyView()
+        case .edit:
+            Image(systemName: "pencil.line")
+                .font(.system(size: 12, weight: .light))
+                .foregroundColor(AppColor.textMuted)
+                .padding(.trailing, 2)
         }
     }
 }
@@ -146,14 +153,14 @@ struct FormaSettingCard: View {
 private func badgeTextColor(for style: FormaBadgeStyle) -> Color {
     switch style {
     case .neutral: return AppColor.textMuted
-    case .accent:  return AppColor.accent
+    case .accent:  return AppColor.accentPrimary
     }
 }
 
 private func badgeBgColor(for style: FormaBadgeStyle) -> Color {
     switch style {
     case .neutral: return AppColor.surface3
-    case .accent:  return AppColor.accent.opacity(0.15)
+    case .accent:  return AppColor.accentPrimary.opacity(0.15)
     }
 }
 
@@ -230,12 +237,11 @@ struct FormaRowItem: View {
 // MARK: - Row Supporting Types
 
 enum FormaRowIconTint {
-    case neutral, gold, purple, green, red
+    case neutral, purple, green, red
 
     var background: Color {
         switch self {
         case .neutral: return AppColor.surface2
-        case .gold:    return AppColor.gold.opacity(0.1)
         case .purple:  return AppColor.accentLow
         case .green:   return AppColor.greenLow
         case .red:     return Color.hex("#FF5050").opacity(0.1)
@@ -245,8 +251,7 @@ enum FormaRowIconTint {
     var border: Color {
         switch self {
         case .neutral: return AppColor.border
-        case .gold:    return AppColor.gold.opacity(0.22)
-        case .purple:  return AppColor.accent.opacity(0.22)
+        case .purple:  return AppColor.accentPrimary.opacity(0.22)
         case .green:   return AppColor.green.opacity(0.22)
         case .red:     return Color.hex("#FF5050").opacity(0.22)
         }
@@ -275,13 +280,13 @@ struct FormaBadge: View {
     private var fg: Color {
         switch style {
         case .neutral: return AppColor.textMuted
-        case .accent:  return AppColor.accent
+        case .accent:  return AppColor.accentPrimary
         }
     }
     private var bg: Color {
         switch style {
         case .neutral: return AppColor.surface3
-        case .accent:  return AppColor.accent.opacity(0.15)
+        case .accent:  return AppColor.accentPrimary.opacity(0.15)
         }
     }
 
@@ -305,7 +310,7 @@ struct FormaToggle: View {
     var body: some View {
         ZStack {
             Capsule()
-                .fill(isOn.wrappedValue ? AppColor.accent : AppColor.surface3)
+                .fill(isOn.wrappedValue ? AppColor.accentPrimary : AppColor.switchTrackOff)
                 .overlay(Capsule().stroke(AppColor.border, lineWidth: 1))
                 .frame(width: 40, height: 24)
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isOn.wrappedValue)
@@ -313,7 +318,7 @@ struct FormaToggle: View {
             Circle()
                 .fill(Color.white)
                 .frame(width: 18, height: 18)
-                .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
                 .offset(x: isOn.wrappedValue ? 8 : -8)
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isOn.wrappedValue)
         }
@@ -357,6 +362,8 @@ struct FormaStatCard: View {
                 Text(value)
                     .font(AppFont.display(34))
                     .foregroundColor(AppColor.textPrimary)
+                    .contentTransition(.numericText())
+                    .frame(minWidth: 50)
                 if !unit.isEmpty {
                     Text(unit)
                         .font(AppFont.display(16))

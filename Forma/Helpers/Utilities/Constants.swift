@@ -33,13 +33,13 @@ struct Constants {
 
 extension Constants {
     
-    static let geminiApiKey = "AIzaSyDjYMN-QWDurfX-TZAEN-w3HAcLoHEenQI"
+    static let geminiApiKey = "AIzaSyCztyXB4r1rFJ6JyiirEExI8MEbAYR2pEA"
     static let geminiApiModel = "gemini-2.5-flash"
     
     static func prompt(with userPreferences: UserPreferences) -> String {
 
         // ── Current local time in user's timezone (for context only) ──
-        let tz = TimeZone(identifier: userPreferences.timezone ?? "GMT+0") ?? .current
+        let tz = TimeZone(identifier: userPreferences.resolvedTimezone) ?? .current
 
         let timeFmt = DateFormatter()
         timeFmt.dateFormat = "HH:mm"
@@ -56,8 +56,8 @@ extension Constants {
 
         CONTEXT:
         Current date: \(currentDate)
-        Current time: \(currentTime) (\(userPreferences.timezone))
-        All times you generate MUST be in \(userPreferences.timezone). Do NOT use UTC. Do NOT convert.
+        Current time: \(currentTime) (\(userPreferences.resolvedTimezone))
+        All times you generate MUST be in \(userPreferences.resolvedTimezone). Do NOT use UTC. Do NOT convert.
 
         USER PREFERENCES:
         \(userPreferences)
@@ -86,11 +86,11 @@ extension Constants {
         - description: 1 sentence describing the routine's purpose
         - iconString: a single relevant emoji
         - colorString: a hex color that reflects the routine's mood or energy level
-        - startTime / endTime: HH:mm format, strictly in \(userPreferences.timezone) local time
+        - startTime / endTime: HH:mm format, strictly in \(userPreferences.resolvedTimezone) local time
         - activities: array of tasks that exactly fill the time between startTime and endTime
           - Each activity id: UUID string
           - Each activity name: max 25 characters
-          - Each activity startTime: HH:mm, in \(userPreferences.timezone) local time
+          - Each activity startTime: HH:mm, in \(userPreferences.resolvedTimezone) local time
           - Each activity description: 1 short sentence
           - duration: integer, in minutes
           - Is it break time: False or true (Boolean)
@@ -105,7 +105,7 @@ extension Constants {
     }
 
     static func questionsPrompt(with userPreferences: UserPreferences) -> String {
-        let tz = TimeZone(identifier: userPreferences.timezone ?? "UTC") ?? .current
+        let tz = TimeZone(identifier: userPreferences.resolvedTimezone) ?? .current
 
         let timeFmt = DateFormatter()
         timeFmt.dateFormat = "HH:mm"
@@ -119,7 +119,7 @@ extension Constants {
         USER PROFILE:
         \(userPreferences)
 
-        CURRENT TIME: \(currentTime) (\(userPreferences.timezone ?? "UTC"))
+        CURRENT TIME: \(currentTime) (\(userPreferences.resolvedTimezone))
 
         OUTPUT — raw JSON only, no prose, no markdown, no code fences:
         {
@@ -141,7 +141,6 @@ extension Constants {
         - Each question must have 2–4 options
         - Option labels: max 4 words each
         - Question types: single_choice (pick one), multi_choice (pick many), yes_no
-        - ALWAYS include a prayer/spirituality question — critical for schedule blocking
         - ALWAYS include a work-style question
         - Make remaining questions relevant to the user's job and goal
         - A software engineer gets different questions than a student or a parent

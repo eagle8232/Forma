@@ -11,6 +11,7 @@ final class EnergyPeakViewController: OnboardingBaseViewController {
     
     // MARK: Coordinator
     weak var coordinator: OnboardingCoordinator?
+    var userPreferences: UserPreferences?
     
     // MARK: Properties
     private var wakeUpTime: Date?
@@ -26,7 +27,6 @@ final class EnergyPeakViewController: OnboardingBaseViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        // Set default values
         self.wakeUpTime = energyPeakContentView.getWakeUpTime()
         self.sleepTime = energyPeakContentView.getSleepTime()
     }
@@ -47,13 +47,17 @@ extension EnergyPeakViewController: OnboardingBaseViewControllerDelegate {
             return
         }
         
-        let newUserPreferences = UserPreferences(profession: "No profession selected",
-                                                 sleepTime: sleepTime,
-                                                 wakeUpTime: wakeUpTime,
-                                                 focusTime: Date(),
-                                                 goal: [])
+        var prefs = userPreferences ?? UserPreferences(
+            profession: "",
+            sleepTime: sleepTime,
+            wakeUpTime: wakeUpTime,
+            focusTime: Date(),
+            goal: []
+        )
+        prefs.wakeUpTime = wakeUpTime
+        prefs.sleepTime = sleepTime
         
-        self.coordinator?.showFocusBeginScreen(newUserPreferences)
+        self.coordinator?.showFocusBeginScreen(prefs)
     }
 }
 

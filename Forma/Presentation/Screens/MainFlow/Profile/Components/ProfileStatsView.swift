@@ -7,54 +7,105 @@
 
 import SwiftUI
 
-// MARK: - Stats Section
-
 struct ProfileStatsView: View {
 
-    let viewModel: ProfileViewModel
-
-    // Mock weekly data — replace with real RoutineStore data
-    private let weekData: [WeekBarData] = [
-        .init(day: "M", pct: 0.78, state: .done),
-        .init(day: "T", pct: 0.94, state: .done),
-        .init(day: "W", pct: 0.62, state: .done),
-        .init(day: "T", pct: 0.88, state: .done),
-        .init(day: "F", pct: 0.45, state: .today),
-        .init(day: "S", pct: 0.0,  state: .upcoming),
-        .init(day: "S", pct: 0.0,  state: .upcoming),
-    ]
+    @ObservedObject var viewModel: ProfileViewModel
+    @State private var displayCompleted: Int = 0
+    @State private var displayTotal: Int = 0
 
     var body: some View {
         VStack(spacing: AppSpacing.tightGap) {
-            // 2-col grid
-            HStack(spacing: AppSpacing.tightGap) {
-                FormaStatCard(
-                    icon: "✅",
-                    value: "94",
-                    unit: "%",
-                    label: "Completion",
-                    delta: "6% vs last week"
-                )
-                FormaStatCard(
-                    icon: "⏱",
-                    value: "38",
-                    unit: "h",
-                    label: "This month",
-                    delta: "4h vs March"
-                )
-            }
-
-            // Week bar chart — full width
+            todayProgressCard
+            
             weekChart
         }
         .padding(.horizontal, AppSpacing.blockGap)
+        .onAppear {
+            displayCompleted = viewModel.todayCompletedRoutines
+            displayTotal = viewModel.totalRoutines
+        }
+        .onChange(of: viewModel.todayCompletedRoutines) { _, newValue in
+            displayCompleted = newValue
+        }
+        .onChange(of: viewModel.totalRoutines) { _, newValue in
+            displayTotal = newValue
+        }
+    }
+    
+    // MARK: - Today's Progress Card
+    
+    private var todayProgressCard: some View {
+        VStack(spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Today's Progress")
+                        .font(AppFont.display(22))
+                        .foregroundColor(AppColor.textPrimary)
+                    
+                    Text("Keep up the momentum")
+                        .font(AppFont.ui(11, weight: .regular))
+                        .foregroundColor(AppColor.textMuted)
+                }
+                
+                Spacer()
+                
+                ZStack {
+                    Circle()
+                        .stroke(AppColor.surface2, lineWidth: 4)
+                        .frame(width: 56, height: 56)
+                    
+                    Circle()
+                        .trim(from: 0, to: displayTotal > 0 ? CGFloat(displayCompleted) / CGFloat(displayTotal) : 0)
+                        .stroke(
+                            AppColor.accent,
+                            style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                        )
+                        .frame(width: 56, height: 56)
+                        .rotationEffect(.degrees(-90))
+                    
+                    Text("\(displayCompleted)/\(displayTotal)")
+                        .font(AppFont.ui(12, weight: .semibold))
+                        .foregroundColor(AppColor.textPrimary)
+                }
+            }
+            
+            HStack(spacing: 12) {
+                progressStat(icon: "clock.fill", value: String(format: "%.1fh", viewModel.monthlyHours / 4), label: "This week")
+                Spacer()
+                progressStat(icon: "flame.fill", value: "\(viewModel.streak)", label: "Day streak")
+            }
+        }
+        .padding(20)
+        .background(AppColor.surface1)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.lg)
+                .stroke(AppColor.border, lineWidth: 1)
+        )
+    }
+    
+    private func progressStat(icon: String, value: String, label: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 14))
+                .foregroundColor(AppColor.accent)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(AppFont.ui(14, weight: .semibold))
+                    .foregroundColor(AppColor.textPrimary)
+                
+                Text(label)
+                    .font(AppFont.ui(10, weight: .regular))
+                    .foregroundColor(AppColor.textMuted)
+            }
+        }
     }
 
     // MARK: - Week chart
 
     private var weekChart: some View {
         HStack(spacing: 0) {
-            // Left label
             VStack(alignment: .leading, spacing: 0) {
                 Text("📅")
                     .font(.system(size: 18))
@@ -72,9 +123,8 @@ struct ProfileStatsView: View {
 
             Spacer()
 
-            // Bar chart
             HStack(alignment: .bottom, spacing: 5) {
-                ForEach(weekData) { item in
+                ForEach(viewModel.weeklyData) { item in
                     weekBar(item)
                 }
             }
@@ -108,7 +158,7 @@ struct ProfileStatsView: View {
     private func barColor(_ state: WeekBarData.State) -> Color {
         switch state {
         case .done:     return AppColor.accent
-        case .today:    return AppColor.gold
+        case .today:    return AppColor.accent
         case .upcoming: return AppColor.surface3
         }
     }

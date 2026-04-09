@@ -39,7 +39,7 @@ final class FocusBeginViewController: OnboardingBaseViewController {
     private lazy var timePickerContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor.backgroundSecondary
+        view.backgroundColor = UIColor.adaptiveBackgroundSecondary
         view.layer.cornerRadius = 20
         view.layer.shadowColor = UIColor.black.cgColor
         view.layer.shadowOpacity = 0.08
@@ -54,7 +54,7 @@ final class FocusBeginViewController: OnboardingBaseViewController {
         picker.datePickerMode = .time
         picker.preferredDatePickerStyle = .wheels
         picker.minuteInterval = 60
-        picker.tintColor = .accent
+        picker.tintColor = .adaptiveAccent
         picker.addTarget(self, action: #selector(timePickerChanged), for: .valueChanged)
         
         var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())

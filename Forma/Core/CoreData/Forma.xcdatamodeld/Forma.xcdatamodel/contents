@@ -7,6 +7,7 @@
         <attribute name="name" attributeType="String"/>
         <attribute name="preferencesData" optional="YES" attributeType="Binary"/>
         <relationship name="routines" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="RoutineBlockEntity" inverseName="user" inverseEntity="RoutineBlockEntity"/>
+        <relationship name="completionRecords" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CompletionRecordEntity" inverseName="user" inverseEntity="CompletionRecordEntity"/>
     </entity>
     <entity name="RoutineBlockEntity" representedClassName="RoutineBlockEntity" syncable="YES" codeGenerationType="class">
         <attribute name="accentColor" attributeType="String"/>
@@ -29,5 +30,14 @@
         <attribute name="state" attributeType="String" defaultValueString="upcoming"/>
         <attribute name="title" attributeType="String"/>
         <relationship name="routineBlock" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="RoutineBlockEntity" inverseName="tasks" inverseEntity="RoutineBlockEntity"/>
+    </entity>
+    <entity name="CompletionRecordEntity" representedClassName="CompletionRecordEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="completionData" optional="YES" attributeType="Binary"/>
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="routineId" attributeType="String"/>
+        <attribute name="totalTasks" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="completedTasks" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserEntity" inverseName="completionRecords" inverseEntity="UserEntity"/>
     </entity>
 </model>

@@ -20,7 +20,7 @@ final class MultiSelectGoalCard: UIView {
     private lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .backgroundSecondary
+        view.backgroundColor = .adaptiveBackgroundSecondary
         view.layer.cornerRadius = 16
         view.layer.borderWidth = 1.5
         view.layer.borderColor = UIColor.clear.cgColor
@@ -59,7 +59,7 @@ final class MultiSelectGoalCard: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = goal.rawValue
         label.font = .typography(.bodyLarge)
-        label.textColor = .textPrimary
+        label.textColor = .adaptiveTextPrimary
         label.numberOfLines = 1
         label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.8
@@ -71,7 +71,7 @@ final class MultiSelectGoalCard: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = goal.description
         label.font = .typography(.caption)
-        label.textColor = .textSecondary
+        label.textColor = .adaptiveTextSecondary
         label.numberOfLines = 1
         return label
     }()
@@ -79,10 +79,10 @@ final class MultiSelectGoalCard: UIView {
     private lazy var checkmarkContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .backgroundSecondary
+        view.backgroundColor = .adaptiveBackgroundSecondary
         view.layer.cornerRadius = 12
         view.layer.borderWidth = 1.5
-        view.layer.borderColor = UIColor.textSecondary.withAlphaComponent(0.3).cgColor
+        view.layer.borderColor = UIColor.adaptiveTextSecondary.withAlphaComponent(0.3).cgColor
         
         let imageView = UIImageView(image: UIImage(systemName: "checkmark"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -192,12 +192,12 @@ final class MultiSelectGoalCard: UIView {
                 self.containerView.layer.shadowOffset  = .zero
                 
             } else {
-                self.containerView.backgroundColor   = .backgroundSecondary
+                self.containerView.backgroundColor   = .adaptiveBackgroundSecondary
                 self.containerView.layer.borderColor = UIColor.clear.cgColor
-                self.titleLabel.textColor            = .textPrimary
+                self.titleLabel.textColor            = .adaptiveTextPrimary
                 self.glowView.alpha                  = 0
-                self.checkmarkContainer.backgroundColor  = .backgroundSecondary
-                self.checkmarkContainer.layer.borderColor = UIColor.textSecondary.withAlphaComponent(0.3).cgColor
+                self.checkmarkContainer.backgroundColor  = .adaptiveBackgroundSecondary
+                self.checkmarkContainer.layer.borderColor = UIColor.adaptiveTextSecondary.withAlphaComponent(0.3).cgColor
                 checkImageView?.alpha                = 0
                 self.containerView.layer.shadowOpacity = 0
             }

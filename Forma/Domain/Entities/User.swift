@@ -13,14 +13,25 @@ struct UserPreferences: Codable {
     var wakeUpTime: Date
     var focusTime: Date?
     var goal: [String]
-    var prayerFrequency: String?
     var workStyle: String?
     var exerciseTime: String?
     var lunchBreak: String?
     var additionalContext: String?
+    var timezone: String?
+    var appearanceMode: String?
     
-    var timezone: String? {
-        TimeZone.current.abbreviation()
+    var resolvedTimezone: String {
+        if let tz = timezone, !tz.isEmpty {
+            return tz
+        }
+        return TimeZone.current.identifier
+    }
+    
+    var resolvedAppearanceMode: AppearanceMode {
+        if let mode = appearanceMode, let appearance = AppearanceMode(rawValue: mode) {
+            return appearance
+        }
+        return .system
     }
 }
 

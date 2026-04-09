@@ -10,7 +10,7 @@ struct AccentBadge: View {
 
     init(
         text: String,
-        color: Color = AppColor.gold,
+        color: Color = AppColor.accentPrimary,
         fontSize: CGFloat = 9,
         horizontalPadding: CGFloat = 9,
         verticalPadding: CGFloat = 4,
@@ -52,7 +52,7 @@ struct AccentPill: View {
     init(
         icon: String? = nil,
         text: String,
-        color: Color = AppColor.gold,
+        color: Color = AppColor.accentPrimary,
         iconSize: CGFloat = 9,
         fontSize: CGFloat = 9
     ) {

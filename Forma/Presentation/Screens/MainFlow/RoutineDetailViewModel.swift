@@ -41,6 +41,12 @@ class RoutineDetailViewModel: ObservableObject {
     // MARK: - Computed
     var isValid: Bool { durationMismatch == nil && !routine.title.trimmingCharacters(in: .whitespaces).isEmpty && !tasks.isEmpty }
     var accent:  Color { Color(uiColor: UIColor(hex: routine.accentColor)) }
+    
+    var sortedTasks: [RoutineTask] {
+        tasks.sorted { t1, t2 in
+            DateManager.shared.convertToSeconds(string: t1.startTime) < DateManager.shared.convertToSeconds(string: t2.startTime)
+        }
+    }
 
     // MARK: - Init
     init(routine: RoutineBlock) {

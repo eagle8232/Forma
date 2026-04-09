@@ -102,7 +102,6 @@ final class AIQuestionsViewModel: ObservableObject {
         for (questionId, answer) in answers {
             guard let label = answer.firstLabel else { continue }
             switch questionId {
-            case "prayer":      enriched.prayerFrequency    = label
             case "work_style":  enriched.workStyle          = label
             case "exercise":    enriched.exerciseTime       = label
             case "lunch_break": enriched.lunchBreak         = label

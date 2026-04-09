@@ -46,9 +46,9 @@ final class SelectableOptionButton: UIButton {
         isOptionSelected = true
         backgroundColor = .clear
         layer.borderWidth = 2
-        layer.borderColor = UIColor.accent.cgColor
-        setTitleColor(.accent, for: .normal)
-        layer.shadowColor = UIColor.accent.cgColor
+        layer.borderColor = UIColor.adaptiveAccent.cgColor
+        setTitleColor(.adaptiveAccent, for: .normal)
+        layer.shadowColor = UIColor.adaptiveAccent.cgColor
         layer.shadowOpacity = 0.3
         layer.shadowRadius = 8
         layer.shadowOffset = .zero
@@ -56,10 +56,10 @@ final class SelectableOptionButton: UIButton {
     
     func applyUnselectedStyle() {
         isOptionSelected = false
-        backgroundColor = .backgroundSecondary
+        backgroundColor = .adaptiveBackgroundSecondary
         layer.borderWidth = 1
-        layer.borderColor = UIColor.backgroundSecondary.cgColor
-        setTitleColor(.textSecondary, for: .normal)
+        layer.borderColor = UIColor.adaptiveBackgroundSecondary.cgColor
+        setTitleColor(.adaptiveTextSecondary, for: .normal)
         layer.shadowOpacity = 0
     }
     

@@ -10,17 +10,20 @@ import SwiftUI
 struct AuthView: View {
     @StateObject private var vm: AuthViewModel
     var onSuccess: (User) -> Void
+    var onDismiss: (() -> Void)?
 
     init(
         userPreferences: UserPreferences? = nil,
         routines: [RoutineBlock]? = nil,
-        onSuccess: @escaping ((User) -> Void)
+        onSuccess: @escaping ((User) -> Void),
+        onDismiss: (() -> Void)? = nil
     ) {
         _vm = StateObject(wrappedValue: AuthViewModel(
             userPreferences: userPreferences,
             routines: routines
         ))
         self.onSuccess = onSuccess
+        self.onDismiss = onDismiss
     }
 
     @State private var appeared = false

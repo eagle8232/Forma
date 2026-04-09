@@ -24,7 +24,7 @@ final class ProfessionalRoleCard: UIView {
     private lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .backgroundSecondary
+        view.backgroundColor = .adaptiveBackgroundSecondary
         view.layer.cornerRadius = 16
         view.layer.borderWidth = 1.5
         view.layer.borderColor = UIColor.clear.cgColor
@@ -46,7 +46,7 @@ final class ProfessionalRoleCard: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = profession.rawValue
         label.font = .typography(.bodyMedium)
-        label.textColor = .textSecondary
+        label.textColor = .adaptiveTextSecondary
         label.textAlignment = .center
         label.numberOfLines = 2
         label.adjustsFontSizeToFitWidth = true
@@ -168,9 +168,9 @@ final class ProfessionalRoleCard: UIView {
                 
             } else {
                 // Unselected state
-                self.containerView.backgroundColor = .backgroundSecondary
+                self.containerView.backgroundColor = .adaptiveBackgroundSecondary
                 self.containerView.layer.borderColor = UIColor.clear.cgColor
-                self.titleLabel.textColor = .textSecondary
+                self.titleLabel.textColor = .adaptiveTextSecondary
                 self.glowView.alpha = 0
                 self.checkmarkView.alpha = 0
                 self.containerView.layer.shadowOpacity = 0

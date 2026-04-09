@@ -22,74 +22,51 @@ struct AIGenerationView: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            AIGenerationProgressView(phase: .done)
-                .ignoresSafeArea()
-            GrainOverlay().ignoresSafeArea().allowsHitTesting(false)
 
             VStack(spacing: 0) {
                 statusNavBar
-                    .padding(.top, 56)
+                    .padding(.top, 60)
                     .padding(.horizontal, 24)
 
                 Spacer()
 
-                // ── Panel — questions or routines ──
-                ScrollView(.vertical) {
+                ScrollView(.vertical, showsIndicators: false) {
                     switch viewModel.questionPhase {
                     case .loading:
                         EmptyView()
 
                     case .asking, .transitioning:
                         questionPanel
-                            .padding(.horizontal, 20)
-                            .padding(.bottom, 28)
-                            .transition(
-                                .asymmetric(
-                                    insertion: .opacity.combined(with: .move(edge: .top)),
-                                    removal:   .opacity.combined(with: .move(edge: .top))
-                                )
-                            )
+                            .padding(.horizontal, 24)
+                            .padding(.bottom, 32)
 
                     case .generating:
                         if !viewModel.newGeneratedRoutines.isEmpty {
                             routinePanel
-                                .padding(.horizontal, 20)
-                                .padding(.bottom, 28)
-                                .transition(
-                                    .asymmetric(
-                                        insertion: .opacity.combined(with: .move(edge: .top)),
-                                        removal:   .opacity
-                                    )
-                                )
+                                .padding(.horizontal, 24)
+                                .padding(.bottom, 32)
                         }
                     }
                 }
-                .animation(.spring(response: 0.55, dampingFraction: 0.82), value: viewModel.questionPhase)
+                .animation(.spring(response: 0.5, dampingFraction: 0.85), value: viewModel.questionPhase)
 
-                // ── Continue button ──
                 if viewModel.questionPhase == .asking && viewModel.allAnswered {
                     continueButton
                         .padding(.horizontal, 40)
-                        .padding(.bottom, 20)
-                        .transition(.opacity.combined(with: .offset(y: 12)))
+                        .padding(.bottom, 16)
                 }
 
-                // ── Create Account button ──
                 if viewModel.isGenerationDone {
                     createAccountButton
                         .padding(.horizontal, 40)
-                        .padding(.bottom, 20)
-                        .transition(.opacity.combined(with: .offset(y: 16)))
+                        .padding(.bottom, 16)
                 }
 
                 countView
-                    .padding(.bottom, 52)
+                    .padding(.bottom, 56)
             }
         }
-        .animation(.spring(response: 0.6, dampingFraction: 0.82), value: viewModel.phase == .done)
-        .animation(.easeOut(duration: 0.5), value: viewModel.newGeneratedRoutines.count)
-        .animation(.easeInOut(duration: 0.4), value: viewModel.allAnswered)
-        .task { await viewModel.start() }
+        .task(id: viewModel.phase) { await viewModel.start() }
     }
 }
 
@@ -105,9 +82,9 @@ extension AIGenerationView {
                 StatusDot(isDone: viewModel.isGenerationDone)
 
                 Text(viewModel.statusLabel)
-                    .font(.system(size: 9, weight: .ultraLight))
-                    .tracking(3)
-                    .foregroundStyle(.white.opacity(0.25))
+                    .font(.system(size: 8, weight: .ultraLight))
+                    .tracking(4)
+                    .foregroundStyle(.white.opacity(0.2))
                     .contentTransition(.opacity)
                     .animation(.easeInOut(duration: 0.4), value: viewModel.statusLabel)
             }
@@ -120,89 +97,46 @@ extension AIGenerationView {
 extension AIGenerationView {
 
     private var questionPanel: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 32) {
 
             aiMessageHeader
-                .padding(.horizontal, 20)
-                .padding(.vertical, 18)
-
-            Rectangle()
-                .fill(.white.opacity(0.05))
-                .frame(height: 0.5)
 
             ForEach(
                 Array(viewModel.questions.prefix(viewModel.visibleQuestionCount).enumerated()),
                 id: \.element.id
             ) { i, question in
                 questionRow(question: question, index: i)
-
-                if i < min(viewModel.visibleQuestionCount, viewModel.questions.count) - 1 {
-                    Rectangle()
-                        .fill(.white.opacity(0.05))
-                        .frame(height: 0.5)
-                        .padding(.leading, 20)
-                }
             }
         }
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.white.opacity(0.025))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(.white.opacity(0.07), lineWidth: 0.5)
-                )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            ShimmerOverlay(isActive: viewModel.questionPhase == .loading || viewModel.questionPhase == .transitioning)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-        )
     }
 
     private var aiMessageHeader: some View {
-        HStack(alignment: .top, spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(.white.opacity(0.04))
-                    .overlay(Circle().stroke(.white.opacity(0.1), lineWidth: 0.5))
-                    .frame(width: 28, height: 28)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("FORMA AI")
+                .font(.system(size: 7, weight: .ultraLight))
+                .tracking(4)
+                .foregroundStyle(.white.opacity(0.15))
 
-                Image(systemName: "sparkles")
-                    .font(.system(size: 11, weight: .ultraLight))
-                    .foregroundStyle(.white.opacity(0.4))
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("FORMA AI")
-                    .font(.system(size: 8, weight: .ultraLight))
-                    .tracking(3)
-                    .foregroundStyle(.white.opacity(0.2))
-
-                Text(viewModel.aiMessage)
-                    .font(.system(size: 12, weight: .ultraLight))
-                    .foregroundStyle(.white.opacity(0.55))
-                    .lineSpacing(4)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer()
+            Text(viewModel.aiMessage)
+                .font(.system(size: 14, weight: .ultraLight))
+                .foregroundStyle(.white.opacity(0.5))
+                .lineSpacing(5)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     private func questionRow(question: AIQuestion, index: Int) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline, spacing: 10) {
-                Text(String(format: "%02d", index + 1))
-                    .font(.system(size: 9, weight: .ultraLight))
-                    .tracking(2)
-                    .foregroundStyle(.white.opacity(0.15))
+        VStack(alignment: .leading, spacing: 14) {
+            Text(String(format: "%02d", index + 1))
+                .font(.system(size: 8, weight: .ultraLight))
+                .tracking(3)
+                .foregroundStyle(.white.opacity(0.1))
 
-                Text(question.text)
-                    .font(.system(size: 13, weight: .ultraLight))
-                    .foregroundStyle(.white.opacity(0.72))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineSpacing(3)
-            }
+            Text(question.text)
+                .font(.system(size: 16, weight: .ultraLight))
+                .foregroundStyle(.white.opacity(0.7))
+                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(4)
 
             AIQuestionRenderer(
                 question: question,
@@ -211,8 +145,6 @@ extension AIGenerationView {
                 accent: AppColor.accentPrimary
             )
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
     }
 }
 
@@ -236,48 +168,30 @@ extension AIGenerationView {
 
                 if index < viewModel.newGeneratedRoutines.count - 1 {
                     Rectangle()
-                        .fill(.white.opacity(0.05))
+                        .fill(.white.opacity(0.04))
                         .frame(height: 0.5)
-                        .padding(.leading, 52)
+                        .padding(.leading, 48)
                 }
             }
         }
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.white.opacity(0.025))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(.white.opacity(0.07), lineWidth: 0.5)
-                )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            ShimmerOverlay(isActive: viewModel.phase != .done)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-        )
     }
 
     private func routineRow(routine: RoutineBlock, index: Int) -> some View {
-        HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 1)
-                .fill(Color(uiColor: UIColor(hex: routine.accentColor)).opacity(0.75))
-                .frame(width: 2, height: 22)
-                .padding(.leading, 20)
-
+        HStack(spacing: 14) {
             Text(routine.icon)
-                .font(.system(size: 16))
-                .frame(width: 24)
+                .font(.system(size: 18))
+                .frame(width: 28)
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(routine.title)
-                    .font(.system(size: 13, weight: .ultraLight))
-                    .foregroundStyle(.white.opacity(0.82))
+                    .font(.system(size: 14, weight: .ultraLight))
+                    .foregroundStyle(.white.opacity(0.8))
                     .lineLimit(1)
 
                 Text("\(routine.startTime) – \(routine.endTime)")
                     .font(.system(size: 10, weight: .ultraLight))
-                    .tracking(0.3)
-                    .foregroundStyle(.white.opacity(0.22))
+                    .tracking(0.5)
+                    .foregroundStyle(.white.opacity(0.2))
             }
 
             Spacer()
@@ -285,10 +199,9 @@ extension AIGenerationView {
             Text("\(routine.tasks.count)")
                 .font(.system(size: 9, weight: .ultraLight))
                 .tracking(1)
-                .foregroundStyle(.white.opacity(0.15))
-                .padding(.trailing, 20)
+                .foregroundStyle(.white.opacity(0.12))
         }
-        .frame(height: 58)
+        .frame(height: 56)
         .contentShape(Rectangle())
     }
 }
@@ -310,7 +223,7 @@ extension AIGenerationView {
                     } else {
                         countNumber(
                             value: viewModel.answeredCount,
-                            label: viewModel.answeredCount == 1 ? "answered" : "answered"
+                            label: "answered"
                         )
                     }
 
@@ -333,12 +246,12 @@ extension AIGenerationView {
             Group {
                 if viewModel.isGenerationDone || (viewModel.questionPhase == .asking && viewModel.allAnswered) {
                     Rectangle()
-                        .fill(.white.opacity(0.14))
-                        .frame(width: 16, height: 0.5)
+                        .fill(.white.opacity(0.1))
+                        .frame(width: 12, height: 0.5)
                         .transition(.opacity)
                 } else {
                     BreathingLineView()
-                        .frame(width: 24, height: 1)
+                        .frame(width: 20, height: 1)
                 }
             }
             .padding(.top, 16)
@@ -347,15 +260,15 @@ extension AIGenerationView {
     }
 
     private func placeholderText(_ line1: String, _ line2: String) -> some View {
-        VStack(spacing: 5) {
+        VStack(spacing: 4) {
             Text(line1)
-                .font(.system(size: 12, weight: .ultraLight))
-                .tracking(3)
-                .foregroundStyle(.white.opacity(0.28))
+                .font(.system(size: 10, weight: .ultraLight))
+                .tracking(4)
+                .foregroundStyle(.white.opacity(0.2))
             Text(line2)
-                .font(.system(size: 12, weight: .ultraLight))
-                .tracking(3)
-                .foregroundStyle(.white.opacity(0.28))
+                .font(.system(size: 10, weight: .ultraLight))
+                .tracking(4)
+                .foregroundStyle(.white.opacity(0.2))
         }
         .transition(.opacity)
     }
@@ -363,16 +276,16 @@ extension AIGenerationView {
     private func countNumber(value: Int, label: String) -> some View {
         VStack(spacing: 4) {
             Text("\(value)")
-                .font(.system(size: 72, weight: .thin))
-                .tracking(-4)
-                .foregroundStyle(.white.opacity(0.88))
+                .font(.system(size: 64, weight: .thin))
+                .tracking(-3)
+                .foregroundStyle(.white.opacity(0.85))
                 .contentTransition(.numericText())
                 .animation(.spring(response: 0.5, dampingFraction: 0.75), value: value)
 
             Text(label)
-                .font(.system(size: 9, weight: .ultraLight))
+                .font(.system(size: 8, weight: .ultraLight))
                 .tracking(5)
-                .foregroundStyle(.white.opacity(0.16))
+                .foregroundStyle(.white.opacity(0.15))
         }
         .transition(.opacity.combined(with: .scale(scale: 0.96)))
     }
@@ -406,30 +319,22 @@ extension AIGenerationView {
     private func buttonLabel(_ title: String) -> some View {
         HStack(spacing: 12) {
             Text(title)
-                .font(.system(size: 12, weight: .ultraLight))
-                .tracking(3)
-                .foregroundStyle(.white.opacity(0.82))
+                .font(.system(size: 11, weight: .ultraLight))
+                .tracking(4)
+                .foregroundStyle(.white.opacity(0.8))
 
             Image(systemName: "arrow.right")
-                .font(.system(size: 10, weight: .ultraLight))
-                .foregroundStyle(.white.opacity(0.3))
+                .font(.system(size: 9, weight: .ultraLight))
+                .foregroundStyle(.white.opacity(0.25))
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 52)
+        .frame(height: 50)
         .background(
-            RoundedRectangle(cornerRadius: 26)
-                .fill(.white.opacity(0.05))
+            RoundedRectangle(cornerRadius: 25)
+                .fill(.white.opacity(0.04))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 26)
-                        .fill(LinearGradient(
-                            colors: [.white.opacity(0.055), .clear],
-                            startPoint: .top,
-                            endPoint: .center
-                        ))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 26)
-                        .stroke(.white.opacity(0.09), lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: 25)
+                        .stroke(.white.opacity(0.07), lineWidth: 0.5)
                 )
         )
     }

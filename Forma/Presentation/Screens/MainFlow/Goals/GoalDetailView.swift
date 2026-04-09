@@ -34,7 +34,7 @@ struct GoalDetailView: View {
 
     var body: some View {
         ZStack {
-            Color.backgroundPrimary.ignoresSafeArea()
+            AppColor.background.ignoresSafeArea()
             GrainOverlay().ignoresSafeArea().allowsHitTesting(false)
             ambientGlow.ignoresSafeArea().allowsHitTesting(false)
 

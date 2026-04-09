@@ -21,8 +21,8 @@ final class RoutineTaskCell: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 8
         button.layer.borderWidth = 2
-        button.layer.borderColor = UIColor.textSecondary.withAlphaComponent(0.3).cgColor
-        button.backgroundColor = .backgroundSecondary
+        button.layer.borderColor = UIColor.adaptiveTextSecondary.withAlphaComponent(0.3).cgColor
+        button.backgroundColor = .adaptiveBackgroundSecondary
         button.addTarget(self, action: #selector(checkboxTapped), for: .touchUpInside)
         return button
     }()
@@ -33,7 +33,7 @@ final class RoutineTaskCell: UIView {
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 8
         imageView.clipsToBounds = true
-        imageView.backgroundColor = .backgroundSecondary
+        imageView.backgroundColor = .adaptiveBackgroundSecondary
         return imageView
     }()
     
@@ -49,7 +49,7 @@ final class RoutineTaskCell: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .typography(.bodyLarge)
-        label.textColor = .textPrimary
+        label.textColor = .adaptiveTextPrimary
         return label
     }()
     
@@ -57,7 +57,7 @@ final class RoutineTaskCell: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .typography(.caption)
-        label.textColor = .textSecondary
+        label.textColor = .adaptiveTextSecondary
         return label
     }()
     
@@ -127,8 +127,8 @@ final class RoutineTaskCell: UIView {
     private func updateCheckboxState(animated: Bool) {
         let update = {
             if self.task.state == .completed {
-                self.checkboxButton.backgroundColor = .accent
-                self.checkboxButton.layer.borderColor = UIColor.accent.cgColor
+                self.checkboxButton.backgroundColor = .adaptiveAccent
+                self.checkboxButton.layer.borderColor = UIColor.adaptiveAccent.cgColor
                 
                 let checkmark = UIImageView(image: UIImage(systemName: "checkmark"))
                 checkmark.tintColor = .white
@@ -141,8 +141,8 @@ final class RoutineTaskCell: UIView {
                 self.titleLabel.alpha = 0.5
                 self.iconImageView.alpha = 0.5
             } else {
-                self.checkboxButton.backgroundColor = .backgroundSecondary
-                self.checkboxButton.layer.borderColor = UIColor.textSecondary.withAlphaComponent(0.3).cgColor
+                self.checkboxButton.backgroundColor = .adaptiveBackgroundSecondary
+                self.checkboxButton.layer.borderColor = UIColor.adaptiveTextSecondary.withAlphaComponent(0.3).cgColor
                 self.checkboxButton.viewWithTag(999)?.removeFromSuperview()
                 
                 self.titleLabel.alpha = 1.0

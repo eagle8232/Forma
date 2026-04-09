@@ -16,7 +16,7 @@ struct GoalsListView: View {
 
     var body: some View {
         ZStack {
-            Color.backgroundPrimary.ignoresSafeArea()
+            AppColor.background.ignoresSafeArea()
             GrainOverlay().ignoresSafeArea().allowsHitTesting(false)
 
             ScrollView(showsIndicators: false) {

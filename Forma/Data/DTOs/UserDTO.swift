@@ -17,14 +17,13 @@ struct UserPreferencesDTO: Codable {
     var wakeUpTime: Date?
     var focusTime: Date?
     var goal: [String]?
-    var prayerFrequency: String?
     var workStyle: String?
     var exerciseTime: String?
     var lunchBreak: String?
     var additionalContext: String?
     
     enum CodingKeys: String, CodingKey {
-        case profession, sleepTime, wakeUpTime, focusTime, goal, prayerFrequency, workStyle, exerciseTime, lunchBreak, additionalContext
+        case profession, sleepTime, wakeUpTime, focusTime, goal, workStyle, exerciseTime, lunchBreak, additionalContext
     }
 }
 

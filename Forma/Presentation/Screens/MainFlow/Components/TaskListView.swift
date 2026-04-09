@@ -138,8 +138,8 @@ private struct TaskListRow: View {
                     .tracking(AppTracking.body)
                     .foregroundStyle(
                         isCompleted
-                        ? AppColor.textDisabled.opacity(0.6)
-                        : AppColor.textTertiary
+                        ? AppColor.textMuted
+                        : AppColor.textSecondary
                     )
             }
 
@@ -148,17 +148,17 @@ private struct TaskListRow: View {
             // ── Duration pill (upcoming only) ──
             if !isCompleted {
                 Text(durationLabel)
-                    .customFont(.microTracked)
+                    .customFont(.caption)
                     .tracking(AppTracking.microLabel)
-                    .foregroundStyle(accent.opacity(AppOpacity.accentIcon))
+                    .foregroundStyle(accent)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(
                         RoundedRectangle(cornerRadius: AppRadius.tag)
-                            .fill(accent.opacity(AppOpacity.accentSubtle))
+                            .fill(accent.opacity(0.2))
                             .overlay(
                                 RoundedRectangle(cornerRadius: AppRadius.tag)
-                                    .stroke(accent.opacity(0.14), lineWidth: AppSize.hairline)
+                                    .stroke(accent.opacity(0.3), lineWidth: AppSize.hairline)
                             )
                     )
             }
@@ -179,24 +179,23 @@ private struct TaskListRow: View {
             Circle()
                 .stroke(
                     isCompleted
-                    ? accent.opacity(0.22)
-                    : accent.opacity(0.35),
-                    lineWidth: AppSize.hairline
+                    ? accent.opacity(0.5)
+                    : accent.opacity(0.7),
+                    lineWidth: 1.5
                 )
                 .frame(width: 22, height: 22)
                 .background(
                     Circle()
-                        .fill(isCompleted ? accent.opacity(0.08) : .clear)
+                        .fill(isCompleted ? accent.opacity(0.2) : .clear)
                 )
 
             if isCompleted {
-                // Checkmark
                 Path { p in
                     p.move(to:    CGPoint(x: 6.5, y: 11))
                     p.addLine(to: CGPoint(x: 9.5, y: 14))
                     p.addLine(to: CGPoint(x: 15.5, y: 8))
                 }
-                .stroke(accent.opacity(0.6), style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round))
+                .stroke(accent, style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
                 .frame(width: 22, height: 22)
             }
         }
@@ -249,6 +248,10 @@ private struct ActionButton: View {
     let action: () -> Void
 
     @State private var pressing = false
+    
+    private var iconColor: Color {
+        Color.adaptive(dark: .white.opacity(pressing ? 0.6 : 0.38), light: Color.black.opacity(pressing ? 0.5 : 0.3))
+    }
 
     var body: some View {
         Button(action: action) {
@@ -268,7 +271,7 @@ private struct ActionButton: View {
 
                     Image(systemName: icon)
                         .font(.system(size: AppSize.iconMd, weight: .ultraLight))
-                        .foregroundStyle(.white.opacity(pressing ? 0.6 : 0.38))
+                        .foregroundStyle(iconColor)
                 }
 
                 Text(label)

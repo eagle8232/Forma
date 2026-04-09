@@ -36,4 +36,16 @@ final class RoutineRepository: RoutineRepositoryProtocol {
             .collection(FirestorePathNames.routines.rawValue)
             .document(routine.id).delete()
     }
+    
+    func deleteAllRoutines(userId: String) async throws {
+        let snap = try await db
+            .collection(FirestorePathNames.users.rawValue)
+            .document(userId)
+            .collection(FirestorePathNames.routines.rawValue)
+            .getDocuments()
+        
+        for document in snap.documents {
+            try await document.reference.delete()
+        }
+    }
 }

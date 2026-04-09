@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-// MARK: - AIQuestionRenderer
-// Takes an AIQuestion and renders the correct SwiftUI control.
-// Completely decoupled from where it's used — works in onboarding, genie, chat.
-
 struct AIQuestionRenderer: View {
 
     let question: AIQuestion
@@ -19,50 +15,28 @@ struct AIQuestionRenderer: View {
     var accent:   Color = AppColor.accentPrimary
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-
-            // ── Question text + index ──
-            questionHeader
-
-            // ── Options — layout depends on type ──
+        VStack(alignment: .leading, spacing: 12) {
             switch question.type {
             case .yesNo:
                 yesNoRow
 
             case .singleChoice:
                 if question.options.count <= 3 {
-                    pillRow            // horizontal pills for short lists
+                    pillRow
                 } else {
-                    optionList         // vertical list for longer lists
+                    optionList
                 }
 
             case .multiChoice:
-                optionList             // always vertical for multi-select
+                optionList
             }
-        }
-    }
-
-    // MARK: - Header
-
-    private var questionHeader: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 10) {
-            Text(String(format: "%02d", index))
-                .font(.system(size: 9, weight: .ultraLight))
-                .tracking(2)
-                .foregroundStyle(.white.opacity(0.15))
-
-            Text(question.text)
-                .customFont(.bodySmall)
-                .foregroundStyle(.white.opacity(0.75))
-                .fixedSize(horizontal: false, vertical: true)
-                .lineSpacing(3)
         }
     }
 
     // MARK: - Yes / No
 
     private var yesNoRow: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 10) {
             ForEach(question.options) { option in
                 optionPill(option)
             }
@@ -74,7 +48,7 @@ struct AIQuestionRenderer: View {
 
     private var pillRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 ForEach(question.options) { option in
                     optionPill(option)
                 }
@@ -85,7 +59,7 @@ struct AIQuestionRenderer: View {
     // MARK: - Vertical list (>3 options or multi-select)
 
     private var optionList: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             ForEach(question.options) { option in
                 optionRow(option)
             }
@@ -98,34 +72,27 @@ struct AIQuestionRenderer: View {
         let selected = isSelected(option)
 
         return Button(action: { toggle(option) }) {
-            HStack(spacing: 5) {
+            HStack(spacing: 6) {
                 if let emoji = option.emoji {
                     Text(emoji)
-                        .font(.system(size: 12))
+                        .font(.system(size: 13))
                 }
                 Text(option.label)
-                    .customFont(.microTracked)
-                    .tracking(AppTracking.body)
+                    .font(.system(size: 11, weight: selected ? .medium : .ultraLight))
+                    .tracking(1)
                     .foregroundStyle(
                         selected
-                        ? accent.opacity(0.9)
-                        : .white.opacity(0.38)
+                        ? .white.opacity(0.85)
+                        : .white.opacity(0.35)
                     )
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
             .background(
                 Capsule()
-                    .fill(selected ? accent.opacity(0.1) : .white.opacity(0.04))
-                    .overlay(
-                        Capsule()
-                            .stroke(
-                                selected ? accent.opacity(0.35) : .white.opacity(0.07),
-                                lineWidth: AppSize.hairline
-                            )
-                    )
+                    .fill(selected ? .white.opacity(0.08) : .white.opacity(0.02))
             )
-            .animation(AppAnimation.springFast, value: selected)
+            .animation(.easeInOut(duration: 0.2), value: selected)
         }
         .buttonStyle(.plain)
     }
@@ -136,57 +103,46 @@ struct AIQuestionRenderer: View {
         let selected = isSelected(option)
 
         return Button(action: { toggle(option) }) {
-            HStack(spacing: 12) {
+            HStack(spacing: 14) {
                 if let emoji = option.emoji {
                     Text(emoji)
-                        .font(.system(size: 14))
+                        .font(.system(size: 16))
                 }
 
                 Text(option.label)
-                    .customFont(.label)
+                    .font(.system(size: 14, weight: selected ? .medium : .ultraLight))
                     .foregroundStyle(
                         selected
                         ? .white.opacity(0.85)
-                        : .white.opacity(0.45)
+                        : .white.opacity(0.4)
                     )
 
                 Spacer()
 
-                // Checkmark indicator
-                ZStack {
+                if selected {
                     Circle()
-                        .fill(selected ? accent.opacity(0.15) : .clear)
+                        .fill(.white.opacity(0.08))
+                        .frame(width: 20, height: 20)
                         .overlay(
-                            Circle()
-                                .stroke(
-                                    selected ? accent.opacity(0.5) : .white.opacity(0.1),
-                                    lineWidth: AppSize.hairline
-                                )
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.7))
                         )
-                        .frame(width: 18, height: 18)
-
-                    if selected {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 8, weight: .light))
-                            .foregroundStyle(accent.opacity(0.85))
-                    }
+                } else {
+                    Circle()
+                        .stroke(.white.opacity(0.08), lineWidth: 0.5)
+                        .frame(width: 20, height: 20)
                 }
-                .animation(AppAnimation.springFast, value: selected)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
             .padding(.horizontal, 16)
-            .padding(.vertical, 13)
             .background(
-                RoundedRectangle(cornerRadius: AppRadius.card)
-                    .fill(selected ? accent.opacity(0.07) : .white.opacity(0.025))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppRadius.card)
-                            .stroke(
-                                selected ? accent.opacity(0.25) : .white.opacity(0.06),
-                                lineWidth: AppSize.hairline
-                            )
-                    )
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(selected ? .white.opacity(0.05) : .white.opacity(0.015))
             )
-            .animation(AppAnimation.springFast, value: selected)
+            .contentShape(Rectangle())
+            .animation(.easeInOut(duration: 0.2), value: selected)
         }
         .buttonStyle(.plain)
     }
@@ -200,7 +156,6 @@ struct AIQuestionRenderer: View {
     private func toggle(_ option: AIQuestionOption) {
         switch question.type {
         case .singleChoice, .yesNo:
-            // Replace selection
             answer = AIAnswer(
                 questionId:     question.id,
                 selectedIds:    [option.id],
@@ -208,7 +163,6 @@ struct AIQuestionRenderer: View {
             )
 
         case .multiChoice:
-            // Toggle in/out
             var ids    = answer.selectedIds
             var labels = answer.selectedLabels
             if let i = ids.firstIndex(of: option.id) {

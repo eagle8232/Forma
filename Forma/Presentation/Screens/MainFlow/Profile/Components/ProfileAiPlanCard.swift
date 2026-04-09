@@ -29,7 +29,7 @@ struct ProfileAIPlanCard: View {
                             .fill(
                                 LinearGradient(
                                     colors: [
-                                        AppColor.gold.opacity(0.2),
+                                        AppColor.accent.opacity(0.2),
                                         AppColor.accent.opacity(0.15)
                                     ],
                                     startPoint: .topLeading,
@@ -38,7 +38,7 @@ struct ProfileAIPlanCard: View {
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(AppColor.gold.opacity(0.2), lineWidth: 1)
+                                    .stroke(AppColor.accent.opacity(0.2), lineWidth: 1)
                             )
                             .frame(width: 44, height: 44)
 
@@ -51,13 +51,13 @@ struct ProfileAIPlanCard: View {
                         Text("Forma AI".uppercased())
                             .font(AppFont.ui(9, weight: .regular))
                             .kerning(2.8)
-                            .foregroundColor(AppColor.gold)
+                            .foregroundColor(AppColor.accent)
 
                         Text("Pro Plan · Active")
                             .font(AppFont.ui(15, weight: .semibold))
                             .foregroundColor(AppColor.textPrimary)
 
-                        Text("Unlimited routines · Prayer sync · Insights")
+                        Text("Unlimited routines · AI insights · Priority support")
                             .font(AppFont.ui(11, weight: .light))
                             .foregroundColor(AppColor.textMuted)
                     }
@@ -86,10 +86,10 @@ struct ProfileAIPlanCard: View {
             .fill(
                 AngularGradient(
                     gradient: Gradient(stops: [
-                        .init(color: AppColor.gold.opacity(0.0), location: 0.0),
-                        .init(color: AppColor.gold.opacity(0.7), location: 0.25),
+                        .init(color: AppColor.accent.opacity(0.0), location: 0.0),
+                        .init(color: AppColor.accent.opacity(0.7), location: 0.25),
                         .init(color: AppColor.accent.opacity(0.6), location: 0.55),
-                        .init(color: AppColor.gold.opacity(0.0), location: 1.0),
+                        .init(color: AppColor.accent.opacity(0.0), location: 1.0),
                     ]),
                     center: .center,
                     startAngle: .degrees(isAnimating ? 360 : 0),

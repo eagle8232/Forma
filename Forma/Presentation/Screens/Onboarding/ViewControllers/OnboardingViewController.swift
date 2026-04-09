@@ -112,8 +112,8 @@ extension OnboardingViewController {
         gradientLayer = CAGradientLayer()
         gradientLayer.colors = [
             UIColor.clear.cgColor,
-            UIColor.backgroundPrimary.withAlphaComponent(0.85).cgColor,
-            UIColor.backgroundPrimary.cgColor
+            UIColor.adaptiveBackground.withAlphaComponent(0.85).cgColor,
+            UIColor.adaptiveBackground.cgColor
         ]
         gradientLayer.locations = [0.0, 0.4, 0.7, 1.0]
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
@@ -143,6 +143,7 @@ extension OnboardingViewController: OnboardingMainContentViewDelegate {
     }
     
     func didTapSignIn(_ view: OnboardingMainContentView) {
+        print("[OnboardingVC] didTapSignIn called")
         coordinator?.didTapSignIn()
     }
 }

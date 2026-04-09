@@ -13,6 +13,7 @@ enum AuthError: LocalizedError {
     case missingUserData
     case missingGoogleClientID
     case noPresentingViewController
+    case requiresReauthentication
 
     var errorDescription: String? {
         switch self {
@@ -21,6 +22,7 @@ enum AuthError: LocalizedError {
         case .missingUserData:       return "Your profile data is missing. Please restart the setup."
         case .missingGoogleClientID: return "Google Sign-In is not configured correctly."
         case .noPresentingViewController: return "Unable to present the sign-in screen."
+        case .requiresReauthentication: return "Please sign in again to delete your account."
         }
     }
 }

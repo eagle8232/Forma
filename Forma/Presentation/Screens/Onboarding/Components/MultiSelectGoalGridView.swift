@@ -28,7 +28,7 @@ final class MultiSelectGoalGridView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .typography(.caption)
-        label.textColor = .textSecondary
+        label.textColor = .adaptiveTextSecondary
         label.text = "Select up to \(maxSelections)"
         label.textAlignment = .right
         return label
@@ -161,13 +161,13 @@ final class MultiSelectGoalGridView: UIView {
         ) {
             if self.selectedGoals.isEmpty {
                 self.selectionCountLabel.text = "Select up to \(self.maxSelections)"
-                self.selectionCountLabel.textColor = .textSecondary
+                self.selectionCountLabel.textColor = .adaptiveTextSecondary
             } else if remaining == 0 {
                 self.selectionCountLabel.text = "✓ \(self.maxSelections) selected"
-                self.selectionCountLabel.textColor = .accent
+                self.selectionCountLabel.textColor = .adaptiveAccent
             } else {
                 self.selectionCountLabel.text = "\(self.selectedGoals.count) selected · \(remaining) remaining"
-                self.selectionCountLabel.textColor = .textSecondary
+                self.selectionCountLabel.textColor = .adaptiveTextSecondary
             }
         }
     }
